@@ -45,6 +45,13 @@ targets:
         UIRequiredDeviceCapabilities:
           - armv7
         ITSAppUsesNonExemptEncryption: false
+    entitlements:
+      path: WoodlandsEats/WoodlandsEats.entitlements
+      properties:
+        com.apple.developer.icloud-services:
+          - CloudKit
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.com.compofelice.WoodlandsEats
     settings:
       base:
         PRODUCT_NAME: WoodlandsEats
