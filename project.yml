@@ -1,0 +1,58 @@
+# XcodeGen project spec.
+# Generates WoodlandsEats.xcodeproj from this YAML.
+# Run `xcodegen generate` on any Mac (or in CI) to (re)create the project.
+# Why XcodeGen: keeps the project file out of git, lets you edit on Windows
+# without breaking pbxproj checksums, and makes CI trivial.
+
+name: WoodlandsEats
+
+options:
+  bundleIdPrefix: com.compofelice
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.10"
+    DEVELOPMENT_LANGUAGE: en
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+    # Silences the "Traditional headermap style is no longer supported" warning
+    ALWAYS_SEARCH_USER_PATHS: NO
+
+targets:
+  WoodlandsEats:
+    type: application
+    platform: iOS
+    sources:
+      - path: WoodlandsEats
+        excludes:
+          - "Info.plist"
+    info:
+      path: WoodlandsEats/Info.plist
+      properties:
+        CFBundleDisplayName: Woodlands Eats
+        CFBundleShortVersionString: "0.1"
+        CFBundleVersion: "1"
+        CFBundleIconName: AppIcon
+        UILaunchScreen:
+          UIColorName: ""
+        NSLocationWhenInUseUsageDescription: Used to show restaurants near you and sort by distance.
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIRequiredDeviceCapabilities:
+          - armv7
+        ITSAppUsesNonExemptEncryption: false
+    settings:
+      base:
+        PRODUCT_NAME: WoodlandsEats
+        PRODUCT_BUNDLE_IDENTIFIER: com.compofelice.WoodlandsEats
+        TARGETED_DEVICE_FAMILY: "1"
+        SUPPORTS_MACCATALYST: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        # CODE_SIGNING handled per-config (none in CI, manual on submit day)
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: 7H5T5AR2X5

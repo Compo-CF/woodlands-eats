@@ -1,0 +1,17 @@
+# XcodeGen output — regenerated from project.yml, never committed
+*.xcodeproj/
+
+# Xcode / macOS build artifacts
+DerivedData/
+build/
+*.xcuserstate
+xcuserdata/
+.DS_Store
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# CocoaPods / Carthage (unused, but ignored for safety)
+Pods/
+Carthage/Build/
