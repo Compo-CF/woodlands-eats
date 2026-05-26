@@ -5,6 +5,7 @@ struct WoodlandsEatsApp: App {
     @State private var store = RestaurantStore()
     @State private var tierStore = TierListStore()
     @State private var locationManager = LocationManager()
+    @State private var cloudKit = CloudKitService()
 
     var body: some Scene {
         WindowGroup {
@@ -12,6 +13,7 @@ struct WoodlandsEatsApp: App {
                 .environment(store)
                 .environment(tierStore)
                 .environment(locationManager)
+                .environment(cloudKit)
                 .onChange(of: locationManager.location) { _, newValue in
                     store.userLocation = newValue
                 }

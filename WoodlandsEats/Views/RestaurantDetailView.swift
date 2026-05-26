@@ -3,13 +3,16 @@ import MapKit
 
 struct RestaurantDetailView: View {
     @Environment(TierListStore.self) private var tierStore
+    @Environment(CloudKitService.self) private var cloudKit
     let restaurant: Restaurant
+    @State private var community: CommunityTier?
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 header
                 rateSection
+                communitySection
                 if !restaurant.signatureDishes.isEmpty { dishesSection }
                 aboutSection
                 actionsSection
@@ -18,6 +21,25 @@ struct RestaurantDetailView: View {
         }
         .navigationTitle(restaurant.name)
         .navigationBarTitleDisplayMode(.inline)
+        .task {
+            community = await cloudKit.fetchCommunityTier(restaurantID: restaurant.id)
+        }
+    }
+
+    private func place(_ tier: Tier) {
+        tierStore.setTier(tier, for: restaurant.id)
+        Task {
+            await cloudKit.savePlacement(restaurantID: restaurant.id, tier: tier)
+            community = await cloudKit.fetchCommunityTier(restaurantID: restaurant.id)
+        }
+    }
+
+    private func clearPlacement() {
+        tierStore.removeTier(for: restaurant.id)
+        Task {
+            await cloudKit.removePlacement(restaurantID: restaurant.id)
+            community = await cloudKit.fetchCommunityTier(restaurantID: restaurant.id)
+        }
     }
 
     private var header: some View {
@@ -49,12 +71,31 @@ struct RestaurantDetailView: View {
             }
             TierPicker(
                 current: tierStore.tier(for: restaurant.id),
-                onSelect: { tierStore.setTier($0, for: restaurant.id) },
-                onClear: { tierStore.removeTier(for: restaurant.id) }
+                onSelect: { place($0) },
+                onClear: { clearPlacement() }
             )
         }
         .padding()
         .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16))
+    }
+
+    @ViewBuilder
+    private var communitySection: some View {
+        if let community {
+            HStack(spacing: 12) {
+                TierBadge(tier: community.tier, size: 40)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Community tier")
+                        .font(.headline)
+                    Text("\(community.count) ranked · avg \(String(format: "%.1f", community.average))")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+            }
+            .padding()
+            .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16))
+        }
     }
 
     private var dishesSection: some View {
