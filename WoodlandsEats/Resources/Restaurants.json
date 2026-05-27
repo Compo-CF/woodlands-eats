@@ -3573,8 +3573,8 @@
     {
       "id": "C1D2E3F4-0000-4000-A000-000000000024",
       "name": "Lupe Tortilla Mexican Restaurant",
-      "latitude": 30.1743,
-      "longitude": -95.45,
+      "latitude": 30.17431,
+      "longitude": -95.45002,
       "area": "shenandoah",
       "address": "19437 I-45 S, Shenandoah, TX 77385",
       "cuisines": ["texMex", "mexican"],
@@ -3903,8 +3903,8 @@
     {
       "id": "C1D2E3F4-0000-4000-A000-000000000049",
       "name": "Saltgrass Steak House",
-      "latitude": 30.179,
-      "longitude": -95.453,
+      "latitude": 30.17269,
+      "longitude": -95.45017,
       "area": "shenandoah",
       "address": "19533 Interstate 45 S, Shenandoah, TX 77385",
       "cuisines": ["steakhouse", "american"],
@@ -6603,8 +6603,8 @@
     {
       "id": "C1D2E3F4-0000-4000-A000-000000000011",
       "name": "Cyclone Anaya's Tex-Mex Kitchen",
-      "latitude": 30.16012,
-      "longitude": -95.4589,
+      "latitude": 30.16001,
+      "longitude": -95.45896,
       "area": "woodlands",
       "address": "20 Waterway Ave Ste 120, The Woodlands, TX 77380",
       "cuisines": ["texMex", "mexican"],
@@ -6738,7 +6738,7 @@
     {
       "id": "C1D2E3F4-0000-4000-A000-000000000046",
       "name": "Fogo de Chão",
-      "latitude": 30.17102,
+      "latitude": 30.17111,
       "longitude": -95.4716,
       "area": "woodlands",
       "address": "1900 Hughes Landing Blvd Ste 400, The Woodlands, TX 77380",
@@ -7098,7 +7098,7 @@
     {
       "id": "C1D2E3F4-0000-4000-A000-000000000021",
       "name": "Niko Niko's Greek & American Cafe",
-      "latitude": 30.17139,
+      "latitude": 30.17135,
       "longitude": -95.45233,
       "area": "woodlands",
       "address": "922 Lake Front Cir, The Woodlands, TX 77380",
@@ -7728,8 +7728,8 @@
     {
       "id": "C1D2E3F4-0000-4000-A000-000000000023",
       "name": "The Republic Grille",
-      "latitude": 30.16801,
-      "longitude": -95.50351,
+      "latitude": 30.16931,
+      "longitude": -95.5043,
       "area": "woodlands",
       "address": "4775 W Panther Creek Dr Ste 490, The Woodlands, TX 77381",
       "cuisines": ["american", "southern", "steakhouse"],
@@ -7743,8 +7743,8 @@
     {
       "id": "C1D2E3F4-0000-4000-A000-000000000019",
       "name": "The Toasted Yolk Cafe",
-      "latitude": 30.15835,
-      "longitude": -95.47281,
+      "latitude": 30.1583,
+      "longitude": -95.47289,
       "area": "woodlands",
       "address": "207 E Shore Dr, The Woodlands, TX 77380",
       "cuisines": ["breakfastBrunch", "american"],
@@ -7758,7 +7758,7 @@
     {
       "id": "C1D2E3F4-0000-4000-A000-000000000013",
       "name": "Tommy Bahama Restaurant & Bar",
-      "latitude": 30.1639,
+      "latitude": 30.16392,
       "longitude": -95.46294,
       "area": "woodlands",
       "address": "9595 Six Pines Dr Ste 700, The Woodlands, TX 77380",

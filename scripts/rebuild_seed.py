@@ -78,6 +78,29 @@ CUISINE_MAP = {
     "juice": "healthy", "smoothie": "healthy", "salad": "healthy",
     "vegetarian": "healthy", "vegan": "healthy", "healthy": "healthy",
 }
+# Permanently-closed / non-existent OSM ids (2026-05 verification pass) — never re-add.
+CLOSED_DENYLIST = {
+    "bcddecf2-7cae-587d-b18d-f470dc40692e", "f2db3d41-da7b-5817-9891-075dd411d457",
+    "98eef6e9-7062-53d0-bc32-db68a062b643", "6fc00f6b-205f-5f02-a759-2d92c2cab979",
+    "fc4480c6-5d8b-5140-9851-81bad7f8fe8f", "1c105cb6-8a65-58f8-8220-50c1ca58084e",
+    "12932c59-678d-56a2-be2f-57eb9cd7c2c4", "0ad16c94-2fb8-5346-8b9a-e1895fb18bbe",
+    "b2a5d81a-1234-545a-b42c-75d64380c9d1", "53a2cae4-2950-5fc1-9db8-7d53e803981d",
+    "2a497275-e086-56d1-b61e-ecf4d2a1248b", "f5d43282-31e8-5907-8ec2-1f6ec26b2f89",
+    "0c074afb-27b2-50ff-9e0e-a837a5db532f", "853afe7b-c11d-5298-82ee-f94b90fcb6ae",
+    "2bb59141-72a6-51e2-bc22-63668d03d48e", "0e06e387-eca7-5d11-a7bf-1b08a210a1b0",
+    "449fdfe2-f98a-56dd-8d9a-583753ea3c30", "45cdd31c-fc8b-528c-8026-1f160dc33543",
+    "ca203df6-9dea-5589-a3a3-aebe60db6f81", "2d91f0ee-5786-5593-b14d-a84e13864f2c",
+    "4fe1a2af-26b4-510e-a0db-00b083d21fbf", "08b305ae-599d-562b-bddc-a29aec83a620",
+    "4f7a2709-11fe-593b-9d32-f892576ef4e9", "3dcf318e-4ad5-5cf4-bd8f-3a51b050a813",
+    "c97bc326-1006-590b-8122-23124132c216", "fe43ed90-f96b-5ecb-8b37-2905a04563fc",
+    "6a3be9ea-a0f2-5f96-b4b7-032e30b6b96c", "41187a4f-1b5e-5f61-8031-98c113700f10",
+    "78190f5b-5351-585e-bc0d-b46f6d59fdc5", "0a1ae06f-6fa2-57eb-bc4d-453b328878b8",
+    "774bc6be-7f74-57d2-b156-cee6ee8dcda4", "48a93fd1-a6d7-53c0-b9dd-a13a8e675773",
+    "9968576d-6bca-5249-a16e-b0ed6d94248c", "273dfe41-23d9-5198-a24d-be2056e3b093",
+    "6b733629-ca79-54da-b15f-342dbbcf90d5", "6a5ec8e9-3bab-5701-9f4b-16d1abeea9f3",
+    "82a7f6ae-d5d3-5dd8-b5a5-2ac0c2ef4125", "db6c9d4a-e253-52c0-8316-b1f1070eb292",
+    "319dc5a9-3e50-5955-8403-ed23061f3cc0", "7044fbd0-f501-5bce-9b91-fc10bc9a401c",
+}
 AMENITY_DEFAULT = {"cafe": ["cafeBakery"], "ice_cream": ["dessert"], "pub": ["american"]}
 AMENITY_PRICE = {"fast_food": "$", "ice_cream": "$", "cafe": "$", "pub": "$$", "restaurant": "$$"}
 AMENITY_LABEL = {"restaurant": "restaurant", "fast_food": "quick-service spot",
@@ -157,14 +180,27 @@ def website(tags):
 
 
 def fetch_osm():
+    import time
     cond = '"amenity"~"^(restaurant|fast_food|cafe|ice_cream|food_court|pub)$"'
     s, w, n, e = BBOX
     q = (f"[out:json][timeout:120];(node[{cond}]({s},{w},{n},{e});"
          f"way[{cond}]({s},{w},{n},{e}););out center tags;")
-    req = urllib.request.Request("https://overpass-api.de/api/interpreter",
-                                 data=("data=" + urllib.parse.quote(q)).encode(),
-                                 headers={"User-Agent": "WoodlandsEats/1.0"})
-    return json.loads(urllib.request.urlopen(req, timeout=180).read())["elements"]
+    endpoints = [
+        "https://overpass-api.de/api/interpreter",
+        "https://overpass.kumi.systems/api/interpreter",
+        "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+    ]
+    last = None
+    for attempt in range(3):
+        for ep in endpoints:
+            try:
+                req = urllib.request.Request(ep, data=("data=" + urllib.parse.quote(q)).encode(),
+                                             headers={"User-Agent": "WoodlandsEats/1.0"})
+                return json.loads(urllib.request.urlopen(req, timeout=180).read())["elements"]
+            except Exception as ex:
+                last = ex
+                time.sleep(4)
+    raise last
 
 
 def osm_to_record(el):
@@ -231,6 +267,8 @@ def main():
         rec = osm_to_record(el)
         if not rec:
             continue
+        if rec["id"] in CLOSED_DENYLIST:      # known permanently-closed — skip
+            continue
         key = (norm(rec["name"]), round(rec["latitude"], 3), round(rec["longitude"], 3))
         if key in seen:
             continue
@@ -242,14 +280,18 @@ def main():
     keep = []
     for o in osm:
         on = norm(o["name"])
-        dup = False
+        matched = None
         for c in curated:
             cn = norm(c["name"])
             if len(cn) >= 4 and (cn in on or on in cn) and \
                haversine_mi(c["latitude"], c["longitude"], o["latitude"], o["longitude"]) < 0.7:
-                dup = True
+                matched = c
                 break
-        if dup:
+        if matched is not None:
+            # Adopt the OSM POI coordinate for the curated entry — it's placed on
+            # the restaurant, more accurate than the curated address geocode.
+            matched["latitude"] = o["latitude"]
+            matched["longitude"] = o["longitude"]
             merged_out += 1
         else:
             keep.append(o)
