@@ -71,7 +71,7 @@ struct ProfileView: View {
                                     }
                                     Spacer()
                                     Button("Approve") {
-                                        Task { _ = await cloudKit.approvePro(userID: req.userID); await reloadAdmin() }
+                                        Task { _ = await cloudKit.approvePro(userID: req.userID); await refreshAfterChange() }
                                     }
                                     .buttonStyle(.borderedProminent)
                                     .tint(.green)
@@ -88,7 +88,7 @@ struct ProfileView: View {
                                         .foregroundStyle(.orange)
                                     Spacer()
                                     Button("Revoke") {
-                                        Task { _ = await cloudKit.revokePro(userID: req.userID); await reloadAdmin() }
+                                        Task { _ = await cloudKit.revokePro(userID: req.userID); await refreshAfterChange() }
                                     }
                                     .buttonStyle(.bordered)
                                     .tint(.red)
@@ -133,6 +133,14 @@ struct ProfileView: View {
         let requests = await cloudKit.fetchProRequests()
         pending = requests.pending
         approvedPros = requests.approved
+    }
+
+    /// After an approve/revoke, refresh both the admin lists and my own status
+    /// (so approving yourself flips the top section to "You're a Foodie Pro").
+    private func refreshAfterChange() async {
+        let profile = await cloudKit.fetchMyProfile()
+        status = await cloudKit.amIApproved() ? "approved" : profile.status
+        await reloadAdmin()
     }
 
     private func save(requestingPro: Bool) async {

@@ -48,7 +48,7 @@ final class CloudKitService {
     private let profileType = "FoodieProfile"
     private let approvalType = "ProApproval"
     /// iCloud user record names allowed to approve Foodie Pros (shown on the Profile tab).
-    private let adminUserIDs: Set<String> = ["_e8b0bfe996b6e232421afa393ab8a3b"]
+    private let adminUserIDs: Set<String> = ["_e8b0bfe996b6e232421afac393ab8a3b"]
 
     /// Per-restaurant count of "permanently closed" reports; refreshed on launch
     /// and after a report toggle. Read by the list + map to flag closed spots.
