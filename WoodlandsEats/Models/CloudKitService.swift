@@ -17,6 +17,13 @@ struct DishPhoto: Identifiable {
     let imageData: Data
 }
 
+/// A user's Foodie Pro request (their FoodieProfile), for the admin approval UI.
+struct ProRequest: Identifiable {
+    let id: String          // FoodieProfile recordName
+    let displayName: String
+    let userID: String
+}
+
 /// Thin wrapper over the CloudKit public database for the crowdsourcing layer.
 ///
 /// Identity is implicit: CloudKit attributes each record to the signed-in iCloud
@@ -39,6 +46,9 @@ final class CloudKitService {
     private let placementType = "Placement"
     private let closureType = "ClosureReport"
     private let profileType = "FoodieProfile"
+    private let approvalType = "ProApproval"
+    /// iCloud user record names allowed to approve Foodie Pros (shown on the Profile tab).
+    private let adminUserIDs: Set<String> = ["_e8b0bfe996b6e232421afa393ab8a3b"]
 
     /// Per-restaurant count of "permanently closed" reports; refreshed on launch
     /// and after a report toggle. Read by the list + map to flag closed spots.
@@ -330,22 +340,33 @@ final class CloudKitService {
         }
     }
 
-    /// userIDs of all approved Foodie Pros (requires Queryable index on FoodieProfile.status).
+    /// userIDs of all approved Foodie Pros. Approvals are admin-owned `ProApproval`
+    /// records (a user can't write another user's FoodieProfile, so approval is a
+    /// separate record the admin creates). Requires recordName Queryable on ProApproval.
     private func fetchApprovedProIDs() async -> Set<String> {
         guard isAvailable else { return [] }
-        let query = CKQuery(recordType: profileType, predicate: NSPredicate(format: "status == %@", "approved"))
-        do {
-            let (results, _) = try await publicDB.records(matching: query, resultsLimit: 200)
-            var ids: Set<String> = []
-            for (_, result) in results {
+        var ids: Set<String> = []
+        func accumulate(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+            for (_, result) in matches {
                 if case .success(let rec) = result, let uid = rec["userID"] as? String {
                     ids.insert(uid)
                 }
             }
-            return ids
+        }
+        do {
+            let query = CKQuery(recordType: approvalType, predicate: NSPredicate(value: true))
+            var (matches, cursor) = try await publicDB.records(
+                matching: query, desiredKeys: ["userID"], resultsLimit: 200)
+            accumulate(matches)
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(
+                    continuingMatchFrom: c, desiredKeys: ["userID"], resultsLimit: 200)
+                accumulate(matches)
+            }
         } catch {
             return []
         }
+        return ids
     }
 
     /// Community consensus computed ONLY from approved Foodie Pros' placements.
@@ -388,5 +409,67 @@ final class CloudKitService {
             out[rid] = CommunityTier(tier: .from(averageScore: avg), count: agg.count, average: avg)
         }
         return out
+    }
+
+    // MARK: - Admin (Foodie Pro approval)
+
+    func isAdmin() async -> Bool {
+        guard let uid = await userRecordName() else { return false }
+        return adminUserIDs.contains(uid)
+    }
+
+    /// Whether the current user has been approved (has a ProApproval record).
+    func amIApproved() async -> Bool {
+        guard isAvailable, let user = await userRecordName() else { return false }
+        return (try? await publicDB.record(for: CKRecord.ID(recordName: "approval_\(user)"))) != nil
+    }
+
+    /// Admin: everyone who requested, split into pending vs. already-approved.
+    func fetchProRequests() async -> (pending: [ProRequest], approved: [ProRequest]) {
+        guard isAvailable else { return ([], []) }
+        let approvedIDs = await fetchApprovedProIDs()
+        let query = CKQuery(recordType: profileType, predicate: NSPredicate(format: "status == %@", "requested"))
+        do {
+            let (results, _) = try await publicDB.records(matching: query, resultsLimit: 200)
+            var pending: [ProRequest] = []
+            var approved: [ProRequest] = []
+            for (id, result) in results {
+                guard case .success(let rec) = result else { continue }
+                let uid = rec["userID"] as? String ?? ""
+                let req = ProRequest(id: id.recordName,
+                                     displayName: rec["displayName"] as? String ?? "",
+                                     userID: uid)
+                if approvedIDs.contains(uid) { approved.append(req) } else { pending.append(req) }
+            }
+            return (pending, approved)
+        } catch {
+            return ([], [])
+        }
+    }
+
+    /// Admin: approve a user — creates an admin-owned ProApproval record.
+    func approvePro(userID: String) async -> Bool {
+        guard isAvailable, !userID.isEmpty else { return false }
+        let rec = CKRecord(recordType: approvalType,
+                           recordID: CKRecord.ID(recordName: "approval_\(userID)"))
+        rec["userID"] = userID as CKRecordValue
+        do {
+            _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    /// Admin: revoke — deletes the ProApproval record.
+    func revokePro(userID: String) async -> Bool {
+        guard isAvailable, !userID.isEmpty else { return false }
+        do {
+            _ = try await publicDB.modifyRecords(
+                saving: [], deleting: [CKRecord.ID(recordName: "approval_\(userID)")], savePolicy: .allKeys)
+            return true
+        } catch {
+            return false
+        }
     }
 }

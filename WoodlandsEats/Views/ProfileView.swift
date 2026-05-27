@@ -1,9 +1,9 @@
 import SwiftUI
 
-/// Profile + Foodie Pro request. Identity is the implicit iCloud account; the
-/// display name is self-entered (no Sign in with Apple yet). Requesting Pro sets
-/// the profile status to "requested"; an admin approves it (manually in the
-/// CloudKit console for now). Approved Pros power the Pros leaderboard.
+/// Profile + Foodie Pro request, and (for admins) in-app approval.
+/// Identity is the implicit iCloud account; the display name is self-entered.
+/// Approval is an admin-owned `ProApproval` record (a user can't edit another
+/// user's FoodieProfile in the public DB), so approving is admin-gated.
 struct ProfileView: View {
     @Environment(CloudKitService.self) private var cloudKit
     @State private var displayName = ""
@@ -11,6 +11,9 @@ struct ProfileView: View {
     @State private var userID = ""
     @State private var loading = true
     @State private var saving = false
+    @State private var isAdmin = false
+    @State private var pending: [ProRequest] = []
+    @State private var approvedPros: [ProRequest] = []
 
     private var nameEmpty: Bool {
         displayName.trimmingCharacters(in: .whitespaces).isEmpty
@@ -52,10 +55,53 @@ struct ProfileView: View {
                     }
                 }
 
+                if isAdmin {
+                    Section(header: Text("Pending Pro requests")) {
+                        if pending.isEmpty {
+                            Text("No pending requests").foregroundStyle(.secondary)
+                        } else {
+                            ForEach(pending) { req in
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(req.displayName.isEmpty ? "(no name)" : req.displayName)
+                                        Text(req.userID)
+                                            .font(.caption2.monospaced())
+                                            .foregroundStyle(.secondary)
+                                            .lineLimit(1)
+                                    }
+                                    Spacer()
+                                    Button("Approve") {
+                                        Task { _ = await cloudKit.approvePro(userID: req.userID); await reloadAdmin() }
+                                    }
+                                    .buttonStyle(.borderedProminent)
+                                    .tint(.green)
+                                }
+                            }
+                        }
+                    }
+                    if !approvedPros.isEmpty {
+                        Section(header: Text("Foodie Pros")) {
+                            ForEach(approvedPros) { req in
+                                HStack {
+                                    Label(req.displayName.isEmpty ? "(no name)" : req.displayName,
+                                          systemImage: "star.fill")
+                                        .foregroundStyle(.orange)
+                                    Spacer()
+                                    Button("Revoke") {
+                                        Task { _ = await cloudKit.revokePro(userID: req.userID); await reloadAdmin() }
+                                    }
+                                    .buttonStyle(.bordered)
+                                    .tint(.red)
+                                }
+                            }
+                        }
+                    }
+                }
+
                 if !userID.isEmpty {
                     Section(
                         header: Text("Your iCloud ID"),
-                        footer: Text("Used to attribute your rankings. (For admin setup.)")
+                        footer: Text("Used to attribute your rankings.")
                     ) {
                         Text(userID)
                             .font(.caption.monospaced())
@@ -77,8 +123,16 @@ struct ProfileView: View {
         userID = await cloudKit.currentUserID() ?? ""
         let profile = await cloudKit.fetchMyProfile()
         displayName = profile.displayName
-        status = profile.status
+        status = await cloudKit.amIApproved() ? "approved" : profile.status
+        isAdmin = await cloudKit.isAdmin()
+        if isAdmin { await reloadAdmin() }
         loading = false
+    }
+
+    private func reloadAdmin() async {
+        let requests = await cloudKit.fetchProRequests()
+        pending = requests.pending
+        approvedPros = requests.approved
     }
 
     private func save(requestingPro: Bool) async {
@@ -86,7 +140,7 @@ struct ProfileView: View {
         _ = await cloudKit.saveProfile(displayName: displayName, requestingPro: requestingPro)
         let profile = await cloudKit.fetchMyProfile()
         displayName = profile.displayName
-        status = profile.status
+        status = await cloudKit.amIApproved() ? "approved" : profile.status
         saving = false
     }
 }
