@@ -4,6 +4,7 @@ import CoreLocation
 struct RestaurantRow: View {
     @Environment(RestaurantStore.self) private var store
     @Environment(TierListStore.self) private var tierStore
+    @Environment(CloudKitService.self) private var cloudKit
     let restaurant: Restaurant
 
     var body: some View {
@@ -11,6 +12,12 @@ struct RestaurantRow: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(restaurant.name)
                     .font(.headline)
+                    .strikethrough(isClosed, color: .red)
+                if isClosed {
+                    Text("Reported closed")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(.red)
+                }
                 Text(restaurant.cuisineSummary)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -33,6 +40,10 @@ struct RestaurantRow: View {
             }
         }
         .padding(.vertical, 4)
+    }
+
+    private var isClosed: Bool {
+        (cloudKit.closureCounts[restaurant.id] ?? 0) > 0
     }
 
     private var distanceText: String? {

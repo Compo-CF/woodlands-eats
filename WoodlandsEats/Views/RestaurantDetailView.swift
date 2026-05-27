@@ -11,10 +11,13 @@ struct RestaurantDetailView: View {
     @State private var dishPhotos: [DishPhoto] = []
     @State private var pickerItem: PhotosPickerItem?
     @State private var isUploading = false
+    @State private var closureCount = 0
+    @State private var reportedByMe = false
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                if closureCount > 0 { closedBanner }
                 header
                 rateSection
                 communitySection
@@ -22,6 +25,7 @@ struct RestaurantDetailView: View {
                 if !restaurant.signatureDishes.isEmpty { dishesSection }
                 aboutSection
                 actionsSection
+                closedReportButton
             }
             .padding()
         }
@@ -30,6 +34,9 @@ struct RestaurantDetailView: View {
         .task {
             community = await cloudKit.fetchCommunityTier(restaurantID: restaurant.id)
             dishPhotos = await cloudKit.fetchDishPhotos(restaurantID: restaurant.id)
+            let closure = await cloudKit.fetchClosureInfo(restaurantID: restaurant.id)
+            closureCount = closure.count
+            reportedByMe = closure.reportedByMe
         }
         .onChange(of: pickerItem) { _, item in
             Task { await handlePick(item) }
@@ -236,6 +243,42 @@ struct RestaurantDetailView: View {
         guard let phone = restaurant.phone else { return nil }
         let digits = phone.filter { $0.isNumber || $0 == "+" }
         return digits.isEmpty ? nil : URL(string: "tel://\(digits)")
+    }
+
+    private var closedBanner: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "exclamationmark.triangle.fill")
+            Text(reportedByMe && closureCount == 1
+                 ? "You reported this permanently closed."
+                 : "Reported permanently closed by \(closureCount).")
+                .font(.subheadline.weight(.semibold))
+        }
+        .foregroundStyle(.white)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(Color.red.opacity(0.9), in: RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var closedReportButton: some View {
+        Button {
+            Task {
+                if reportedByMe {
+                    _ = await cloudKit.unreportClosed(restaurantID: restaurant.id)
+                } else {
+                    _ = await cloudKit.reportClosed(restaurantID: restaurant.id)
+                }
+                let closure = await cloudKit.fetchClosureInfo(restaurantID: restaurant.id)
+                closureCount = closure.count
+                reportedByMe = closure.reportedByMe
+                await cloudKit.refreshClosureCounts()
+            }
+        } label: {
+            Label(reportedByMe ? "Undo \"permanently closed\" report" : "Report as permanently closed",
+                  systemImage: reportedByMe ? "arrow.uturn.backward" : "exclamationmark.triangle")
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.bordered)
+        .tint(reportedByMe ? .gray : .red)
     }
 
     private func openInMaps() {

@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @Environment(CloudKitService.self) private var cloudKit
+
     var body: some View {
         TabView {
             MapTabView()
@@ -12,5 +14,6 @@ struct ContentView: View {
             CommunityTiersView()
                 .tabItem { Label("Community", systemImage: "person.3.fill") }
         }
+        .task { await cloudKit.refreshClosureCounts() }
     }
 }

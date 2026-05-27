@@ -37,6 +37,11 @@ final class CloudKitService {
     private var cachedUserRecordName: String?
 
     private let placementType = "Placement"
+    private let closureType = "ClosureReport"
+
+    /// Per-restaurant count of "permanently closed" reports; refreshed on launch
+    /// and after a report toggle. Read by the list + map to flag closed spots.
+    private(set) var closureCounts: [UUID: Int] = [:]
 
     init() {
         Task { await refreshAvailability() }
@@ -189,6 +194,92 @@ final class CloudKitService {
             return photos
         } catch {
             return []
+        }
+    }
+
+    // MARK: - "Permanently closed" reports
+
+    private func closureRecordID(user: String, restaurant: UUID) -> CKRecord.ID {
+        CKRecord.ID(recordName: "closure_\(user)_\(restaurant.uuidString)")
+    }
+
+    func reportClosed(restaurantID: UUID) async -> Bool {
+        guard isAvailable, let user = await userRecordName() else { return false }
+        let record = CKRecord(recordType: closureType,
+                              recordID: closureRecordID(user: user, restaurant: restaurantID))
+        record["restaurantID"] = restaurantID.uuidString as CKRecordValue
+        do {
+            _ = try await publicDB.modifyRecords(saving: [record], deleting: [], savePolicy: .allKeys)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    func unreportClosed(restaurantID: UUID) async -> Bool {
+        guard isAvailable, let user = await userRecordName() else { return false }
+        do {
+            _ = try await publicDB.modifyRecords(
+                saving: [],
+                deleting: [closureRecordID(user: user, restaurant: restaurantID)],
+                savePolicy: .allKeys)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    /// Count of closed-reports for a restaurant + whether the current user is one.
+    func fetchClosureInfo(restaurantID: UUID) async -> (count: Int, reportedByMe: Bool) {
+        guard isAvailable else { return (0, false) }
+        let me = await userRecordName()
+        let predicate = NSPredicate(format: "restaurantID == %@", restaurantID.uuidString)
+        let query = CKQuery(recordType: closureType, predicate: predicate)
+        do {
+            let (results, _) = try await publicDB.records(matching: query, resultsLimit: 200)
+            var count = 0
+            var mine = false
+            for (_, result) in results {
+                guard case .success(let rec) = result else { continue }
+                count += 1
+                if let me, rec.creatorUserRecordID?.recordName == me { mine = true }
+            }
+            return (count, mine)
+        } catch {
+            return (0, false)
+        }
+    }
+
+    /// Refresh the per-restaurant closed-report counts cache (pages all reports).
+    /// Requires a Queryable index on ClosureReport.recordName.
+    func refreshClosureCounts() async {
+        await refreshAvailability()
+        guard isAvailable else { return }
+        var counts: [UUID: Int] = [:]
+
+        func accumulate(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+            for (_, result) in matches {
+                if case .success(let rec) = result,
+                   let s = rec["restaurantID"] as? String,
+                   let id = UUID(uuidString: s) {
+                    counts[id, default: 0] += 1
+                }
+            }
+        }
+
+        do {
+            let query = CKQuery(recordType: closureType, predicate: NSPredicate(value: true))
+            var (matches, cursor) = try await publicDB.records(
+                matching: query, desiredKeys: ["restaurantID"], resultsLimit: 200)
+            accumulate(matches)
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(
+                    continuingMatchFrom: c, desiredKeys: ["restaurantID"], resultsLimit: 200)
+                accumulate(matches)
+            }
+            closureCounts = counts
+        } catch {
+            // leave the existing cache as-is on failure
         }
     }
 }
