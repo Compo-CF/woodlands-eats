@@ -9,6 +9,8 @@ struct ContentView: View {
                 .tabItem { Label("Browse", systemImage: "fork.knife") }
             MyTiersView()
                 .tabItem { Label("My Tiers", systemImage: "list.number") }
+            CommunityTiersView()
+                .tabItem { Label("Community", systemImage: "person.3.fill") }
         }
     }
 }

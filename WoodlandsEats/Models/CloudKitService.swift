@@ -101,6 +101,50 @@ final class CloudKitService {
         }
     }
 
+    /// Aggregate EVERY placement across all users into a per-restaurant community
+    /// tier (for the Community board). Pages through the public DB. Requires a
+    /// Queryable index on the Placement record's `recordName` (for the fetch-all
+    /// TRUEPREDICATE query); returns [:] gracefully until that exists.
+    func fetchAllCommunityTiers() async -> [UUID: CommunityTier] {
+        guard isAvailable else { return [:] }
+        var sums: [UUID: (total: Int, count: Int)] = [:]
+        let keys = ["restaurantID", "score"]
+
+        func accumulate(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+            for (_, result) in matches {
+                guard case .success(let rec) = result,
+                      let ridStr = rec["restaurantID"] as? String,
+                      let rid = UUID(uuidString: ridStr),
+                      let score = rec["score"] as? Int else { continue }
+                var entry = sums[rid] ?? (0, 0)
+                entry.total += score
+                entry.count += 1
+                sums[rid] = entry
+            }
+        }
+
+        do {
+            let query = CKQuery(recordType: placementType, predicate: NSPredicate(value: true))
+            var (matches, cursor) = try await publicDB.records(
+                matching: query, desiredKeys: keys, resultsLimit: 200)
+            accumulate(matches)
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(
+                    continuingMatchFrom: c, desiredKeys: keys, resultsLimit: 200)
+                accumulate(matches)
+            }
+        } catch {
+            return [:]
+        }
+
+        var out: [UUID: CommunityTier] = [:]
+        for (rid, agg) in sums where agg.count > 0 {
+            let avg = Double(agg.total) / Double(agg.count)
+            out[rid] = CommunityTier(tier: .from(averageScore: avg), count: agg.count, average: avg)
+        }
+        return out
+    }
+
     // MARK: - Dish photos (public DB, CKAsset)
 
     /// Upload a dish photo (already-compressed JPEG) for a restaurant.
