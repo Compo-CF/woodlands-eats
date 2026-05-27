@@ -151,21 +151,6 @@
       "signatureDishes": []
     },
     {
-      "id": "bcddecf2-7cae-587d-b18d-f470dc40692e",
-      "name": "Boston Market",
-      "latitude": 30.04058,
-      "longitude": -95.48751,
-      "area": "klein",
-      "address": "Klein, TX",
-      "cuisines": ["american"],
-      "priceTier": "$",
-      "isFastFood": true,
-      "website": null,
-      "phone": null,
-      "description": "American quick-service spot in Klein.",
-      "signatureDishes": []
-    },
-    {
       "id": "e2cedc55-25d3-5b7a-8ecf-c0778ea3b06e",
       "name": "Buffalo Wild Wings",
       "latitude": 30.08691,
@@ -616,21 +601,6 @@
       "signatureDishes": []
     },
     {
-      "id": "f2db3d41-da7b-5817-9891-075dd411d457",
-      "name": "Fatimas Pupusas and Tacos",
-      "latitude": 30.07099,
-      "longitude": -95.47543,
-      "area": "klein",
-      "address": "3838 FM 2920, Spring, TX 77388",
-      "cuisines": ["mexican"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://fatimaspupusasandtacos.com",
-      "phone": "+1-281-771-3881",
-      "description": "Mexican restaurant in Klein.",
-      "signatureDishes": []
-    },
-    {
       "id": "265f3d16-d120-57cf-8489-cebfa215bf9c",
       "name": "Five Guys",
       "latitude": 30.0856,
@@ -823,21 +793,6 @@
       "website": null,
       "phone": null,
       "description": "Chinese restaurant in Klein.",
-      "signatureDishes": []
-    },
-    {
-      "id": "98eef6e9-7062-53d0-bc32-db68a062b643",
-      "name": "Ichigo Curry and Ramen",
-      "latitude": 30.08492,
-      "longitude": -95.52286,
-      "area": "klein",
-      "address": "6633 Spring Stuebner Road, Spring, TX 77389",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://ichigocurryramen.kwickmenu.com/index.php",
-      "phone": "+1-346-236-6988",
-      "description": "Restaurant in Klein.",
       "signatureDishes": []
     },
     {
@@ -1093,21 +1048,6 @@
       "website": "https://madrascurryhousetx.com",
       "phone": "+1-346-372-8073",
       "description": "Indian restaurant in Klein.",
-      "signatureDishes": []
-    },
-    {
-      "id": "6fc00f6b-205f-5f02-a759-2d92c2cab979",
-      "name": "Mama Juanita's",
-      "latitude": 30.04794,
-      "longitude": -95.47596,
-      "area": "klein",
-      "address": "Klein, TX",
-      "cuisines": ["mexican"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Mexican restaurant in Klein.",
       "signatureDishes": []
     },
     {
@@ -2161,21 +2101,6 @@
       "signatureDishes": []
     },
     {
-      "id": "f5d43282-31e8-5907-8ec2-1f6ec26b2f89",
-      "name": "The Taco Bar",
-      "latitude": 30.01436,
-      "longitude": -95.45139,
-      "area": "klein",
-      "address": "Klein, TX",
-      "cuisines": ["texMex"],
-      "priceTier": "$",
-      "isFastFood": true,
-      "website": null,
-      "phone": null,
-      "description": "Tex-Mex quick-service spot in Klein.",
-      "signatureDishes": []
-    },
-    {
       "id": "247d7f14-b415-5a0b-ba2d-56f52cdcb73e",
       "name": "The Toasted Yolk Cafe",
       "latitude": 30.08844,
@@ -2233,36 +2158,6 @@
       "website": "https://locations.unclejulios.com/texas/spring/6835-n-grand-parkway-west/",
       "phone": "+1-346-220-6104",
       "description": "Mexican restaurant in Klein.",
-      "signatureDishes": []
-    },
-    {
-      "id": "fc4480c6-5d8b-5140-9851-81bad7f8fe8f",
-      "name": "Vina Deli",
-      "latitude": 30.02285,
-      "longitude": -95.52686,
-      "area": "klein",
-      "address": "7306 Louetta Road, Klein, TX",
-      "cuisines": ["vietnamese", "american"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Vietnamese restaurant in Klein.",
-      "signatureDishes": []
-    },
-    {
-      "id": "1c105cb6-8a65-58f8-8220-50c1ca58084e",
-      "name": "Vito's Famous",
-      "latitude": 30.02638,
-      "longitude": -95.56228,
-      "area": "klein",
-      "address": "9305 Spring Cypress Road, Spring, TX 77379",
-      "cuisines": ["pizza"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Pizza restaurant in Klein.",
       "signatureDishes": []
     },
     {
@@ -2521,36 +2416,6 @@
       "signatureDishes": []
     },
     {
-      "id": "12932c59-678d-56a2-be2f-57eb9cd7c2c4",
-      "name": "Américas Woodlands",
-      "latitude": 30.16008,
-      "longitude": -95.45935,
-      "area": "oakRidgeNorth",
-      "address": "21 Waterway Avenue, Oak Ridge North, TX",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.cordua.com/americas",
-      "phone": "+1-281-367-1492",
-      "description": "Restaurant in Oak Ridge North.",
-      "signatureDishes": []
-    },
-    {
-      "id": "0ad16c94-2fb8-5346-8b9a-e1895fb18bbe",
-      "name": "Baker Street Pub Grill",
-      "latitude": 30.16077,
-      "longitude": -95.45931,
-      "area": "oakRidgeNorth",
-      "address": "25 Waterway Avenue, Oak Ridge North, TX",
-      "cuisines": ["american"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": "+1-281-362-7431",
-      "description": "American pub in Oak Ridge North.",
-      "signatureDishes": []
-    },
-    {
       "id": "1287384f-cf66-5442-a605-94c791944b48",
       "name": "Becks Prime",
       "latitude": 30.14284,
@@ -2641,21 +2506,6 @@
       "signatureDishes": []
     },
     {
-      "id": "b2a5d81a-1234-545a-b42c-75d64380c9d1",
-      "name": "Daisy's Coffee Shop",
-      "latitude": 30.15678,
-      "longitude": -95.4342,
-      "area": "oakRidgeNorth",
-      "address": "Oak Ridge North, TX",
-      "cuisines": ["cafeBakery"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Coffee & bakery cafe in Oak Ridge North.",
-      "signatureDishes": []
-    },
-    {
       "id": "ab56d303-31f1-55b5-bf8f-680bf2015de3",
       "name": "Domino's",
       "latitude": 30.12754,
@@ -2731,21 +2581,6 @@
       "signatureDishes": []
     },
     {
-      "id": "53a2cae4-2950-5fc1-9db8-7d53e803981d",
-      "name": "Hubbell & Hudson Bistro",
-      "latitude": 30.16113,
-      "longitude": -95.45886,
-      "area": "oakRidgeNorth",
-      "address": "24 Waterway Avenue, Oak Ridge North, TX",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://hubbellandhudson.com/bistro/",
-      "phone": "+1-281-203-5641",
-      "description": "Restaurant in Oak Ridge North.",
-      "signatureDishes": []
-    },
-    {
       "id": "8fe52173-41b2-5a64-a0e0-bb7d6a5b9eed",
       "name": "Hunan Jade",
       "latitude": 30.12776,
@@ -2773,21 +2608,6 @@
       "website": "https://restaurants.ihop.com/en-us/tx/spring/breakfast-25619-ih-45-n-1437",
       "phone": "+1 281-367-6626",
       "description": "Breakfast restaurant in Oak Ridge North.",
-      "signatureDishes": []
-    },
-    {
-      "id": "2a497275-e086-56d1-b61e-ecf4d2a1248b",
-      "name": "James Coney Island",
-      "latitude": 30.12626,
-      "longitude": -95.45178,
-      "area": "oakRidgeNorth",
-      "address": "521 Sawdust Road, Spring, TX 77380",
-      "cuisines": ["american", "burgers"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "American restaurant in Oak Ridge North.",
       "signatureDishes": []
     },
     {
@@ -3118,21 +2938,6 @@
       "website": null,
       "phone": "+1 281-363-9464",
       "description": "American quick-service spot in Oak Ridge North.",
-      "signatureDishes": []
-    },
-    {
-      "id": "0c074afb-27b2-50ff-9e0e-a837a5db532f",
-      "name": "Wisdom Vegan Bakery",
-      "latitude": 30.1274,
-      "longitude": -95.44175,
-      "area": "oakRidgeNorth",
-      "address": "25192 North Freeway, Spring, TX 77386",
-      "cuisines": ["american", "burgers"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://wisdombakeryandcafe.com",
-      "phone": "+1 281-507-5460",
-      "description": "American restaurant in Oak Ridge North.",
       "signatureDishes": []
     },
     {
@@ -3526,21 +3331,6 @@
       "signatureDishes": []
     },
     {
-      "id": "2bb59141-72a6-51e2-bc22-63668d03d48e",
-      "name": "Famous Cajun Grill",
-      "latitude": 30.16404,
-      "longitude": -95.45511,
-      "area": "shenandoah",
-      "address": "Shenandoah, TX",
-      "cuisines": ["other"],
-      "priceTier": "$",
-      "isFastFood": true,
-      "website": null,
-      "phone": null,
-      "description": "Quick-service spot in Shenandoah.",
-      "signatureDishes": []
-    },
-    {
       "id": "fb5e46dd-1b77-5372-9bff-eeaa6ba3934b",
       "name": "Famous Wok",
       "latitude": 30.16392,
@@ -3676,21 +3466,6 @@
       "signatureDishes": []
     },
     {
-      "id": "0e06e387-eca7-5d11-a7bf-1b08a210a1b0",
-      "name": "I•CE•NY",
-      "latitude": 30.16431,
-      "longitude": -95.45418,
-      "area": "shenandoah",
-      "address": "Shenandoah, TX",
-      "cuisines": ["dessert"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Dessert ice cream shop in Shenandoah.",
-      "signatureDishes": []
-    },
-    {
       "id": "f955160a-3935-530e-b104-1eaad8da7697",
       "name": "JAX Burgers, Fries & Shakes",
       "latitude": 30.19518,
@@ -3748,21 +3523,6 @@
       "website": null,
       "phone": null,
       "description": "American restaurant in Shenandoah.",
-      "signatureDishes": []
-    },
-    {
-      "id": "853afe7b-c11d-5298-82ee-f94b90fcb6ae",
-      "name": "Killen's BBQ",
-      "latitude": 30.17657,
-      "longitude": -95.45903,
-      "area": "shenandoah",
-      "address": "8800 Six Pines Dr, Shenandoah, TX",
-      "cuisines": ["burgers"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Burger restaurant in Shenandoah.",
       "signatureDishes": []
     },
     {
@@ -4096,21 +3856,6 @@
       "signatureDishes": []
     },
     {
-      "id": "449fdfe2-f98a-56dd-8d9a-583753ea3c30",
-      "name": "Poke Man",
-      "latitude": 30.20693,
-      "longitude": -95.4539,
-      "area": "shenandoah",
-      "address": "8000 Needham Road, Shenandoah, TX",
-      "cuisines": ["seafood"],
-      "priceTier": "$",
-      "isFastFood": true,
-      "website": null,
-      "phone": null,
-      "description": "Seafood quick-service spot in Shenandoah.",
-      "signatureDishes": []
-    },
-    {
       "id": "cf2fb709-1796-5ad6-912d-ca4fc958cc8a",
       "name": "Pretzelmaker",
       "latitude": 30.1644,
@@ -4348,21 +4093,6 @@
       "website": null,
       "phone": null,
       "description": "Quick-service spot in Shenandoah.",
-      "signatureDishes": []
-    },
-    {
-      "id": "45cdd31c-fc8b-528c-8026-1f160dc33543",
-      "name": "Wahoo's Fish Taco",
-      "latitude": 30.18608,
-      "longitude": -95.45155,
-      "area": "shenandoah",
-      "address": "Shenandoah, TX",
-      "cuisines": ["seafood", "mexican"],
-      "priceTier": "$",
-      "isFastFood": true,
-      "website": null,
-      "phone": null,
-      "description": "Seafood quick-service spot in Shenandoah.",
       "signatureDishes": []
     },
     {
@@ -4906,21 +4636,6 @@
       "signatureDishes": []
     },
     {
-      "id": "ca203df6-9dea-5589-a3a3-aebe60db6f81",
-      "name": "Dog Haus Biergarten",
-      "latitude": 30.08247,
-      "longitude": -95.44758,
-      "area": "spring",
-      "address": "2115 Spring Stuebner Road, Spring, TX 77389",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://doghaus.com/location/spring-biergarten",
-      "phone": "+1-281-719-8410",
-      "description": "Restaurant in Spring.",
-      "signatureDishes": []
-    },
-    {
       "id": "86b4ab2d-74e5-566c-add7-8f938bc09e29",
       "name": "Domino's",
       "latitude": 30.01378,
@@ -5041,21 +4756,6 @@
       "signatureDishes": []
     },
     {
-      "id": "2d91f0ee-5786-5593-b14d-a84e13864f2c",
-      "name": "El Kiosko #13",
-      "latitude": 30.05407,
-      "longitude": -95.43471,
-      "area": "spring",
-      "address": "100 Cypresswood Drive, Spring, TX 77388",
-      "cuisines": ["mexican"],
-      "priceTier": "$",
-      "isFastFood": true,
-      "website": "https://elkioskofrutasyhelados.com/",
-      "phone": "+1-281-719-8587",
-      "description": "Mexican quick-service spot in Spring.",
-      "signatureDishes": []
-    },
-    {
       "id": "cc530329-53dc-5cfb-b362-55642876b76d",
       "name": "El Maná Taqueria",
       "latitude": 30.02127,
@@ -5098,21 +4798,6 @@
       "website": null,
       "phone": "+1-281-819-7359",
       "description": "Latin restaurant in Spring.",
-      "signatureDishes": []
-    },
-    {
-      "id": "4fe1a2af-26b4-510e-a0db-00b083d21fbf",
-      "name": "El Pibe",
-      "latitude": 30.01862,
-      "longitude": -95.43532,
-      "area": "spring",
-      "address": "Spring, TX",
-      "cuisines": ["dessert"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Dessert ice cream shop in Spring.",
       "signatureDishes": []
     },
     {
@@ -5191,21 +4876,6 @@
       "signatureDishes": []
     },
     {
-      "id": "08b305ae-599d-562b-bddc-a29aec83a620",
-      "name": "Gorditas Y Tacos La Bala",
-      "latitude": 30.02042,
-      "longitude": -95.42978,
-      "area": "spring",
-      "address": "Spring, TX",
-      "cuisines": ["mexican"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Mexican restaurant in Spring.",
-      "signatureDishes": []
-    },
-    {
       "id": "deef6ca9-0089-56b3-b102-90589c0ee0c3",
       "name": "Great Wall",
       "latitude": 30.02022,
@@ -5278,21 +4948,6 @@
       "website": null,
       "phone": null,
       "description": "American quick-service spot in Spring.",
-      "signatureDishes": []
-    },
-    {
-      "id": "4f7a2709-11fe-593b-9d32-f892576ef4e9",
-      "name": "Hooters",
-      "latitude": 30.02094,
-      "longitude": -95.43204,
-      "area": "spring",
-      "address": "Spring, TX",
-      "cuisines": ["burgers"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Burger restaurant in Spring.",
       "signatureDishes": []
     },
     {
@@ -5459,21 +5114,6 @@
       "phone": null,
       "description": "A reliable Japanese steakhouse and sushi spot near The Woodlands offering hibachi teppanyaki and a full sushi menu.",
       "signatureDishes": ["Hibachi Steak & Shrimp", "Sushi Rolls", "Fried Rice"]
-    },
-    {
-      "id": "3dcf318e-4ad5-5cf4-bd8f-3a51b050a813",
-      "name": "Krispy Krunchy Chicken",
-      "latitude": 30.0049,
-      "longitude": -95.37171,
-      "area": "spring",
-      "address": "Spring, TX",
-      "cuisines": ["american"],
-      "priceTier": "$",
-      "isFastFood": true,
-      "website": "https://www.krispykrunchy.com/locations/fuel-maxx-8-1379/",
-      "phone": null,
-      "description": "American quick-service spot in Spring.",
-      "signatureDishes": []
     },
     {
       "id": "1bbb0d15-cacb-5524-ac62-5323b439a828",
@@ -5701,21 +5341,6 @@
       "signatureDishes": []
     },
     {
-      "id": "c97bc326-1006-590b-8122-23124132c216",
-      "name": "Mr",
-      "latitude": 30.02831,
-      "longitude": -95.37966,
-      "area": "spring",
-      "address": "21614 Aldine Westfield Road, Spring, TX",
-      "cuisines": ["american"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "American pub in Spring.",
-      "signatureDishes": []
-    },
-    {
       "id": "14d97222-8260-5299-878d-07383ace705d",
       "name": "Noe's Cafe",
       "latitude": 30.08361,
@@ -5881,36 +5506,6 @@
       "signatureDishes": []
     },
     {
-      "id": "fe43ed90-f96b-5ecb-8b37-2905a04563fc",
-      "name": "Razzoo's Cajun Cafe",
-      "latitude": 30.06721,
-      "longitude": -95.43667,
-      "area": "spring",
-      "address": "1440 Louetta Road, Spring, TX",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Restaurant in Spring.",
-      "signatureDishes": []
-    },
-    {
-      "id": "6a3be9ea-a0f2-5f96-b4b7-032e30b6b96c",
-      "name": "Red Lobster",
-      "latitude": 30.02066,
-      "longitude": -95.43333,
-      "area": "spring",
-      "address": "302 Cypress Creek Parkway, Spring, TX",
-      "cuisines": ["seafood"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Seafood restaurant in Spring.",
-      "signatureDishes": []
-    },
-    {
       "id": "b49b7e10-333e-5068-97c3-5b8f5ad4b3a7",
       "name": "Rudy's Country Store & Bar-B-Q",
       "latitude": 30.0682,
@@ -6073,21 +5668,6 @@
       "website": "https://www.springasiancuisineonline.com/",
       "phone": "+1-281-298-7798",
       "description": "Chinese restaurant in Spring.",
-      "signatureDishes": []
-    },
-    {
-      "id": "41187a4f-1b5e-5f61-8031-98c113700f10",
-      "name": "Spring Food park",
-      "latitude": 30.08232,
-      "longitude": -95.46634,
-      "area": "spring",
-      "address": "3211 Spring Stuebner Road, Spring, TX 77389",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": "+1-346-770-5364",
-      "description": "Restaurant in Spring.",
       "signatureDishes": []
     },
     {
@@ -6331,21 +5911,6 @@
       "signatureDishes": []
     },
     {
-      "id": "78190f5b-5351-585e-bc0d-b46f6d59fdc5",
-      "name": "Taco Corner",
-      "latitude": 30.0048,
-      "longitude": -95.37167,
-      "area": "spring",
-      "address": "Spring, TX",
-      "cuisines": ["texMex"],
-      "priceTier": "$",
-      "isFastFood": true,
-      "website": null,
-      "phone": null,
-      "description": "Tex-Mex quick-service spot in Spring.",
-      "signatureDishes": []
-    },
-    {
       "id": "0c88e07b-fe32-5960-a881-edb0e3572206",
       "name": "Taqueria Arandas",
       "latitude": 30.01928,
@@ -6403,21 +5968,6 @@
       "website": null,
       "phone": null,
       "description": "Steakhouse restaurant in Spring.",
-      "signatureDishes": []
-    },
-    {
-      "id": "0a1ae06f-6fa2-57eb-bc4d-453b328878b8",
-      "name": "The Bep",
-      "latitude": 30.01979,
-      "longitude": -95.38081,
-      "area": "spring",
-      "address": "Spring, TX",
-      "cuisines": ["cafeBakery"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Coffee & bakery cafe in Spring.",
       "signatureDishes": []
     },
     {
@@ -6691,21 +6241,6 @@
       "signatureDishes": []
     },
     {
-      "id": "774bc6be-7f74-57d2-b156-cee6ee8dcda4",
-      "name": "Zoe's Mexican Treats",
-      "latitude": 30.00835,
-      "longitude": -95.42645,
-      "area": "spring",
-      "address": "16660 North Freeway, Houston, TX 77090-5104",
-      "cuisines": ["mexican"],
-      "priceTier": "$",
-      "isFastFood": true,
-      "website": null,
-      "phone": "+1-832-380-1194",
-      "description": "Mexican quick-service spot in Spring.",
-      "signatureDishes": []
-    },
-    {
       "id": "6d54e239-d7c5-5594-9a64-289ab85f485f",
       "name": "Aji Robota & Ramen Tomball",
       "latitude": 30.13294,
@@ -6734,21 +6269,6 @@
       "phone": "+1-936-444-4150",
       "description": "An upscale modern Indian restaurant on Waterway Square blending Indian and Mediterranean influences in an elegant setting.",
       "signatureDishes": ["Butter Chicken", "Lamb Biryani", "Tandoori Platter"]
-    },
-    {
-      "id": "48a93fd1-a6d7-53c0-b9dd-a13a8e675773",
-      "name": "Atsumi",
-      "latitude": 30.2078,
-      "longitude": -95.46295,
-      "area": "woodlands",
-      "address": "3335 College Park Drive, The Woodlands, TX 77384",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Restaurant in The Woodlands.",
-      "signatureDishes": []
     },
     {
       "id": "b8bed139-c039-5439-977e-d830e43b2697",
@@ -6794,21 +6314,6 @@
       "phone": "+1-346-261-1111",
       "description": "An intimate Edomae-style omakase sushi restaurant at Hughes Landing offering a chef-led multi-course tasting of premium nigiri.",
       "signatureDishes": ["Omakase Tasting", "Nigiri", "Otoro"]
-    },
-    {
-      "id": "9968576d-6bca-5249-a16e-b0ed6d94248c",
-      "name": "Broken Barrell",
-      "latitude": 30.17092,
-      "longitude": -95.47227,
-      "area": "woodlands",
-      "address": "The Woodlands, TX",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Restaurant in The Woodlands.",
-      "signatureDishes": []
     },
     {
       "id": "84cc0126-2d5a-5b99-9ae3-d382f28d76cf",
@@ -7441,21 +6946,6 @@
       "signatureDishes": []
     },
     {
-      "id": "273dfe41-23d9-5198-a24d-be2056e3b093",
-      "name": "Local Pour - The Woodlands",
-      "latitude": 30.17101,
-      "longitude": -95.47144,
-      "area": "woodlands",
-      "address": "The Woodlands, TX",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Restaurant in The Woodlands.",
-      "signatureDishes": []
-    },
-    {
       "id": "7af4882f-c97f-598b-ac7a-f2e4a45b03ef",
       "name": "Lucky Cafe",
       "latitude": 30.15153,
@@ -7801,36 +7291,6 @@
       "signatureDishes": ["Bruschetta Board", "Soft Egg & Pancetta Bruschetta", "Warm Artichoke Dip"]
     },
     {
-      "id": "82a7f6ae-d5d3-5dd8-b5a5-2ac0c2ef4125",
-      "name": "Potbelly",
-      "latitude": 30.16396,
-      "longitude": -95.46429,
-      "area": "woodlands",
-      "address": "9595 Market Street, The Woodlands, TX",
-      "cuisines": ["american"],
-      "priceTier": "$",
-      "isFastFood": true,
-      "website": null,
-      "phone": null,
-      "description": "American quick-service spot in The Woodlands.",
-      "signatureDishes": []
-    },
-    {
-      "id": "6b733629-ca79-54da-b15f-342dbbcf90d5",
-      "name": "Press Waffle Co.",
-      "latitude": 30.14419,
-      "longitude": -95.55197,
-      "area": "woodlands",
-      "address": "26435 Kuykendahl Road, Spring, TX 77389",
-      "cuisines": ["cafeBakery"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://www.presswaffleco.com/locations/creekside-park-west",
-      "phone": "+1-346-808-7874",
-      "description": "Coffee & bakery cafe in The Woodlands.",
-      "signatureDishes": []
-    },
-    {
       "id": "c93bf755-c1b3-5c57-bfb1-958c371530d9",
       "name": "Quiznos",
       "latitude": 30.16926,
@@ -7843,21 +7303,6 @@
       "website": null,
       "phone": null,
       "description": "American quick-service spot in The Woodlands.",
-      "signatureDishes": []
-    },
-    {
-      "id": "6a5ec8e9-3bab-5701-9f4b-16d1abeea9f3",
-      "name": "Radunare Italian American Table",
-      "latitude": 30.17714,
-      "longitude": -95.47565,
-      "area": "woodlands",
-      "address": "The Woodlands, TX",
-      "cuisines": ["italian"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Italian restaurant in The Woodlands.",
       "signatureDishes": []
     },
     {
@@ -8371,36 +7816,6 @@
       "signatureDishes": ["Florida Stone Crab", "Miso-Glazed Sea Bass", "Crab Cakes"]
     },
     {
-      "id": "db6c9d4a-e253-52c0-8316-b1f1070eb292",
-      "name": "Uni Sushi",
-      "latitude": 30.16348,
-      "longitude": -95.46365,
-      "area": "woodlands",
-      "address": "9595 Market Street, The Woodlands, TX",
-      "cuisines": ["sushi"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Sushi restaurant in The Woodlands.",
-      "signatureDishes": []
-    },
-    {
-      "id": "319dc5a9-3e50-5955-8403-ed23061f3cc0",
-      "name": "Uptown Asian Fusion",
-      "latitude": 30.1828,
-      "longitude": -95.53634,
-      "area": "woodlands",
-      "address": "6700 Woodlands Parkway, The Woodlands, TX 77382",
-      "cuisines": ["chinese"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://uptownasianfusion.com/",
-      "phone": null,
-      "description": "Chinese restaurant in The Woodlands.",
-      "signatureDishes": []
-    },
-    {
       "id": "4b5368ba-f11e-5f15-b3ac-f5d7019d53d6",
       "name": "Velvet Taco",
       "latitude": 30.18318,
@@ -8518,21 +7933,6 @@
       "website": null,
       "phone": null,
       "description": "American restaurant in The Woodlands.",
-      "signatureDishes": []
-    },
-    {
-      "id": "7044fbd0-f501-5bce-9b91-fc10bc9a401c",
-      "name": "Zoner's Pizza Joint",
-      "latitude": 30.18244,
-      "longitude": -95.55857,
-      "area": "woodlands",
-      "address": "The Woodlands, TX",
-      "cuisines": ["pizza"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Pizza restaurant in The Woodlands.",
       "signatureDishes": []
     }
   ]
