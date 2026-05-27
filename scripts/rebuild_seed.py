@@ -13,7 +13,25 @@ SEED = "WoodlandsEats/Resources/Restaurants.json"
 BBOX = (30.00, -95.57, 30.21, -95.35)  # S, W, N, E — the six areas, trimming Champions/Houston/Porter
 NS = uuid.NAMESPACE_URL
 KEYS = ["id", "name", "latitude", "longitude", "area", "address", "cuisines",
-        "priceTier", "website", "phone", "description", "signatureDishes"]
+        "priceTier", "isFastFood", "website", "phone", "description", "signatureDishes"]
+
+# Commodity fast-food chains — always flagged as fast food (hidden by default),
+# even if OSM tagged them "restaurant".
+FASTFOOD_DENY = {
+    "mcdonald", "burgerking", "tacobell", "wendy", "kfc", "kentuckyfried",
+    "subway", "sonic", "popeye", "arby", "jackinthebox", "dairyqueen", "domino",
+    "pizzahut", "littlecaesar", "papajohn", "deltaco", "carlsjr", "hardee",
+    "churchschicken", "whitecastle", "checkers", "rallys", "quiznos",
+    "wienerschnitzel", "longjohnsilver", "captainds", "krystal", "pandaexpress",
+}
+# Rankable QSR / fast-casual — NOT flagged even though OSM tags them "fast_food".
+QSR_ALLOW = {
+    "whataburger", "chickfila", "torchy", "chipotle", "raisingcane", "fiveguys",
+    "innout", "shakeshack", "cava", "velvettaco", "fuzzy", "freebirds",
+    "modpizza", "jerseymike", "pterry", "layne", "salata", "sweetgreen",
+    "willie", "mooyah", "smashburger", "culver", "portillo", "panera",
+    "firehouse", "jasonsdeli", "newk", "peiwei",
+}
 
 # Area centroids for nearest-match fallback when addr:city is absent/unknown.
 CENTROIDS = {
@@ -161,6 +179,9 @@ def osm_to_record(el):
     area = assign_area(lat, lon, tags.get("addr:city"))
     area_disp = AREA_NAME[area]
     cuisines = map_cuisines(tags, amenity)
+    nn = norm(name)
+    is_ff = any(t in nn for t in FASTFOOD_DENY) or \
+        (amenity == "fast_food" and not any(t in nn for t in QSR_ALLOW))
     return {
         "id": str(uuid.uuid5(NS, f"osm:{el['type']}:{el['id']}")),
         "name": name,
@@ -170,6 +191,7 @@ def osm_to_record(el):
         "address": build_address(tags, area_disp),
         "cuisines": cuisines,
         "priceTier": AMENITY_PRICE.get(amenity, "$$"),
+        "isFastFood": is_ff,
         "website": website(tags),
         "phone": tags.get("phone") or tags.get("contact:phone"),
         "description": describe(cuisines, amenity, area_disp),
@@ -199,6 +221,8 @@ def main():
     # rebuild is idempotent even if SEED already contains prior OSM output.
     all_existing = json.load(open(SEED, encoding="utf-8"))["restaurants"]
     curated = [r for r in all_existing if r["id"].startswith("C1D2E3F4")]
+    for c in curated:           # curated spots are never commodity fast food
+        c.setdefault("isFastFood", False)
 
     # Transform + dedupe OSM
     seen, osm = set(), []
@@ -235,7 +259,9 @@ def main():
 
     from collections import Counter
     print(f"OSM fetched/deduped: {len(osm)} | dropped as curated dup: {merged_out}")
+    ff = sum(1 for r in final if r["isFastFood"])
     print(f"Curated kept: {len(curated)} | OSM added: {len(keep)} | TOTAL: {len(final)}")
+    print(f"Fast food flagged: {ff} (hidden by default) | shown by default: {len(final) - ff}")
     print("By area:", dict(Counter(r["area"] for r in final)))
     print("By price:", dict(Counter(r["priceTier"] for r in final)))
 

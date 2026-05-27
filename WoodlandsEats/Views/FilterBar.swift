@@ -2,6 +2,17 @@ import SwiftUI
 
 struct FilterBar: View {
     @Binding var filter: RestaurantFilter
+    @Environment(RestaurantStore.self) private var store
+    @State private var showFilters = false
+
+    private var filterCount: Int {
+        filter.selectedCuisines.count + filter.selectedPrices.count + (filter.includeFastFood ? 1 : 0)
+    }
+
+    private var availableCuisines: [Cuisine] {
+        let present = Set(store.restaurants.flatMap { $0.cuisines })
+        return Cuisine.allCases.filter { present.contains($0) }
+    }
 
     var body: some View {
         VStack(spacing: 8) {
@@ -27,6 +38,19 @@ struct FilterBar: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
+                    Button { showFilters = true } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "slider.horizontal.3")
+                            Text(filterCount > 0 ? "Filters · \(filterCount)" : "Filters")
+                        }
+                        .font(.subheadline)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(filterCount > 0 ? Color.accentColor : Color.secondary.opacity(0.15), in: .capsule)
+                        .foregroundStyle(filterCount > 0 ? .white : .primary)
+                    }
+                    .buttonStyle(.plain)
+
                     ForEach(Area.allCases) { area in
                         FilterChip(title: area.displayName,
                                    isOn: filter.selectedAreas.contains(area)) {
@@ -43,6 +67,9 @@ struct FilterBar: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
+        .sheet(isPresented: $showFilters) {
+            FiltersView(filter: $filter, availableCuisines: availableCuisines)
+        }
     }
 }
 

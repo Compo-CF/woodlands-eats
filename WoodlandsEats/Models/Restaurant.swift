@@ -10,6 +10,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
     let address: String
     let cuisines: [Cuisine]
     let priceTier: PriceTier
+    let isFastFood: Bool
     let website: String?
     let phone: String?
     let description: String
@@ -34,7 +35,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
     // signatureDishes is allowed to be absent in the JSON (defaults to []).
     private enum CodingKeys: String, CodingKey {
         case id, name, latitude, longitude, area, address, cuisines,
-             priceTier, website, phone, description, signatureDishes
+             priceTier, isFastFood, website, phone, description, signatureDishes
     }
 
     init(from decoder: Decoder) throws {
@@ -47,6 +48,7 @@ struct Restaurant: Identifiable, Codable, Hashable {
         address = try c.decode(String.self, forKey: .address)
         cuisines = try c.decode([Cuisine].self, forKey: .cuisines)
         priceTier = try c.decode(PriceTier.self, forKey: .priceTier)
+        isFastFood = try c.decodeIfPresent(Bool.self, forKey: .isFastFood) ?? false
         website = try c.decodeIfPresent(String.self, forKey: .website)
         phone = try c.decodeIfPresent(String.self, forKey: .phone)
         description = try c.decode(String.self, forKey: .description)

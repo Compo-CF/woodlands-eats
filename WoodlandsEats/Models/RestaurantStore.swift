@@ -68,6 +68,7 @@ final class RestaurantStore {
 
     var filteredRestaurants: [Restaurant] {
         restaurants.filter { r in
+            if !filter.includeFastFood && r.isFastFood { return false }
             if !filter.selectedAreas.isEmpty && !filter.selectedAreas.contains(r.area) {
                 return false
             }
@@ -107,10 +108,12 @@ struct RestaurantFilter {
     var selectedAreas: Set<Area> = []
     var selectedCuisines: Set<Cuisine> = []
     var selectedPrices: Set<PriceTier> = []
+    /// Commodity fast food is hidden by default; users opt it in.
+    var includeFastFood: Bool = false
 
     var isActive: Bool {
         !searchText.isEmpty || !selectedAreas.isEmpty ||
-        !selectedCuisines.isEmpty || !selectedPrices.isEmpty
+        !selectedCuisines.isEmpty || !selectedPrices.isEmpty || includeFastFood
     }
 
     mutating func clear() {
@@ -118,6 +121,7 @@ struct RestaurantFilter {
         selectedAreas = []
         selectedCuisines = []
         selectedPrices = []
+        includeFastFood = false
     }
 }
 
