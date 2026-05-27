@@ -61,6 +61,21 @@
       "signatureDishes": []
     },
     {
+      "id": "930dd797-17f5-50cb-9a9d-e1221601d0bb",
+      "name": "Bamburger",
+      "latitude": 30.07055,
+      "longitude": -95.45463,
+      "area": "klein",
+      "address": "3624 FM 2920, Spring, TX 77388",
+      "cuisines": ["burgers", "american"],
+      "priceTier": "$",
+      "isFastFood": false,
+      "website": "https://bamburger.online",
+      "phone": null,
+      "description": "Fast-casual smash-burger spot on FM 2920 with vegan options, fries and shakes. Opened Jan 2025.",
+      "signatureDishes": ["Classic Bamburger", "Shakes"]
+    },
+    {
       "id": "1c47b801-c122-5393-8195-18a3509c2b49",
       "name": "Baskin-Robbins",
       "latitude": 30.02199,
@@ -299,6 +314,21 @@
       "phone": "+1-832-717-0113",
       "description": "Mexican quick-service spot in Klein.",
       "signatureDishes": []
+    },
+    {
+      "id": "29cbf149-e509-5f05-8806-70c0f05a40f8",
+      "name": "Chubby's Seafood & Grill",
+      "latitude": 30.07053,
+      "longitude": -95.45814,
+      "area": "klein",
+      "address": "3422 FM 2920, Spring, TX 77388",
+      "cuisines": ["seafood", "mexican"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://chubbysgrill.com",
+      "phone": null,
+      "description": "Mexican-seafood grill serving ceviche tostadas, flautas and grilled fish. Opened Jan 2025.",
+      "signatureDishes": ["Ceviche tostadas", "Grilled fish"]
     },
     {
       "id": "cc1a1ef8-d065-505f-93d7-32db38f80ef5",
@@ -1276,6 +1306,21 @@
       "signatureDishes": []
     },
     {
+      "id": "4e6b33d1-0daa-55f5-815a-d6ec69929430",
+      "name": "Paleteria La Reina",
+      "latitude": 30.07055,
+      "longitude": -95.45463,
+      "area": "klein",
+      "address": "3710 FM 2920, Spring, TX 77388",
+      "cuisines": ["dessert", "mexican"],
+      "priceTier": "$",
+      "isFastFood": false,
+      "website": "https://orderpaleterialareina.com",
+      "phone": null,
+      "description": "Mexican ice cream and treats shop with paletas, mangonadas, churros and milkshakes. Opened Dec 2024.",
+      "signatureDishes": ["Mangonadas", "Fruit paletas"]
+    },
+    {
       "id": "41946c10-e853-5ee3-bc5f-a1d0e648a0b6",
       "name": "Panda Express",
       "latitude": 30.07364,
@@ -1364,6 +1409,21 @@
       "phone": "+1-346-702-9713",
       "description": "Pizza restaurant in Klein.",
       "signatureDishes": []
+    },
+    {
+      "id": "b11d8805-2684-5616-81a5-900efbacb03c",
+      "name": "Pho Eva",
+      "latitude": 30.05489,
+      "longitude": -95.45899,
+      "area": "klein",
+      "address": "7306 Louetta Rd Ste A-114, Spring, TX 77379",
+      "cuisines": ["vietnamese"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Vietnamese pho shop with customizable beef, pork and veg bowls on Louetta Rd. Opened March 2026.",
+      "signatureDishes": ["Customizable pho", "Spring rolls"]
     },
     {
       "id": "c1ceed3a-4785-5946-be52-bed22fa578d1",
@@ -1591,6 +1651,21 @@
       "signatureDishes": []
     },
     {
+      "id": "2e9baca0-56d1-5597-b81a-8574646dcbb3",
+      "name": "Rusty Horseshoe Bar and Grill",
+      "latitude": 30.06189,
+      "longitude": -95.49785,
+      "area": "klein",
+      "address": "19940 Kuykendahl Rd, Spring, TX 77379",
+      "cuisines": ["american", "southern"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://horseshoehtx.com",
+      "phone": null,
+      "description": "Bar and grill with live music in the former Bareback Icehouse space; wings, burgers and cocktails. Opened Jan 2025.",
+      "signatureDishes": ["Wings", "Burgers"]
+    },
+    {
       "id": "2d2f6123-42a8-5645-99f6-be0306a6c43f",
       "name": "Salata",
       "latitude": 30.08566,
@@ -1679,6 +1754,21 @@
       "phone": null,
       "description": "Japanese restaurant in Klein.",
       "signatureDishes": []
+    },
+    {
+      "id": "24932c39-bde6-55c4-a31b-523b54ac8ead",
+      "name": "Slice of Venice Pizzeria",
+      "latitude": 30.05489,
+      "longitude": -95.45899,
+      "area": "klein",
+      "address": "5275 Louetta Rd, Spring, TX 77379",
+      "cuisines": ["italian", "pizza"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://www.slicesofvenice.com",
+      "phone": null,
+      "description": "Chef-driven Italian by Venice-born chef Francesco Gennari with hand-tossed pizzas and scratch pasta. Opened Jan 2025.",
+      "signatureDishes": ["Granny pizza", "Pinsa Romana"]
     },
     {
       "id": "23cfc18e-c637-5c51-a2e8-54fd461ea83a",
@@ -2129,6 +2219,21 @@
       "phone": "+1-832-717-4449",
       "description": "Coffee & bakery quick-service spot in Klein.",
       "signatureDishes": []
+    },
+    {
+      "id": "331642cd-f355-5076-b2d8-83c3a3961619",
+      "name": "Trill Burgers",
+      "latitude": 30.05489,
+      "longitude": -95.45899,
+      "area": "klein",
+      "address": "6810 Louetta Rd, Spring, TX 77379",
+      "cuisines": ["burgers", "american"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://www.trillburgers.com",
+      "phone": null,
+      "description": "Houston smash-burger brand co-founded by Bun B; second brick-and-mortar on Louetta Rd. Opened April 2025.",
+      "signatureDishes": ["OG Burger", "Trill fries"]
     },
     {
       "id": "456b3596-4db4-5636-821f-9e53e93dc052",
@@ -3376,6 +3481,21 @@
       "signatureDishes": []
     },
     {
+      "id": "9af09471-7c47-5698-9e8c-688c47ddf67a",
+      "name": "Gloria's Latin Cuisine",
+      "latitude": 30.18715,
+      "longitude": -95.45325,
+      "area": "shenandoah",
+      "address": "18484 Interstate 45 S, Shenandoah, TX 77384",
+      "cuisines": ["latin", "texMex"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://www.gloriascuisine.com/locations/the-woodlands",
+      "phone": "936-267-3955",
+      "description": "Salvadoran and Tex-Mex with a large bar and patio along I-45. Opened 2024.",
+      "signatureDishes": ["Pupusas", "Fajitas"]
+    },
+    {
       "id": "40a64b35-9dd3-5db0-9527-885f1c20a6fa",
       "name": "Goode Co. Fish Camp",
       "latitude": 30.17602,
@@ -3526,6 +3646,21 @@
       "signatureDishes": []
     },
     {
+      "id": "25107b5e-da73-5cc6-8aeb-8431432e89df",
+      "name": "KPOT Korean BBQ & Hot Pot",
+      "latitude": 30.19672,
+      "longitude": -95.45345,
+      "area": "shenandoah",
+      "address": "17937 Interstate 45 N Ste 115, Shenandoah, TX 77385",
+      "cuisines": ["korean"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://thekpot.com/location/shenandoah-i-45-n/",
+      "phone": null,
+      "description": "All-you-can-eat interactive Korean BBQ and hot pot along I-45. Opened Oct 2024.",
+      "signatureDishes": ["Korean BBQ", "Hot pot"]
+    },
+    {
       "id": "0f240373-ee54-51ac-9024-8fdb8b0f01e7",
       "name": "Kung Fu Tea",
       "latitude": 30.20506,
@@ -3554,6 +3689,21 @@
       "phone": "+12815880351",
       "description": "Restaurant in Shenandoah.",
       "signatureDishes": []
+    },
+    {
+      "id": "7014c378-85ec-5b9d-814b-dc29157548d5",
+      "name": "Kyuramen",
+      "latitude": 30.19523,
+      "longitude": -95.45242,
+      "area": "shenandoah",
+      "address": "8821 Metropark Dr Ste 700, Shenandoah, TX 77385",
+      "cuisines": ["japanese"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://www.kyuramen.com/locations/shenandoah",
+      "phone": "281-305-9788",
+      "description": "Modern Japanese ramen shop at Metropark Square. Opened fall 2024.",
+      "signatureDishes": ["Tonkotsu ramen", "Spicy miso ramen"]
     },
     {
       "id": "C1D2E3F4-0000-4000-A000-000000000026",
@@ -3901,6 +4051,21 @@
       "signatureDishes": []
     },
     {
+      "id": "8512232b-6d62-5f2e-b9d2-fe79b09fb1b3",
+      "name": "Sal e Brasa Brazilian Steakhouse",
+      "latitude": 30.17709,
+      "longitude": -95.46183,
+      "area": "shenandoah",
+      "address": "1700 Research Forest Dr, Shenandoah, TX 77381",
+      "cuisines": ["steakhouse", "latin"],
+      "priceTier": "$$$",
+      "isFastFood": false,
+      "website": "https://www.salebrasausa.com",
+      "phone": "281-805-0999",
+      "description": "Brazilian churrasco steakhouse with tableside-carved meats and a buffet. Soft-opened April 2025.",
+      "signatureDishes": ["Picanha", "Churrasco rodizio"]
+    },
+    {
       "id": "C1D2E3F4-0000-4000-A000-000000000049",
       "name": "Saltgrass Steak House",
       "latitude": 30.17269,
@@ -4199,6 +4364,21 @@
       "phone": null,
       "description": "Restaurant in Spring.",
       "signatureDishes": []
+    },
+    {
+      "id": "a8beb684-d46c-531a-a48b-2c115b6d779f",
+      "name": "Aldanberto's Mexican Food",
+      "latitude": 30.05629,
+      "longitude": -95.45687,
+      "area": "spring",
+      "address": "4841 Louetta Rd, Spring, TX 77388",
+      "cuisines": ["mexican"],
+      "priceTier": "$",
+      "isFastFood": false,
+      "website": "https://www.aldanbertos.com",
+      "phone": null,
+      "description": "24-hour Mexican spot serving breakfast plates, burritos and street tacos. Opened Jan 2025.",
+      "signatureDishes": ["Breakfast burritos", "Street tacos"]
     },
     {
       "id": "56cc465c-bf6e-5579-a343-d2a8b0e1f2e7",
@@ -4846,6 +5026,21 @@
       "signatureDishes": []
     },
     {
+      "id": "dd777104-2c91-5e76-93e3-94f4df056ada",
+      "name": "Fries & Grind",
+      "latitude": 30.12429,
+      "longitude": -95.41516,
+      "area": "spring",
+      "address": "1810 Rayford Rd, Spring, TX 77386",
+      "cuisines": ["burgers"],
+      "priceTier": "$",
+      "isFastFood": false,
+      "website": "https://friesandgrind.toast.site",
+      "phone": "832-510-6325",
+      "description": "Smash-burger spot that opened a permanent Rayford Rd location in the Milstead food-truck park. Opened Sept 2025.",
+      "signatureDishes": ["Smash burger", "Truffle parmesan fries"]
+    },
+    {
       "id": "dac78b4b-a12f-5f0a-b850-c7b8def7f624",
       "name": "Golden Chick",
       "latitude": 30.07269,
@@ -5309,6 +5504,21 @@
       "phone": "+1 281-821-3346",
       "description": "Burger quick-service spot in Spring.",
       "signatureDishes": []
+    },
+    {
+      "id": "b08949c3-e9bf-5d14-878b-744a9045a479",
+      "name": "Mimi Garden",
+      "latitude": 30.12804,
+      "longitude": -95.44664,
+      "area": "spring",
+      "address": "202 Sawdust Rd Ste 110, Spring, TX 77380",
+      "cuisines": ["chinese"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://mimigardentx.com/",
+      "phone": null,
+      "description": "Second, larger location of the dumpling and bao specialist; added Peking duck. Opened March 2026.",
+      "signatureDishes": ["Soup dumplings", "Peking duck"]
     },
     {
       "id": "b4b5ac51-cab0-5105-92f7-26005ec5f081",
@@ -5851,6 +6061,36 @@
       "signatureDishes": []
     },
     {
+      "id": "77f2f294-3e79-5e4c-90d5-6921e639a0f7",
+      "name": "Susanita's Tex-Mex Y Ritas",
+      "latitude": 30.07053,
+      "longitude": -95.45814,
+      "area": "spring",
+      "address": "4915 FM 2920, Spring, TX 77388",
+      "cuisines": ["texMex", "mexican"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://www.susanitas.com",
+      "phone": "281-323-4596",
+      "description": "Family-owned Tex-Mex with multi-generational recipes and margaritas. Opened spring 2025.",
+      "signatureDishes": ["Fajitas", "Margaritas"]
+    },
+    {
+      "id": "3b97f361-c25a-5b0d-abd3-e3433c3f7228",
+      "name": "Sushi Rebel",
+      "latitude": 30.09853,
+      "longitude": -95.44197,
+      "area": "spring",
+      "address": "1700 City Plaza Dr, Spring, TX 77389",
+      "cuisines": ["sushi", "japanese"],
+      "priceTier": "$$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Stylish sushi concept from the Uptown Sushi owners in the CityPlace / Springwoods Village development.",
+      "signatureDishes": ["Specialty rolls", "Sashimi"]
+    },
+    {
       "id": "C1D2E3F4-0000-4000-A000-000000000041",
       "name": "Suxico Sushi",
       "latitude": 30.1555,
@@ -5864,6 +6104,21 @@
       "phone": "+1-346-351-2608",
       "description": "A casual sushi bar near Sawdust Road serving creative specialty rolls, nigiri and Japanese plates.",
       "signatureDishes": ["Specialty Rolls", "Nigiri", "Poke"]
+    },
+    {
+      "id": "a7a3c6f2-a5ff-5efa-b396-8866467d3b42",
+      "name": "SwitcHouse Plates N' Pours",
+      "latitude": 30.09809,
+      "longitude": -95.44058,
+      "area": "spring",
+      "address": "1200 Lake Plaza Dr, Spring, TX 77389",
+      "cuisines": ["american", "steakhouse"],
+      "priceTier": "$$$",
+      "isFastFood": false,
+      "website": "https://cityplaceswitchouse.com",
+      "phone": null,
+      "description": "Texas-cuisine restaurant and bar inside the CityPlace Marriott at Springwoods Village.",
+      "signatureDishes": ["Texas entrees", "Craft cocktails"]
     },
     {
       "id": "d823f281-dc81-5a57-acbf-b1dcc1531c1f",
@@ -6946,6 +7201,21 @@
       "signatureDishes": []
     },
     {
+      "id": "00aa37e3-be18-5097-9abb-fefbd5c518ba",
+      "name": "LOCAL Public Eatery",
+      "latitude": 30.1639,
+      "longitude": -95.46294,
+      "area": "woodlands",
+      "address": "9595 Six Pines Dr Ste 200, The Woodlands, TX 77380",
+      "cuisines": ["american", "burgers", "pizza"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://localpubliceatery.com/lpe-woodlands/",
+      "phone": null,
+      "description": "From-scratch Americana gastropub at Market Street with burgers, wood-fired pizzas and a retractable-roof patio. Opened Aug 2025.",
+      "signatureDishes": ["Burgers", "Wood-fired pizzas"]
+    },
+    {
       "id": "7af4882f-c97f-598b-ac7a-f2e4a45b03ef",
       "name": "Lucky Cafe",
       "latitude": 30.15153,
@@ -7096,6 +7366,36 @@
       "signatureDishes": []
     },
     {
+      "id": "481c669f-c3a8-588c-98e8-a5f6da0d54c0",
+      "name": "Mimi Garden",
+      "latitude": 30.20874,
+      "longitude": -95.52874,
+      "area": "woodlands",
+      "address": "8021 Research Forest Dr Ste A, The Woodlands, TX 77382",
+      "cuisines": ["chinese"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://mimigardentx.com/",
+      "phone": "281-323-4060",
+      "description": "Independent Chinese spot for hand-made dumplings, bao and dim sum. Opened late 2024.",
+      "signatureDishes": ["Soup dumplings", "Steamed bao"]
+    },
+    {
+      "id": "5b9f640f-93c9-5044-b71a-88a094521b72",
+      "name": "Monarca Modern Mexican Cocina",
+      "latitude": 30.14377,
+      "longitude": -95.5503,
+      "area": "woodlands",
+      "address": "26400 Kuykendahl Rd Ste 100, The Woodlands, TX 77375",
+      "cuisines": ["mexican"],
+      "priceTier": "$$$",
+      "isFastFood": false,
+      "website": "https://monarcarest.com/",
+      "phone": "832-559-3855",
+      "description": "Chef-driven contemporary Mexican in Creekside Park with Josper-grilled meats, seafood and a speakeasy bar. Opened 2024.",
+      "signatureDishes": ["Josper-grilled steak", "Tacos"]
+    },
+    {
       "id": "C1D2E3F4-0000-4000-A000-000000000021",
       "name": "Niko Niko's Greek & American Cafe",
       "latitude": 30.17135,
@@ -7124,6 +7424,21 @@
       "phone": "+1 281-292-6935",
       "description": "Italian restaurant in The Woodlands.",
       "signatureDishes": []
+    },
+    {
+      "id": "932a48f4-9f0c-54f5-ab6b-c973f489c288",
+      "name": "Original ChopShop",
+      "latitude": 30.17918,
+      "longitude": -95.53501,
+      "area": "woodlands",
+      "address": "10720 Kuykendahl Rd Ste D, The Woodlands, TX 77381",
+      "cuisines": ["healthy", "american"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://originalchopshop.com/locations/texas/the-woodlands/",
+      "phone": "346-771-6862",
+      "description": "Health-focused fast-casual in Indian Springs with protein bowls, salads and fresh juices. Opened Sept 2024.",
+      "signatureDishes": ["Protein bowls", "Fresh-pressed juices"]
     },
     {
       "id": "74f525f6-0f47-59a6-b385-5de11d0722ea",
@@ -7291,6 +7606,21 @@
       "signatureDishes": ["Bruschetta Board", "Soft Egg & Pancetta Bruschetta", "Warm Artichoke Dip"]
     },
     {
+      "id": "c239887c-bca0-531a-aaf8-b8c680f789b0",
+      "name": "Prime Beef Shabu",
+      "latitude": 30.18273,
+      "longitude": -95.53614,
+      "area": "woodlands",
+      "address": "6700 Woodlands Pkwy Ste 250, The Woodlands, TX 77382",
+      "cuisines": ["japanese"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://www.primebeefshabu.com/",
+      "phone": "281-651-2542",
+      "description": "All-you-can-eat Japanese shabu-shabu hot pot with individual broths. Opened March 2025.",
+      "signatureDishes": ["Shabu-shabu hot pot"]
+    },
+    {
       "id": "c93bf755-c1b3-5c57-bfb1-958c371530d9",
       "name": "Quiznos",
       "latitude": 30.16926,
@@ -7364,6 +7694,21 @@
       "phone": null,
       "description": "Coffee & bakery quick-service spot in The Woodlands.",
       "signatureDishes": []
+    },
+    {
+      "id": "feee0879-87d0-5b78-9e87-b8009735ffd5",
+      "name": "Simply Pho & Grill",
+      "latitude": 30.18258,
+      "longitude": -95.55973,
+      "area": "woodlands",
+      "address": "8000 McBeth Way, The Woodlands, TX 77382",
+      "cuisines": ["vietnamese"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://www.simplyphogrill.com/",
+      "phone": "346-459-1009",
+      "description": "Family-owned Vietnamese in Sterling Ridge serving pho, banh mi and grilled dishes. Opened 2024.",
+      "signatureDishes": ["Pho", "Grilled pork bao"]
     },
     {
       "id": "C1D2E3F4-0000-4000-A000-000000000018",
@@ -7739,6 +8084,21 @@
       "phone": "+1-281-719-5895",
       "description": "A beloved local Texas comfort-food restaurant known for chicken-fried steak, scratch-made desserts and Southern-inspired cooking.",
       "signatureDishes": ["American Wagyu Chicken-Fried Steak", "Crab Cakes", "Strawberry Shortcake"]
+    },
+    {
+      "id": "dee9f954-651e-59d0-8ca6-b259469c7426",
+      "name": "The Stand",
+      "latitude": 30.1699,
+      "longitude": -95.47138,
+      "area": "woodlands",
+      "address": "2000 Hughes Landing Blvd Ste F-700, The Woodlands, TX 77380",
+      "cuisines": ["american", "burgers"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://www.thestand.com/location/the-woodlands-texas/",
+      "phone": null,
+      "description": "California-born better-burger concept at Hughes Landing with burgers, shakes and veg options.",
+      "signatureDishes": ["Burgers", "Hand-spun shakes"]
     },
     {
       "id": "C1D2E3F4-0000-4000-A000-000000000019",
