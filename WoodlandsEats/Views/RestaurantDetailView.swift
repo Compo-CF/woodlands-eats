@@ -1,11 +1,16 @@
 import SwiftUI
 import MapKit
+import PhotosUI
+import UIKit
 
 struct RestaurantDetailView: View {
     @Environment(TierListStore.self) private var tierStore
     @Environment(CloudKitService.self) private var cloudKit
     let restaurant: Restaurant
     @State private var community: CommunityTier?
+    @State private var dishPhotos: [DishPhoto] = []
+    @State private var pickerItem: PhotosPickerItem?
+    @State private var isUploading = false
 
     var body: some View {
         ScrollView {
@@ -13,6 +18,7 @@ struct RestaurantDetailView: View {
                 header
                 rateSection
                 communitySection
+                photosSection
                 if !restaurant.signatureDishes.isEmpty { dishesSection }
                 aboutSection
                 actionsSection
@@ -23,7 +29,75 @@ struct RestaurantDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task {
             community = await cloudKit.fetchCommunityTier(restaurantID: restaurant.id)
+            dishPhotos = await cloudKit.fetchDishPhotos(restaurantID: restaurant.id)
         }
+        .onChange(of: pickerItem) { _, item in
+            Task { await handlePick(item) }
+        }
+    }
+
+    @ViewBuilder
+    private var photosSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Dish photos").font(.headline)
+                Spacer()
+                PhotosPicker(selection: $pickerItem, matching: .images, photoLibrary: .shared()) {
+                    if isUploading {
+                        ProgressView()
+                    } else {
+                        Label("Add", systemImage: "camera.fill").font(.subheadline)
+                    }
+                }
+                .disabled(isUploading)
+            }
+            if dishPhotos.isEmpty {
+                Text("No photos yet — add the first one.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(dishPhotos) { photo in
+                            if let ui = UIImage(data: photo.imageData) {
+                                Image(uiImage: ui)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 130, height: 130)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 1)
+                }
+            }
+        }
+    }
+
+    private func handlePick(_ item: PhotosPickerItem?) async {
+        guard let item else { return }
+        isUploading = true
+        defer { isUploading = false; pickerItem = nil }
+        guard let raw = try? await item.loadTransferable(type: Data.self),
+              let jpeg = Self.downscaledJPEG(from: raw) else { return }
+        if await cloudKit.uploadDishPhoto(restaurantID: restaurant.id, jpegData: jpeg, caption: nil) {
+            // Show it immediately; replace with the server list once it's queryable.
+            dishPhotos.insert(DishPhoto(id: UUID().uuidString, caption: nil, imageData: jpeg), at: 0)
+            let fresh = await cloudKit.fetchDishPhotos(restaurantID: restaurant.id)
+            if !fresh.isEmpty { dishPhotos = fresh }
+        }
+    }
+
+    private static func downscaledJPEG(from data: Data, maxDimension: CGFloat = 1200,
+                                       quality: CGFloat = 0.7) -> Data? {
+        guard let image = UIImage(data: data) else { return nil }
+        let longest = max(image.size.width, image.size.height)
+        let scale = longest > maxDimension ? maxDimension / longest : 1
+        let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+        let rendered = UIGraphicsImageRenderer(size: size).image { _ in
+            image.draw(in: CGRect(origin: .zero, size: size))
+        }
+        return rendered.jpegData(compressionQuality: quality)
     }
 
     private func place(_ tier: Tier) {

@@ -10,6 +10,13 @@ struct CommunityTier {
     let average: Double
 }
 
+/// A user-submitted dish photo for a restaurant (CloudKit CKAsset, downloaded).
+struct DishPhoto: Identifiable {
+    let id: String
+    let caption: String?
+    let imageData: Data
+}
+
 /// Thin wrapper over the CloudKit public database for the crowdsourcing layer.
 ///
 /// Identity is implicit: CloudKit attributes each record to the signed-in iCloud
@@ -91,6 +98,53 @@ final class CloudKitService {
             return CommunityTier(tier: .from(averageScore: avg), count: scores.count, average: avg)
         } catch {
             return nil
+        }
+    }
+
+    // MARK: - Dish photos (public DB, CKAsset)
+
+    /// Upload a dish photo (already-compressed JPEG) for a restaurant.
+    func uploadDishPhoto(restaurantID: UUID, jpegData: Data, caption: String?) async -> Bool {
+        guard isAvailable else { return false }
+        let tmp = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString + ".jpg")
+        do {
+            try jpegData.write(to: tmp)
+            let record = CKRecord(recordType: "DishPhoto")
+            record["restaurantID"] = restaurantID.uuidString as CKRecordValue
+            if let caption, !caption.isEmpty {
+                record["caption"] = caption as CKRecordValue
+            }
+            record["image"] = CKAsset(fileURL: tmp)
+            _ = try await publicDB.save(record)
+            try? FileManager.default.removeItem(at: tmp)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    /// Fetch all dish photos for a restaurant (requires a Queryable index on
+    /// DishPhoto.restaurantID; returns [] gracefully until that exists).
+    func fetchDishPhotos(restaurantID: UUID) async -> [DishPhoto] {
+        guard isAvailable else { return [] }
+        let predicate = NSPredicate(format: "restaurantID == %@", restaurantID.uuidString)
+        let query = CKQuery(recordType: "DishPhoto", predicate: predicate)
+        do {
+            let (results, _) = try await publicDB.records(matching: query, resultsLimit: 50)
+            var photos: [DishPhoto] = []
+            for (_, result) in results {
+                guard case .success(let rec) = result,
+                      let asset = rec["image"] as? CKAsset,
+                      let url = asset.fileURL,
+                      let data = try? Data(contentsOf: url) else { continue }
+                photos.append(DishPhoto(id: rec.recordID.recordName,
+                                        caption: rec["caption"] as? String,
+                                        imageData: data))
+            }
+            return photos
+        } catch {
+            return []
         }
     }
 }
