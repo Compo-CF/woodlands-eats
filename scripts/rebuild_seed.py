@@ -23,10 +23,11 @@ FASTFOOD_DENY = {
     "pizzahut", "littlecaesar", "papajohn", "deltaco", "carlsjr", "hardee",
     "churchschicken", "whitecastle", "checkers", "rallys", "quiznos",
     "wienerschnitzel", "longjohnsilver", "captainds", "krystal", "pandaexpress",
+    "chickfila",
 }
 # Rankable QSR / fast-casual — NOT flagged even though OSM tags them "fast_food".
 QSR_ALLOW = {
-    "whataburger", "chickfila", "torchy", "chipotle", "raisingcane", "fiveguys",
+    "whataburger", "torchy", "chipotle", "raisingcane", "fiveguys",
     "innout", "shakeshack", "cava", "velvettaco", "fuzzy", "freebirds",
     "modpizza", "jerseymike", "pterry", "layne", "salata", "sweetgreen",
     "willie", "mooyah", "smashburger", "culver", "portillo", "panera",
