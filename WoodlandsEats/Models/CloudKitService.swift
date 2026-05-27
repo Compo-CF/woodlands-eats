@@ -340,55 +340,42 @@ final class CloudKitService {
         }
     }
 
-    /// userIDs of all approved Foodie Pros. Approvals are admin-owned `ProApproval`
-    /// records (a user can't write another user's FoodieProfile, so approval is a
-    /// separate record the admin creates). Requires recordName Queryable on ProApproval.
-    private func fetchApprovedProIDs() async -> Set<String> {
-        guard isAvailable else { return [] }
-        var ids: Set<String> = []
-        func accumulate(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
-            for (_, result) in matches {
-                if case .success(let rec) = result, let uid = rec["userID"] as? String {
-                    ids.insert(uid)
-                }
-            }
-        }
-        do {
-            let query = CKQuery(recordType: approvalType, predicate: NSPredicate(value: true))
-            var (matches, cursor) = try await publicDB.records(
-                matching: query, desiredKeys: ["userID"], resultsLimit: 200)
-            accumulate(matches)
-            while let c = cursor {
-                (matches, cursor) = try await publicDB.records(
-                    continuingMatchFrom: c, desiredKeys: ["userID"], resultsLimit: 200)
-                accumulate(matches)
-            }
-        } catch {
-            return []
-        }
-        return ids
+    /// Whether a specific user is an approved Foodie Pro. Checks their admin-owned
+    /// ProApproval record directly via record(for:) — needs no index, and avoids
+    /// the creatorUserRecordID "__defaultOwner__" quirk for a user's own records.
+    private func isApproved(userID: String) async -> Bool {
+        guard !userID.isEmpty else { return false }
+        return (try? await publicDB.record(for: CKRecord.ID(recordName: "approval_\(userID)"))) != nil
+    }
+
+    /// Extract the owner's userID from a placement recordName,
+    /// which is "placement_<userID>_<restaurantUUID>".
+    private func placementOwnerID(from recordName: String) -> String? {
+        let prefix = "placement_"
+        guard recordName.hasPrefix(prefix) else { return nil }
+        let body = recordName.dropFirst(prefix.count)   // "<userID>_<restaurantUUID>"
+        guard body.count > 37 else { return nil }        // 36-char UUID + "_" separator
+        let userID = String(body.dropLast(37))
+        return userID.isEmpty ? nil : userID
     }
 
     /// Community consensus computed ONLY from approved Foodie Pros' placements.
+    /// Owner is parsed from each placement's recordName (robust), then each unique
+    /// owner's approval is checked directly — no extra index, no creator-field quirk.
     func fetchProCommunityTiers() async -> [UUID: CommunityTier] {
         guard isAvailable else { return [:] }
-        let pros = await fetchApprovedProIDs()
-        guard !pros.isEmpty else { return [:] }
-        var sums: [UUID: (total: Int, count: Int)] = [:]
 
+        // 1. Pull all placements (Placement.recordName index is already deployed).
+        var placements: [(owner: String, restaurant: UUID, score: Int)] = []
         func accumulate(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
-            for (_, result) in matches {
+            for (recordID, result) in matches {
                 guard case .success(let rec) = result,
-                      let creator = rec.creatorUserRecordID?.recordName, pros.contains(creator),
+                      let owner = placementOwnerID(from: recordID.recordName),
                       let s = rec["restaurantID"] as? String, let rid = UUID(uuidString: s),
                       let score = rec["score"] as? Int else { continue }
-                var entry = sums[rid] ?? (0, 0)
-                entry.total += score
-                entry.count += 1
-                sums[rid] = entry
+                placements.append((owner, rid, score))
             }
         }
-
         do {
             let query = CKQuery(recordType: placementType, predicate: NSPredicate(value: true))
             var (matches, cursor) = try await publicDB.records(
@@ -401,6 +388,22 @@ final class CloudKitService {
             }
         } catch {
             return [:]
+        }
+
+        // 2. Which unique owners are approved pros (one record(for:) each — no index).
+        var pros: Set<String> = []
+        for owner in Set(placements.map { $0.owner }) {
+            if await isApproved(userID: owner) { pros.insert(owner) }
+        }
+        guard !pros.isEmpty else { return [:] }
+
+        // 3. Aggregate only the pros' placements.
+        var sums: [UUID: (total: Int, count: Int)] = [:]
+        for placement in placements where pros.contains(placement.owner) {
+            var entry = sums[placement.restaurant] ?? (0, 0)
+            entry.total += placement.score
+            entry.count += 1
+            sums[placement.restaurant] = entry
         }
 
         var out: [UUID: CommunityTier] = [:]
@@ -427,7 +430,6 @@ final class CloudKitService {
     /// Admin: everyone who requested, split into pending vs. already-approved.
     func fetchProRequests() async -> (pending: [ProRequest], approved: [ProRequest]) {
         guard isAvailable else { return ([], []) }
-        let approvedIDs = await fetchApprovedProIDs()
         let query = CKQuery(recordType: profileType, predicate: NSPredicate(format: "status == %@", "requested"))
         do {
             let (results, _) = try await publicDB.records(matching: query, resultsLimit: 200)
@@ -439,7 +441,7 @@ final class CloudKitService {
                 let req = ProRequest(id: id.recordName,
                                      displayName: rec["displayName"] as? String ?? "",
                                      userID: uid)
-                if approvedIDs.contains(uid) { approved.append(req) } else { pending.append(req) }
+                if await isApproved(userID: uid) { approved.append(req) } else { pending.append(req) }
             }
             return (pending, approved)
         } catch {
