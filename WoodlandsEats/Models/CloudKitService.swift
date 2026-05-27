@@ -38,6 +38,7 @@ final class CloudKitService {
 
     private let placementType = "Placement"
     private let closureType = "ClosureReport"
+    private let profileType = "FoodieProfile"
 
     /// Per-restaurant count of "permanently closed" reports; refreshed on launch
     /// and after a report toggle. Read by the list + map to flag closed spots.
@@ -281,5 +282,111 @@ final class CloudKitService {
         } catch {
             // leave the existing cache as-is on failure
         }
+    }
+
+    // MARK: - Foodie Pro profiles
+
+    func currentUserID() async -> String? {
+        await userRecordName()
+    }
+
+    private func profileRecordID(user: String) -> CKRecord.ID {
+        CKRecord.ID(recordName: "profile_\(user)")
+    }
+
+    /// The current user's (displayName, status); status is ""/"requested"/"approved".
+    func fetchMyProfile() async -> (displayName: String, status: String) {
+        guard isAvailable, let user = await userRecordName() else { return ("", "") }
+        do {
+            let rec = try await publicDB.record(for: profileRecordID(user: user))
+            return (rec["displayName"] as? String ?? "", rec["status"] as? String ?? "")
+        } catch {
+            return ("", "")   // no profile yet
+        }
+    }
+
+    /// Upsert the user's profile. Sets displayName; if requestingPro and not
+    /// already approved, marks status "requested". Never downgrades an approved pro.
+    func saveProfile(displayName: String, requestingPro: Bool) async -> Bool {
+        guard isAvailable, let user = await userRecordName() else { return false }
+        let id = profileRecordID(user: user)
+        let record: CKRecord
+        var status = ""
+        if let existing = try? await publicDB.record(for: id) {
+            record = existing
+            status = existing["status"] as? String ?? ""
+        } else {
+            record = CKRecord(recordType: profileType, recordID: id)
+        }
+        record["displayName"] = displayName as CKRecordValue
+        record["userID"] = user as CKRecordValue
+        if requestingPro && status != "approved" { status = "requested" }
+        record["status"] = status as CKRecordValue
+        do {
+            _ = try await publicDB.modifyRecords(saving: [record], deleting: [], savePolicy: .allKeys)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    /// userIDs of all approved Foodie Pros (requires Queryable index on FoodieProfile.status).
+    private func fetchApprovedProIDs() async -> Set<String> {
+        guard isAvailable else { return [] }
+        let query = CKQuery(recordType: profileType, predicate: NSPredicate(format: "status == %@", "approved"))
+        do {
+            let (results, _) = try await publicDB.records(matching: query, resultsLimit: 200)
+            var ids: Set<String> = []
+            for (_, result) in results {
+                if case .success(let rec) = result, let uid = rec["userID"] as? String {
+                    ids.insert(uid)
+                }
+            }
+            return ids
+        } catch {
+            return []
+        }
+    }
+
+    /// Community consensus computed ONLY from approved Foodie Pros' placements.
+    func fetchProCommunityTiers() async -> [UUID: CommunityTier] {
+        guard isAvailable else { return [:] }
+        let pros = await fetchApprovedProIDs()
+        guard !pros.isEmpty else { return [:] }
+        var sums: [UUID: (total: Int, count: Int)] = [:]
+
+        func accumulate(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+            for (_, result) in matches {
+                guard case .success(let rec) = result,
+                      let creator = rec.creatorUserRecordID?.recordName, pros.contains(creator),
+                      let s = rec["restaurantID"] as? String, let rid = UUID(uuidString: s),
+                      let score = rec["score"] as? Int else { continue }
+                var entry = sums[rid] ?? (0, 0)
+                entry.total += score
+                entry.count += 1
+                sums[rid] = entry
+            }
+        }
+
+        do {
+            let query = CKQuery(recordType: placementType, predicate: NSPredicate(value: true))
+            var (matches, cursor) = try await publicDB.records(
+                matching: query, desiredKeys: ["restaurantID", "score"], resultsLimit: 200)
+            accumulate(matches)
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(
+                    continuingMatchFrom: c, desiredKeys: ["restaurantID", "score"], resultsLimit: 200)
+                accumulate(matches)
+            }
+        } catch {
+            return [:]
+        }
+
+        var out: [UUID: CommunityTier] = [:]
+        for (rid, agg) in sums where agg.count > 0 {
+            let avg = Double(agg.total) / Double(agg.count)
+            out[rid] = CommunityTier(tier: .from(averageScore: avg), count: agg.count, average: avg)
+        }
+        return out
     }
 }

@@ -35,7 +35,7 @@ targets:
       properties:
         CFBundleDisplayName: Woodlands Eats
         CFBundleShortVersionString: "0.1"
-        CFBundleVersion: "5"
+        CFBundleVersion: "6"
         CFBundleIconName: AppIcon
         UILaunchScreen:
           UIColorName: ""

@@ -13,6 +13,8 @@ struct ContentView: View {
                 .tabItem { Label("My Tiers", systemImage: "list.number") }
             CommunityTiersView()
                 .tabItem { Label("Community", systemImage: "person.3.fill") }
+            ProfileView()
+                .tabItem { Label("Profile", systemImage: "person.crop.circle") }
         }
         .task { await cloudKit.refreshClosureCounts() }
     }

@@ -9,6 +9,7 @@ struct CommunityTiersView: View {
     @State private var tiers: [UUID: CommunityTier] = [:]
     @State private var loading = true
     @State private var selected: Restaurant?
+    @State private var mode: CommunityMode = .everyone
 
     var body: some View {
         NavigationStack {
@@ -28,7 +29,7 @@ struct CommunityTiersView: View {
                                     onTap: { selected = $0 }
                                 )
                             }
-                            Text("\(rankedCount) restaurants ranked by the community")
+                            Text("\(rankedCount) restaurants ranked by \(mode == .pros ? "Foodie Pros" : "the community")")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                                 .padding(.top, 4)
@@ -39,6 +40,19 @@ struct CommunityTiersView: View {
                 }
             }
             .navigationTitle("Community")
+            .safeAreaInset(edge: .top) {
+                Picker("Mode", selection: $mode) {
+                    Text("Everyone").tag(CommunityMode.everyone)
+                    Text("Foodie Pros").tag(CommunityMode.pros)
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+                .background(.thinMaterial)
+            }
+            .onChange(of: mode) { _, _ in
+                Task { await load() }
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -65,7 +79,9 @@ struct CommunityTiersView: View {
 
     private func load() async {
         loading = true
-        tiers = await cloudKit.fetchAllCommunityTiers()
+        tiers = mode == .pros
+            ? await cloudKit.fetchProCommunityTiers()
+            : await cloudKit.fetchAllCommunityTiers()
         loading = false
     }
 
@@ -85,11 +101,18 @@ struct CommunityTiersView: View {
 
     private var emptyState: some View {
         ContentUnavailableView {
-            Label("No community rankings yet", systemImage: "person.3")
+            Label(mode == .pros ? "No Foodie Pro rankings yet" : "No community rankings yet",
+                  systemImage: mode == .pros ? "star" : "person.3")
         } description: {
-            Text("Once you and others rank places, the crowd's consensus tier list appears here. Open a restaurant and drop it into a tier to get it started.")
+            Text(mode == .pros
+                 ? "Once Foodie Pros rank places, their expert consensus tier list appears here."
+                 : "Once you and others rank places, the crowd's consensus tier list appears here. Open a restaurant and drop it into a tier to get it started.")
         }
     }
+}
+
+enum CommunityMode {
+    case everyone, pros
 }
 
 private struct CommunityEntry: Identifiable {
