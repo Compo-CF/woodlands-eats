@@ -19,18 +19,22 @@ struct ProfileView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Display name") {
+                Section(
+                    header: Text("Display name"),
+                    footer: Text("Shown with your reviews and on the Foodie Pro leaderboard.")
+                ) {
                     TextField("Your name", text: $displayName)
                         .autocorrectionDisabled()
                     Button("Save name") {
                         Task { await save(requestingPro: false) }
                     }
                     .disabled(saving || nameEmpty)
-                } footer: {
-                    Text("Shown with your reviews and on the Foodie Pro leaderboard.")
                 }
 
-                Section("Foodie Pro") {
+                Section(
+                    header: Text("Foodie Pro"),
+                    footer: Text("Foodie Pros' rankings power the \u{201C}Pros\u{201D} leaderboard on the Community tab. Set a display name first, then request.")
+                ) {
                     switch status {
                     case "approved":
                         Label("You're a Foodie Pro", systemImage: "star.fill")
@@ -46,18 +50,17 @@ struct ProfileView: View {
                         }
                         .disabled(saving || nameEmpty)
                     }
-                } footer: {
-                    Text("Foodie Pros' rankings power the \u{201C}Pros\u{201D} leaderboard on the Community tab. Set a display name first, then request.")
                 }
 
                 if !userID.isEmpty {
-                    Section("Your iCloud ID") {
+                    Section(
+                        header: Text("Your iCloud ID"),
+                        footer: Text("Used to attribute your rankings. (For admin setup.)")
+                    ) {
                         Text(userID)
                             .font(.caption.monospaced())
                             .foregroundStyle(.secondary)
                             .textSelection(.enabled)
-                    } footer: {
-                        Text("Used to attribute your rankings. (For admin setup.)")
                     }
                 }
             }
