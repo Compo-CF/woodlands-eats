@@ -1,5 +1,7 @@
 # XcodeGen output — regenerated from project.yml, never committed
 *.xcodeproj/
+WoodlandsEats/Info.plist
+WoodlandsEats/WoodlandsEats.entitlements
 
 # Xcode / macOS build artifacts
 DerivedData/
