@@ -11,10 +11,22 @@ struct CommunityTier {
 }
 
 /// A user-submitted dish photo for a restaurant (CloudKit CKAsset, downloaded).
+/// `submitterUserID` is the uploader's iCloud user record name (recorded on
+/// the photo record from build 14 onward). Used to filter blocked uploaders
+/// client-side. May be nil for legacy photos uploaded before build 14.
 struct DishPhoto: Identifiable {
     let id: String
     let caption: String?
     let imageData: Data
+    let submitterUserID: String?
+}
+
+/// A user-submitted report flagging a dish photo as objectionable
+/// (admin moderation queue, App Review Guideline 1.2).
+struct PhotoReport: Identifiable {
+    let id: String          // PhotoReport recordName
+    let photoID: String     // DishPhoto recordName
+    let reporterID: String
 }
 
 /// A user's Foodie Pro request (their FoodieProfile), for the admin approval UI.
@@ -61,6 +73,13 @@ final class CloudKitService {
     private let suggestionType = "RestaurantSuggestion"
     private let liveType = "LiveRestaurant"
     private let dismissalType = "SuggestionDismissed"
+    private let photoType = "DishPhoto"
+    private let photoReportType = "PhotoReport"
+    /// Admin-owned per-photo decision marker. recordName: `photoMod_<photoID>`.
+    /// Field `decision` is "hidden" or "approved" — hidden photos are filtered
+    /// out of `fetchDishPhotos` for everyone; approved photos drop out of the
+    /// admin queue but stay visible.
+    private let photoModType = "PhotoModerated"
     /// iCloud user record names allowed to approve Foodie Pros (shown on the Profile tab).
     private let adminUserIDs: Set<String> = ["_e8b0bfe996b6e232421afac393ab8a3b"]
 
@@ -178,14 +197,18 @@ final class CloudKitService {
     // MARK: - Dish photos (public DB, CKAsset)
 
     /// Upload a dish photo (already-compressed JPEG) for a restaurant.
+    /// Stamps the photo with the uploader's iCloud user record name so the
+    /// app can filter out photos from uploaders the viewer has blocked
+    /// (App Review Guideline 1.2).
     func uploadDishPhoto(restaurantID: UUID, jpegData: Data, caption: String?) async -> Bool {
-        guard isAvailable else { return false }
+        guard isAvailable, let user = await userRecordName() else { return false }
         let tmp = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString + ".jpg")
         do {
             try jpegData.write(to: tmp)
-            let record = CKRecord(recordType: "DishPhoto")
+            let record = CKRecord(recordType: photoType)
             record["restaurantID"] = restaurantID.uuidString as CKRecordValue
+            record["submitterUserID"] = user as CKRecordValue
             if let caption, !caption.isEmpty {
                 record["caption"] = caption as CKRecordValue
             }
@@ -198,27 +221,167 @@ final class CloudKitService {
         }
     }
 
-    /// Fetch all dish photos for a restaurant (requires a Queryable index on
-    /// DishPhoto.restaurantID; returns [] gracefully until that exists).
-    func fetchDishPhotos(restaurantID: UUID) async -> [DishPhoto] {
+    /// Fetch all dish photos for a restaurant, with two layers of filtering
+    /// for App Review Guideline 1.2:
+    ///   • photos with an admin `PhotoModerated` decision of "hidden" are
+    ///     dropped server-side for everyone
+    ///   • photos whose `submitterUserID` is in the viewer's local block list
+    ///     are dropped client-side
+    /// Requires a Queryable index on DishPhoto.restaurantID; returns [] gracefully.
+    func fetchDishPhotos(restaurantID: UUID,
+                         blockedUploaderIDs: Set<String> = []) async -> [DishPhoto] {
         guard isAvailable else { return [] }
         let predicate = NSPredicate(format: "restaurantID == %@", restaurantID.uuidString)
-        let query = CKQuery(recordType: "DishPhoto", predicate: predicate)
+        let query = CKQuery(recordType: photoType, predicate: predicate)
         do {
             let (results, _) = try await publicDB.records(matching: query, resultsLimit: 50)
+            // Batch-check moderation decisions for these specific photos. No
+            // schema-level Queryable needed — fetch by recordName.
+            let photoIDs = results.map { $0.0.recordName }
+            let hidden = await fetchHiddenPhotoIDs(photoIDs: photoIDs)
             var photos: [DishPhoto] = []
             for (_, result) in results {
                 guard case .success(let rec) = result,
                       let asset = rec["image"] as? CKAsset,
                       let url = asset.fileURL,
                       let data = try? Data(contentsOf: url) else { continue }
-                photos.append(DishPhoto(id: rec.recordID.recordName,
+                let photoID = rec.recordID.recordName
+                if hidden.contains(photoID) { continue }
+                let submitter = rec["submitterUserID"] as? String
+                if let submitter, blockedUploaderIDs.contains(submitter) { continue }
+                photos.append(DishPhoto(id: photoID,
                                         caption: rec["caption"] as? String,
-                                        imageData: data))
+                                        imageData: data,
+                                        submitterUserID: submitter))
             }
             return photos
         } catch {
             return []
+        }
+    }
+
+    /// Report a dish photo as objectionable. Idempotent per (reporter, photo).
+    func reportPhoto(photoID: String) async -> Bool {
+        guard isAvailable, let user = await userRecordName(), !photoID.isEmpty else { return false }
+        let recID = CKRecord.ID(recordName: "photoReport_\(user)_\(photoID)")
+        let rec = CKRecord(recordType: photoReportType, recordID: recID)
+        rec["photoID"] = photoID as CKRecordValue
+        rec["reporterID"] = user as CKRecordValue
+        do {
+            _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    /// Given a set of photo recordNames, return the subset that the admin has
+    /// marked "hidden." Uses record(for:) per id so no Queryable index is needed
+    /// — fine for the small batch sizes we fetch per restaurant.
+    private func fetchHiddenPhotoIDs(photoIDs: [String]) async -> Set<String> {
+        guard !photoIDs.isEmpty else { return [] }
+        var hidden: Set<String> = []
+        await withTaskGroup(of: (String, Bool).self) { group in
+            for pid in photoIDs {
+                group.addTask { [weak self] in
+                    guard let self else { return (pid, false) }
+                    let recID = CKRecord.ID(recordName: "photoMod_\(pid)")
+                    if let rec = try? await self.publicDB.record(for: recID),
+                       (rec["decision"] as? String) == "hidden" {
+                        return (pid, true)
+                    }
+                    return (pid, false)
+                }
+            }
+            for await (pid, isHidden) in group where isHidden { hidden.insert(pid) }
+        }
+        return hidden
+    }
+
+    /// Admin: fetch all photo reports whose photo has NOT yet been moderated
+    /// (no PhotoModerated decision on it). Pages the report list, then drops
+    /// any whose photo already has a moderator decision.
+    func fetchPendingPhotoReports() async -> [PhotoReport] {
+        guard isAvailable else { return [] }
+        var reports: [PhotoReport] = []
+        func accumulate(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+            for (id, result) in matches {
+                guard case .success(let rec) = result else { continue }
+                reports.append(PhotoReport(
+                    id: id.recordName,
+                    photoID: rec["photoID"] as? String ?? "",
+                    reporterID: rec["reporterID"] as? String ?? ""))
+            }
+        }
+        do {
+            let q = CKQuery(recordType: photoReportType, predicate: NSPredicate(value: true))
+            var (matches, cursor) = try await publicDB.records(matching: q, resultsLimit: 200)
+            accumulate(matches)
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(continuingMatchFrom: c, resultsLimit: 200)
+                accumulate(matches)
+            }
+        } catch {
+            return []
+        }
+        // Drop reports whose photo already has a moderator decision (hidden or approved).
+        let uniquePhotoIDs = Array(Set(reports.map { $0.photoID }))
+        var decided: Set<String> = []
+        await withTaskGroup(of: String?.self) { group in
+            for pid in uniquePhotoIDs where !pid.isEmpty {
+                group.addTask { [weak self] in
+                    guard let self else { return nil }
+                    let recID = CKRecord.ID(recordName: "photoMod_\(pid)")
+                    return (try? await self.publicDB.record(for: recID)) != nil ? pid : nil
+                }
+            }
+            for await pid in group { if let pid { decided.insert(pid) } }
+        }
+        return reports.filter { !decided.contains($0.photoID) }
+    }
+
+    /// Admin: fetch the underlying DishPhoto for a report — used to render the
+    /// admin review queue with the actual image. Returns nil if the photo was
+    /// deleted out from under the report.
+    func fetchPhoto(photoID: String) async -> DishPhoto? {
+        guard isAvailable, !photoID.isEmpty else { return nil }
+        do {
+            let rec = try await publicDB.record(for: CKRecord.ID(recordName: photoID))
+            guard let asset = rec["image"] as? CKAsset,
+                  let url = asset.fileURL,
+                  let data = try? Data(contentsOf: url) else { return nil }
+            return DishPhoto(id: photoID,
+                             caption: rec["caption"] as? String,
+                             imageData: data,
+                             submitterUserID: rec["submitterUserID"] as? String)
+        } catch {
+            return nil
+        }
+    }
+
+    /// Admin: hide a photo from everyone (creates an admin-owned PhotoModerated
+    /// marker with decision="hidden"). `fetchDishPhotos` filters these out.
+    func hidePhoto(photoID: String) async -> Bool {
+        await setPhotoDecision(photoID: photoID, decision: "hidden")
+    }
+
+    /// Admin: explicitly approve a photo so it drops out of the review queue
+    /// without being hidden. Useful for false reports.
+    func approvePhoto(photoID: String) async -> Bool {
+        await setPhotoDecision(photoID: photoID, decision: "approved")
+    }
+
+    private func setPhotoDecision(photoID: String, decision: String) async -> Bool {
+        guard isAvailable, !photoID.isEmpty else { return false }
+        let recID = CKRecord.ID(recordName: "photoMod_\(photoID)")
+        let rec = CKRecord(recordType: photoModType, recordID: recID)
+        rec["photoID"] = photoID as CKRecordValue
+        rec["decision"] = decision as CKRecordValue
+        do {
+            _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
+            return true
+        } catch {
+            return false
         }
     }
 

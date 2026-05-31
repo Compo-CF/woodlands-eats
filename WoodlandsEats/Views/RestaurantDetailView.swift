@@ -6,6 +6,7 @@ import UIKit
 struct RestaurantDetailView: View {
     @Environment(TierListStore.self) private var tierStore
     @Environment(CloudKitService.self) private var cloudKit
+    @Environment(BlockListStore.self) private var blockList
     let restaurant: Restaurant
     @State private var community: CommunityTier?
     @State private var dishPhotos: [DishPhoto] = []
@@ -13,6 +14,8 @@ struct RestaurantDetailView: View {
     @State private var isUploading = false
     @State private var closureCount = 0
     @State private var reportedByMe = false
+    @State private var reportingPhotoID: String?
+    @State private var reportConfirmation: String?
 
     var body: some View {
         ScrollView {
@@ -33,13 +36,24 @@ struct RestaurantDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task {
             community = await cloudKit.fetchCommunityTier(restaurantID: restaurant.id)
-            dishPhotos = await cloudKit.fetchDishPhotos(restaurantID: restaurant.id)
+            dishPhotos = await cloudKit.fetchDishPhotos(
+                restaurantID: restaurant.id,
+                blockedUploaderIDs: blockList.blocked)
             let closure = await cloudKit.fetchClosureInfo(restaurantID: restaurant.id)
             closureCount = closure.count
             reportedByMe = closure.reportedByMe
         }
         .onChange(of: pickerItem) { _, item in
             Task { await handlePick(item) }
+        }
+        .alert("Thanks for the report",
+               isPresented: Binding(
+                get: { reportConfirmation != nil },
+                set: { if !$0 { reportConfirmation = nil } }
+               )) {
+            Button("OK", role: .cancel) { reportConfirmation = nil }
+        } message: {
+            Text(reportConfirmation ?? "")
         }
     }
 
@@ -72,13 +86,55 @@ struct RestaurantDetailView: View {
                                     .scaledToFill()
                                     .frame(width: 130, height: 130)
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    .overlay(alignment: .topTrailing) {
+                                        if reportingPhotoID == photo.id {
+                                            ProgressView()
+                                                .padding(6)
+                                                .background(.thinMaterial, in: Circle())
+                                                .padding(4)
+                                        }
+                                    }
+                                    .contextMenu {
+                                        Button("Report photo", systemImage: "flag", role: .destructive) {
+                                            Task { await reportPhoto(photo) }
+                                        }
+                                        if photo.submitterUserID != nil {
+                                            Button("Block this uploader", systemImage: "hand.raised") {
+                                                blockUploader(photo)
+                                            }
+                                        }
+                                    }
                             }
                         }
                     }
                     .padding(.horizontal, 1)
                 }
+                Text("Long-press a photo to report it or block the uploader.")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
             }
         }
+    }
+
+    private func reportPhoto(_ photo: DishPhoto) async {
+        reportingPhotoID = photo.id
+        defer { reportingPhotoID = nil }
+        if await cloudKit.reportPhoto(photoID: photo.id) {
+            // Hide it locally right away — feels responsive, and the reporter
+            // won't see the photo again on this device until they relaunch.
+            dishPhotos.removeAll { $0.id == photo.id }
+            reportConfirmation = "We'll review this photo within 24 hours."
+        } else {
+            reportConfirmation = "Couldn't submit the report. Please try again."
+        }
+    }
+
+    private func blockUploader(_ photo: DishPhoto) {
+        guard let uploader = photo.submitterUserID else { return }
+        blockList.block(uploader)
+        // Drop every photo from this uploader currently on screen.
+        dishPhotos.removeAll { $0.submitterUserID == uploader }
+        reportConfirmation = "You won't see photos from this uploader again."
     }
 
     private func handlePick(_ item: PhotosPickerItem?) async {
@@ -89,8 +145,11 @@ struct RestaurantDetailView: View {
               let jpeg = Self.downscaledJPEG(from: raw) else { return }
         if await cloudKit.uploadDishPhoto(restaurantID: restaurant.id, jpegData: jpeg, caption: nil) {
             // Show it immediately; replace with the server list once it's queryable.
-            dishPhotos.insert(DishPhoto(id: UUID().uuidString, caption: nil, imageData: jpeg), at: 0)
-            let fresh = await cloudKit.fetchDishPhotos(restaurantID: restaurant.id)
+            dishPhotos.insert(DishPhoto(id: UUID().uuidString, caption: nil,
+                                        imageData: jpeg, submitterUserID: nil), at: 0)
+            let fresh = await cloudKit.fetchDishPhotos(
+                restaurantID: restaurant.id,
+                blockedUploaderIDs: blockList.blocked)
             if !fresh.isEmpty { dishPhotos = fresh }
         }
     }

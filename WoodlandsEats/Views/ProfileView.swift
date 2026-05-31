@@ -20,6 +20,8 @@ struct ProfileView: View {
     @State private var pendingSuggestions: [Suggestion] = []
     @State private var approvingID: String?
     @State private var suggestionError: String?
+    @State private var photoReports: [(report: PhotoReport, photo: DishPhoto?)] = []
+    @State private var actingPhotoID: String?
 
     private var nameEmpty: Bool {
         displayName.trimmingCharacters(in: .whitespaces).isEmpty
@@ -164,6 +166,19 @@ struct ProfileView: View {
                     }
                 }
 
+                if isAdmin {
+                    Section(header: Text("Photo reports")) {
+                        if photoReports.isEmpty {
+                            Text("No pending photo reports")
+                                .foregroundStyle(.secondary)
+                        } else {
+                            ForEach(photoReports, id: \.report.id) { item in
+                                photoReportRow(item)
+                            }
+                        }
+                    }
+                }
+
                 if !userID.isEmpty {
                     Section(
                         header: Text("Your iCloud ID"),
@@ -197,8 +212,74 @@ struct ProfileView: View {
         if isAdmin {
             await reloadAdmin()
             pendingSuggestions = await cloudKit.fetchPendingSuggestions()
+            await reloadPhotoReports()
         }
         loading = false
+    }
+
+    private func reloadPhotoReports() async {
+        let reports = await cloudKit.fetchPendingPhotoReports()
+        var hydrated: [(report: PhotoReport, photo: DishPhoto?)] = []
+        for r in reports {
+            let photo = await cloudKit.fetchPhoto(photoID: r.photoID)
+            hydrated.append((r, photo))
+        }
+        photoReports = hydrated
+    }
+
+    @ViewBuilder
+    private func photoReportRow(_ item: (report: PhotoReport, photo: DishPhoto?)) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            if let data = item.photo?.imageData, let ui = UIImage(data: data) {
+                Image(uiImage: ui)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 64, height: 64)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            } else {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color(.tertiarySystemBackground))
+                    .frame(width: 64, height: 64)
+                    .overlay(Image(systemName: "photo").foregroundStyle(.tertiary))
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Reported photo").font(.subheadline.weight(.semibold))
+                if let uid = item.photo?.submitterUserID {
+                    Text("Uploader: \(uid.prefix(12))…")
+                        .font(.caption2.monospaced())
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                if actingPhotoID == item.report.photoID {
+                    ProgressView().padding(.top, 2)
+                } else {
+                    HStack(spacing: 6) {
+                        Button("Keep") {
+                            Task { await actOnPhoto(item.report.photoID, hide: false) }
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.gray)
+                        Button("Hide", role: .destructive) {
+                            Task { await actOnPhoto(item.report.photoID, hide: true) }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.red)
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private func actOnPhoto(_ photoID: String, hide: Bool) async {
+        actingPhotoID = photoID
+        defer { actingPhotoID = nil }
+        let ok = hide
+            ? await cloudKit.hidePhoto(photoID: photoID)
+            : await cloudKit.approvePhoto(photoID: photoID)
+        if ok {
+            photoReports.removeAll { $0.report.photoID == photoID }
+        }
     }
 
     private func rejectOne(_ s: Suggestion) async {
