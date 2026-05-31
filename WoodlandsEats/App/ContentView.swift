@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(CloudKitService.self) private var cloudKit
+    @Environment(RestaurantStore.self) private var store
 
     var body: some View {
         TabView {
@@ -16,6 +17,9 @@ struct ContentView: View {
             ProfileView()
                 .tabItem { Label("Profile", systemImage: "person.crop.circle") }
         }
-        .task { await cloudKit.refreshClosureCounts() }
+        .task {
+            await cloudKit.refreshClosureCounts()
+            await store.refreshLive(via: cloudKit)
+        }
     }
 }

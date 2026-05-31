@@ -4,7 +4,14 @@ import Observation
 
 @Observable
 final class RestaurantStore {
+    /// What views read — the bundled/remote seed PLUS any live admin-approved
+    /// additions fetched from CloudKit.
     var restaurants: [Restaurant] = []
+    /// Bundled (or remote-cached) seed, kept separately so refreshing live
+    /// additions doesn't lose it.
+    private var seedRestaurants: [Restaurant] = []
+    /// Admin-approved community submissions fetched from CloudKit at launch.
+    private(set) var liveRestaurants: [Restaurant] = []
     var filter = RestaurantFilter()
     var userLocation: CLLocation?
 
@@ -27,7 +34,8 @@ final class RestaurantStore {
 
     private func loadLocalFirst() {
         if let cached = try? Data(contentsOf: cacheURL), let decoded = Self.decode(cached) {
-            restaurants = decoded
+            seedRestaurants = decoded
+            merge()
             return
         }
         loadBundled()
@@ -40,7 +48,19 @@ final class RestaurantStore {
             print("Bundled Restaurants.json missing or invalid")
             return
         }
-        restaurants = decoded
+        seedRestaurants = decoded
+        merge()
+    }
+
+    private func merge() {
+        restaurants = seedRestaurants + liveRestaurants
+    }
+
+    /// Pull admin-approved community additions from CloudKit and merge them in.
+    @MainActor
+    func refreshLive(via cloudKit: CloudKitService) async {
+        liveRestaurants = await cloudKit.fetchLiveRestaurants()
+        merge()
     }
 
     @MainActor
@@ -55,7 +75,8 @@ final class RestaurantStore {
                   let decoded = Self.decode(data),
                   !decoded.isEmpty
             else { return }
-            restaurants = decoded
+            seedRestaurants = decoded
+            merge()
             try? data.write(to: cacheURL, options: .atomic)
         } catch {
             // Offline or fetch failed — keep the local data from loadLocalFirst().

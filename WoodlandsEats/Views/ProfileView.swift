@@ -1,4 +1,5 @@
 import SwiftUI
+import CoreLocation
 
 /// Profile + Foodie Pro request, and (for admins) in-app approval.
 /// Identity is the implicit iCloud account; the display name is self-entered.
@@ -14,6 +15,11 @@ struct ProfileView: View {
     @State private var isAdmin = false
     @State private var pending: [ProRequest] = []
     @State private var approvedPros: [ProRequest] = []
+    @Environment(RestaurantStore.self) private var store
+    @State private var showSuggest = false
+    @State private var pendingSuggestions: [Suggestion] = []
+    @State private var approvingID: String?
+    @State private var suggestionError: String?
 
     private var nameEmpty: Bool {
         displayName.trimmingCharacters(in: .whitespaces).isEmpty
@@ -52,6 +58,17 @@ struct ProfileView: View {
                             Label("Request Foodie Pro", systemImage: "star")
                         }
                         .disabled(saving || nameEmpty)
+                    }
+                }
+
+                Section(
+                    header: Text("Help others"),
+                    footer: Text("Spotted a place that's not in the app yet? Submit it and an admin will review.")
+                ) {
+                    Button {
+                        showSuggest = true
+                    } label: {
+                        Label("Suggest a missing restaurant", systemImage: "plus.circle")
                     }
                 }
 
@@ -98,6 +115,48 @@ struct ProfileView: View {
                     }
                 }
 
+                if isAdmin {
+                    Section(header: Text("Pending restaurant suggestions")) {
+                        if pendingSuggestions.isEmpty {
+                            Text("No pending suggestions")
+                                .foregroundStyle(.secondary)
+                        } else {
+                            ForEach(pendingSuggestions) { s in
+                                HStack(alignment: .top, spacing: 8) {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(s.name)
+                                            .font(.headline)
+                                        Text(s.address)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                            .lineLimit(2)
+                                        if !s.cuisines.isEmpty {
+                                            Text(s.cuisines.joined(separator: " · "))
+                                                .font(.caption2)
+                                                .foregroundStyle(.tertiary)
+                                        }
+                                    }
+                                    Spacer()
+                                    if approvingID == s.id {
+                                        ProgressView()
+                                    } else {
+                                        Button("Approve") {
+                                            Task { await approveOne(s) }
+                                        }
+                                        .buttonStyle(.borderedProminent)
+                                        .tint(.green)
+                                    }
+                                }
+                            }
+                        }
+                        if let err = suggestionError {
+                            Text(err)
+                                .font(.caption)
+                                .foregroundStyle(.red)
+                        }
+                    }
+                }
+
                 if !userID.isEmpty {
                     Section(
                         header: Text("Your iCloud ID"),
@@ -115,6 +174,9 @@ struct ProfileView: View {
                 if loading { ProgressView() }
             }
             .task { await load() }
+            .sheet(isPresented: $showSuggest) {
+                SuggestRestaurantView()
+            }
         }
     }
 
@@ -125,8 +187,39 @@ struct ProfileView: View {
         displayName = profile.displayName
         status = await cloudKit.amIApproved() ? "approved" : profile.status
         isAdmin = await cloudKit.isAdmin()
-        if isAdmin { await reloadAdmin() }
+        if isAdmin {
+            await reloadAdmin()
+            pendingSuggestions = await cloudKit.fetchPendingSuggestions()
+        }
         loading = false
+    }
+
+    private func approveOne(_ s: Suggestion) async {
+        approvingID = s.id
+        suggestionError = nil
+        defer { approvingID = nil }
+        do {
+            let placemarks = try await CLGeocoder().geocodeAddressString(s.address)
+            guard let loc = placemarks.first?.location else {
+                suggestionError = "Couldn't locate \(s.name) — address didn't resolve."
+                return
+            }
+            let lat = loc.coordinate.latitude
+            let lon = loc.coordinate.longitude
+            guard (30.0...30.21).contains(lat), (-95.57 ... -95.35).contains(lon) else {
+                suggestionError = "\(s.name): geocoded outside the Woodlands/Spring area."
+                return
+            }
+            let ok = await cloudKit.approveSuggestion(s, latitude: lat, longitude: lon)
+            if ok {
+                pendingSuggestions.removeAll { $0.id == s.id }
+                await store.refreshLive(via: cloudKit)
+            } else {
+                suggestionError = "Couldn't save approval for \(s.name)."
+            }
+        } catch {
+            suggestionError = "Geocoding failed for \(s.name): \(error.localizedDescription)"
+        }
     }
 
     private func reloadAdmin() async {

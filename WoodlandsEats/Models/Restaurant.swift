@@ -32,6 +32,17 @@ struct Restaurant: Identifiable, Codable, Hashable {
         cuisines.map(\.displayName).joined(separator: " · ")
     }
 
+    /// Memberwise init for building Restaurants from CloudKit LiveRestaurant
+    /// records (the synthesized one is suppressed by the custom Decodable init).
+    init(id: UUID, name: String, latitude: Double, longitude: Double, area: Area,
+         address: String, cuisines: [Cuisine], priceTier: PriceTier, isFastFood: Bool,
+         website: String?, phone: String?, description: String, signatureDishes: [String]) {
+        self.id = id; self.name = name; self.latitude = latitude; self.longitude = longitude
+        self.area = area; self.address = address; self.cuisines = cuisines; self.priceTier = priceTier
+        self.isFastFood = isFastFood; self.website = website; self.phone = phone
+        self.description = description; self.signatureDishes = signatureDishes
+    }
+
     // signatureDishes is allowed to be absent in the JSON (defaults to []).
     private enum CodingKeys: String, CodingKey {
         case id, name, latitude, longitude, area, address, cuisines,

@@ -24,6 +24,17 @@ struct ProRequest: Identifiable {
     let userID: String
 }
 
+/// A user-submitted "missing restaurant" suggestion awaiting admin approval.
+struct Suggestion: Identifiable {
+    let id: String          // RestaurantSuggestion recordName
+    let name: String
+    let address: String
+    let area: String
+    let cuisines: [String]
+    let description: String
+    let submitterUserID: String
+}
+
 /// Thin wrapper over the CloudKit public database for the crowdsourcing layer.
 ///
 /// Identity is implicit: CloudKit attributes each record to the signed-in iCloud
@@ -47,6 +58,8 @@ final class CloudKitService {
     private let closureType = "ClosureReport"
     private let profileType = "FoodieProfile"
     private let approvalType = "ProApproval"
+    private let suggestionType = "RestaurantSuggestion"
+    private let liveType = "LiveRestaurant"
     /// iCloud user record names allowed to approve Foodie Pros (shown on the Profile tab).
     private let adminUserIDs: Set<String> = ["_e8b0bfe996b6e232421afac393ab8a3b"]
 
@@ -473,5 +486,145 @@ final class CloudKitService {
         } catch {
             return false
         }
+    }
+
+    // MARK: - Restaurant suggestions ("crowd add a missing spot")
+
+    /// Submit a missing-restaurant suggestion (creates a user-owned record).
+    func submitSuggestion(name: String, address: String, area: String,
+                          cuisines: [String], description: String) async -> Bool {
+        guard isAvailable, let user = await userRecordName() else { return false }
+        let rec = CKRecord(recordType: suggestionType)
+        rec["name"] = name as CKRecordValue
+        rec["address"] = address as CKRecordValue
+        rec["area"] = area as CKRecordValue
+        rec["cuisines"] = cuisines as CKRecordValue
+        rec["description"] = description as CKRecordValue
+        rec["submitterUserID"] = user as CKRecordValue
+        do { _ = try await publicDB.save(rec); return true }
+        catch { return false }
+    }
+
+    /// Admin: suggestions that haven't been approved yet (no LiveRestaurant references their id).
+    func fetchPendingSuggestions() async -> [Suggestion] {
+        guard isAvailable else { return [] }
+
+        // Collect suggestion ids that already have a LiveRestaurant.
+        var approved: Set<String> = []
+        func accAppr(_ m: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+            for (_, r) in m {
+                if case .success(let rec) = r, let sid = rec["suggestionID"] as? String {
+                    approved.insert(sid)
+                }
+            }
+        }
+        do {
+            let q = CKQuery(recordType: liveType, predicate: NSPredicate(value: true))
+            var (m, c) = try await publicDB.records(matching: q, desiredKeys: ["suggestionID"], resultsLimit: 200)
+            accAppr(m)
+            while let cur = c {
+                (m, c) = try await publicDB.records(continuingMatchFrom: cur, desiredKeys: ["suggestionID"], resultsLimit: 200)
+                accAppr(m)
+            }
+        } catch { /* on error, assume none approved */ }
+
+        // Fetch all suggestions, drop the ones already approved.
+        var out: [Suggestion] = []
+        func accSugg(_ m: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+            for (id, r) in m {
+                guard case .success(let rec) = r, !approved.contains(id.recordName) else { continue }
+                out.append(Suggestion(
+                    id: id.recordName,
+                    name: rec["name"] as? String ?? "",
+                    address: rec["address"] as? String ?? "",
+                    area: rec["area"] as? String ?? "",
+                    cuisines: rec["cuisines"] as? [String] ?? [],
+                    description: rec["description"] as? String ?? "",
+                    submitterUserID: rec["submitterUserID"] as? String ?? ""
+                ))
+            }
+        }
+        do {
+            let q = CKQuery(recordType: suggestionType, predicate: NSPredicate(value: true))
+            var (m, c) = try await publicDB.records(matching: q, resultsLimit: 200)
+            accSugg(m)
+            while let cur = c {
+                (m, c) = try await publicDB.records(continuingMatchFrom: cur, resultsLimit: 200)
+                accSugg(m)
+            }
+        } catch { return [] }
+        return out
+    }
+
+    /// Admin: approve a suggestion — creates an admin-owned LiveRestaurant record
+    /// with the suggestion's data + geocoded coords. The app fetches LiveRestaurants
+    /// at launch and merges them into the live restaurant list.
+    func approveSuggestion(_ s: Suggestion, latitude: Double, longitude: Double) async -> Bool {
+        guard isAvailable else { return false }
+        let restaurantID = UUID().uuidString
+        let recID = CKRecord.ID(recordName: "live_\(restaurantID)")
+        let rec = CKRecord(recordType: liveType, recordID: recID)
+        rec["restaurantID"] = restaurantID as CKRecordValue
+        rec["name"] = s.name as CKRecordValue
+        rec["latitude"] = latitude as CKRecordValue
+        rec["longitude"] = longitude as CKRecordValue
+        rec["area"] = s.area as CKRecordValue
+        rec["address"] = s.address as CKRecordValue
+        rec["cuisines"] = (s.cuisines.isEmpty ? ["other"] : s.cuisines) as CKRecordValue
+        rec["priceTier"] = "$$" as CKRecordValue
+        rec["isFastFood"] = 0 as CKRecordValue
+        rec["description"] = (s.description.isEmpty ? "Suggested by the community." : s.description) as CKRecordValue
+        rec["signatureDishes"] = ([] as [String]) as CKRecordValue
+        rec["suggestionID"] = s.id as CKRecordValue
+        do {
+            _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    /// Fetch all LiveRestaurant records and decode them as Restaurants for the
+    /// store to merge with the bundled seed. Requires recordName Queryable on LiveRestaurant.
+    func fetchLiveRestaurants() async -> [Restaurant] {
+        guard isAvailable else { return [] }
+        var out: [Restaurant] = []
+        do {
+            let q = CKQuery(recordType: liveType, predicate: NSPredicate(value: true))
+            var (m, c) = try await publicDB.records(matching: q, resultsLimit: 200)
+            for (_, r) in m { if let resto = liveToRestaurant(r) { out.append(resto) } }
+            while let cur = c {
+                (m, c) = try await publicDB.records(continuingMatchFrom: cur, resultsLimit: 200)
+                for (_, r) in m { if let resto = liveToRestaurant(r) { out.append(resto) } }
+            }
+        } catch {
+            return []
+        }
+        return out
+    }
+
+    private func liveToRestaurant(_ result: Result<CKRecord, Error>) -> Restaurant? {
+        guard case .success(let rec) = result,
+              let ridStr = rec["restaurantID"] as? String, let rid = UUID(uuidString: ridStr),
+              let name = rec["name"] as? String,
+              let lat = rec["latitude"] as? Double,
+              let lon = rec["longitude"] as? Double,
+              let areaStr = rec["area"] as? String, let area = Area(rawValue: areaStr),
+              let address = rec["address"] as? String,
+              let cuisineStrs = rec["cuisines"] as? [String],
+              let priceStr = rec["priceTier"] as? String, let price = PriceTier(rawValue: priceStr),
+              let desc = rec["description"] as? String
+        else { return nil }
+        let cuisines = cuisineStrs.compactMap { Cuisine(rawValue: $0) }
+        let ffInt = (rec["isFastFood"] as? Int) ?? 0
+        return Restaurant(
+            id: rid, name: name, latitude: lat, longitude: lon, area: area,
+            address: address, cuisines: cuisines.isEmpty ? [.other] : cuisines, priceTier: price,
+            isFastFood: ffInt != 0,
+            website: rec["website"] as? String,
+            phone: rec["phone"] as? String,
+            description: desc,
+            signatureDishes: rec["signatureDishes"] as? [String] ?? []
+        )
     }
 }
