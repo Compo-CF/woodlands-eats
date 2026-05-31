@@ -140,11 +140,18 @@ struct ProfileView: View {
                                     if approvingID == s.id {
                                         ProgressView()
                                     } else {
-                                        Button("Approve") {
-                                            Task { await approveOne(s) }
+                                        HStack(spacing: 6) {
+                                            Button("Reject") {
+                                                Task { await rejectOne(s) }
+                                            }
+                                            .buttonStyle(.bordered)
+                                            .tint(.red)
+                                            Button("Approve") {
+                                                Task { await approveOne(s) }
+                                            }
+                                            .buttonStyle(.borderedProminent)
+                                            .tint(.green)
                                         }
-                                        .buttonStyle(.borderedProminent)
-                                        .tint(.green)
                                     }
                                 }
                             }
@@ -192,6 +199,17 @@ struct ProfileView: View {
             pendingSuggestions = await cloudKit.fetchPendingSuggestions()
         }
         loading = false
+    }
+
+    private func rejectOne(_ s: Suggestion) async {
+        approvingID = s.id
+        suggestionError = nil
+        defer { approvingID = nil }
+        if await cloudKit.rejectSuggestion(s) {
+            pendingSuggestions.removeAll { $0.id == s.id }
+        } else {
+            suggestionError = "Couldn't reject \(s.name)."
+        }
     }
 
     private func approveOne(_ s: Suggestion) async {

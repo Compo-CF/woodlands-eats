@@ -60,6 +60,7 @@ final class CloudKitService {
     private let approvalType = "ProApproval"
     private let suggestionType = "RestaurantSuggestion"
     private let liveType = "LiveRestaurant"
+    private let dismissalType = "SuggestionDismissed"
     /// iCloud user record names allowed to approve Foodie Pros (shown on the Profile tab).
     private let adminUserIDs: Set<String> = ["_e8b0bfe996b6e232421afac393ab8a3b"]
 
@@ -505,34 +506,37 @@ final class CloudKitService {
         catch { return false }
     }
 
-    /// Admin: suggestions that haven't been approved yet (no LiveRestaurant references their id).
+    /// Admin: suggestions that are neither approved (have a LiveRestaurant) nor dismissed.
     func fetchPendingSuggestions() async -> [Suggestion] {
         guard isAvailable else { return [] }
 
-        // Collect suggestion ids that already have a LiveRestaurant.
-        var approved: Set<String> = []
-        func accAppr(_ m: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+        // Collect suggestion ids that are RESOLVED — either approved (LiveRestaurant
+        // references them) or dismissed (SuggestionDismissed records).
+        var resolved: Set<String> = []
+        func accSID(_ m: [(CKRecord.ID, Result<CKRecord, Error>)]) {
             for (_, r) in m {
                 if case .success(let rec) = r, let sid = rec["suggestionID"] as? String {
-                    approved.insert(sid)
+                    resolved.insert(sid)
                 }
             }
         }
-        do {
-            let q = CKQuery(recordType: liveType, predicate: NSPredicate(value: true))
-            var (m, c) = try await publicDB.records(matching: q, desiredKeys: ["suggestionID"], resultsLimit: 200)
-            accAppr(m)
-            while let cur = c {
-                (m, c) = try await publicDB.records(continuingMatchFrom: cur, desiredKeys: ["suggestionID"], resultsLimit: 200)
-                accAppr(m)
-            }
-        } catch { /* on error, assume none approved */ }
+        for type in [liveType, dismissalType] {
+            do {
+                let q = CKQuery(recordType: type, predicate: NSPredicate(value: true))
+                var (m, c) = try await publicDB.records(matching: q, desiredKeys: ["suggestionID"], resultsLimit: 200)
+                accSID(m)
+                while let cur = c {
+                    (m, c) = try await publicDB.records(continuingMatchFrom: cur, desiredKeys: ["suggestionID"], resultsLimit: 200)
+                    accSID(m)
+                }
+            } catch { /* on error, treat as unresolved */ }
+        }
 
-        // Fetch all suggestions, drop the ones already approved.
+        // Fetch all suggestions, drop the ones already resolved.
         var out: [Suggestion] = []
         func accSugg(_ m: [(CKRecord.ID, Result<CKRecord, Error>)]) {
             for (id, r) in m {
-                guard case .success(let rec) = r, !approved.contains(id.recordName) else { continue }
+                guard case .success(let rec) = r, !resolved.contains(id.recordName) else { continue }
                 out.append(Suggestion(
                     id: id.recordName,
                     name: rec["name"] as? String ?? "",
@@ -575,6 +579,21 @@ final class CloudKitService {
         rec["isFastFood"] = 0 as CKRecordValue
         rec["description"] = (s.description.isEmpty ? "Suggested by the community." : s.description) as CKRecordValue
         rec["signatureDishes"] = ([] as [String]) as CKRecordValue
+        rec["suggestionID"] = s.id as CKRecordValue
+        do {
+            _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    /// Admin: reject a suggestion — creates an admin-owned SuggestionDismissed marker
+    /// so the suggestion drops out of the pending queue.
+    func rejectSuggestion(_ s: Suggestion) async -> Bool {
+        guard isAvailable else { return false }
+        let recID = CKRecord.ID(recordName: "reject_\(s.id)")
+        let rec = CKRecord(recordType: dismissalType, recordID: recID)
         rec["suggestionID"] = s.id as CKRecordValue
         do {
             _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
