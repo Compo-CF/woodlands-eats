@@ -3286,6 +3286,21 @@
       "signatureDishes": []
     },
     {
+      "id": "8e0432f2-bfc0-5821-98b3-6572a7f36212",
+      "name": "La Casita Taqueria",
+      "latitude": 30.07341,
+      "longitude": -95.51371,
+      "area": "klein",
+      "address": "6007 FM 2920 Rd, Spring, TX 77379",
+      "cuisines": ["mexican"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Small family-style taqueria, breakfast tacos and lunch specials, locals' weekday spot",
+      "signatureDishes": []
+    },
+    {
       "id": "6c3870e7-89e5-554f-bb76-de78679ba6bf",
       "name": "La Cocina Taco House",
       "latitude": 30.0716,
@@ -5698,6 +5713,21 @@
       "website": "https://swtgrk.com/",
       "phone": "+1-832-592-7777",
       "description": "Restaurant in Klein.",
+      "signatureDishes": []
+    },
+    {
+      "id": "d43b3f36-5ed8-5d5d-99a1-dfcb5c353d47",
+      "name": "Sweet Greek Pastries & More",
+      "latitude": 30.05489,
+      "longitude": -95.45899,
+      "area": "klein",
+      "address": "8320 Louetta Rd, Spring, TX 77379",
+      "cuisines": ["cafeBakery", "mediterranean", "dessert"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Family-owned by Yannis Karagiannis and Christina Iconos with daughter Aereti; handcrafted Greek pastries, pitas, and homemade gelato",
       "signatureDishes": []
     },
     {
@@ -11218,6 +11248,21 @@
       "website": null,
       "phone": null,
       "description": "Quick-service spot in Shenandoah.",
+      "signatureDishes": []
+    },
+    {
+      "id": "ad1377a0-0425-5779-be19-74c4e52be1ed",
+      "name": "Avenida Brazil Churrascaria Steakhouse",
+      "latitude": 30.1782,
+      "longitude": -95.45427,
+      "area": "shenandoah",
+      "address": "1400 Research Forest Dr, Shenandoah, TX 77381",
+      "cuisines": ["latin", "steakhouse"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Brazilian churrascaria",
       "signatureDishes": []
     },
     {
@@ -18151,6 +18196,21 @@
       "signatureDishes": []
     },
     {
+      "id": "55f96e67-c4ba-5d81-abfd-ef26360fd43b",
+      "name": "Inka Brasas Peruvian Cuisine",
+      "latitude": 30.07053,
+      "longitude": -95.45814,
+      "area": "spring",
+      "address": "3835 FM 2920, Spring, TX 77388",
+      "cuisines": ["latin"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Peruvian",
+      "signatureDishes": []
+    },
+    {
       "id": "33102ab2-2726-57ab-afd6-daabf93b9120",
       "name": "Integrative Health & Medicine",
       "latitude": 30.07128,
@@ -19171,6 +19231,21 @@
       "signatureDishes": []
     },
     {
+      "id": "2990e8dc-2ef8-50a9-8229-0d60dd9bf2bb",
+      "name": "Mama's Pizza",
+      "latitude": 30.08286,
+      "longitude": -95.45262,
+      "area": "spring",
+      "address": "2019 Spring Stuebner Rd, Spring, TX 77389",
+      "cuisines": ["pizza"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "First Greater Houston-area location; opened Dec 14, 2024",
+      "signatureDishes": []
+    },
+    {
       "id": "dcd70c20-aca3-5971-a693-7251dceefc24",
       "name": "Manin Food Truck",
       "latitude": 30.07027,
@@ -19966,6 +20041,21 @@
       "signatureDishes": []
     },
     {
+      "id": "b1fd21bf-c4fa-5e62-91fc-0c8ca2160536",
+      "name": "Parceras Foods",
+      "latitude": 30.12936,
+      "longitude": -95.50654,
+      "area": "spring",
+      "address": "25115 Gosling Rd, Spring, TX 77389",
+      "cuisines": ["latin"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Colombian",
+      "signatureDishes": []
+    },
+    {
       "id": "2e2728ca-4a73-5cf4-872d-e3f8b383dc43",
       "name": "PBR Food Park and Sports Bar",
       "latitude": 30.12428,
@@ -20338,6 +20428,21 @@
       "website": "http://www.puffabellys.com/",
       "phone": "(281) 350-3376",
       "description": "Sourced from Google Places (spring).",
+      "signatureDishes": []
+    },
+    {
+      "id": "3fad76d0-35ee-51f9-905b-b915af433fcf",
+      "name": "Pukara Peruvian Kitchen",
+      "latitude": 30.12684,
+      "longitude": -95.45984,
+      "area": "spring",
+      "address": "1102 Sawdust Rd, Spring, TX 77380",
+      "cuisines": ["latin"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Peruvian food truck; lomo saltado, ceviche, salchipapas",
       "signatureDishes": []
     },
     {
@@ -20758,6 +20863,21 @@
       "website": "https://cash.app/order/$serenesipstx",
       "phone": null,
       "description": "Sourced from Google Places (spring).",
+      "signatureDishes": []
+    },
+    {
+      "id": "3742eaac-58ab-5c05-9730-01aa90a0d2c6",
+      "name": "Señor Burrito Company",
+      "latitude": 30.02096,
+      "longitude": -95.52475,
+      "area": "spring",
+      "address": "16803 Spring Stuebner Airline Rd, Spring, TX 77379",
+      "cuisines": ["mexican"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Family-owned breakfast tacos/birria; opened February 2025",
       "signatureDishes": []
     },
     {
@@ -24991,6 +25111,21 @@
       "signatureDishes": []
     },
     {
+      "id": "48324f51-5d66-56ca-bd25-450a462dd704",
+      "name": "Fogo de Chao Brazilian Steakhouse",
+      "latitude": 30.17102,
+      "longitude": -95.47144,
+      "area": "woodlands",
+      "address": "1900 Hughes Landing Blvd, The Woodlands, TX 77380",
+      "cuisines": ["latin", "steakhouse"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Brazilian churrascaria",
+      "signatureDishes": []
+    },
+    {
       "id": "C1D2E3F4-0000-4000-A000-000000000046",
       "name": "Fogo de Chão",
       "latitude": 30.17111,
@@ -25123,6 +25258,21 @@
       "website": "http://www.mrsweetusa.com/",
       "phone": "(281) 255-3565",
       "description": "Sourced from Google Places (woodlands).",
+      "signatureDishes": []
+    },
+    {
+      "id": "4108edd1-d4d4-56e1-af7a-bebc66135c3b",
+      "name": "Gourmet Bakery Cafe",
+      "latitude": 30.1639,
+      "longitude": -95.46294,
+      "area": "woodlands",
+      "address": "9595 Six Pines Dr, The Woodlands, TX 77380",
+      "cuisines": ["cafeBakery", "breakfastBrunch", "french"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Family-owned French-style bakery cafe since 2009; owner Ifel Costa works the espresso bar, fresh-baked baguettes on Saturdays",
       "signatureDishes": []
     },
     {
@@ -25813,6 +25963,21 @@
       "website": null,
       "phone": null,
       "description": "Restaurant in The Woodlands.",
+      "signatureDishes": []
+    },
+    {
+      "id": "f35c8a9b-b408-5dce-a117-e9a537504e9b",
+      "name": "Mack Allen's Upscale Seafood",
+      "latitude": 30.17126,
+      "longitude": -95.4722,
+      "area": "woodlands",
+      "address": "26410 Creekside Forest Dr, The Woodlands, TX 77375",
+      "cuisines": ["seafood", "steakhouse"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Upscale seafood/steaks; opened late 2024 in Creekside Park Village Center",
       "signatureDishes": []
     },
     {
@@ -26774,6 +26939,21 @@
       "phone": "+1-281-419-5988",
       "description": "A long-running Woodlands Japanese restaurant offering sushi, hibachi teppanyaki and an extensive Japanese menu.",
       "signatureDishes": ["Sushi Rolls", "Hibachi Steak", "Sashimi"]
+    },
+    {
+      "id": "df5bf137-eabe-5177-a5f0-5bcdbfdcb869",
+      "name": "Salad and Go College Park",
+      "latitude": 30.20577,
+      "longitude": -95.4745,
+      "area": "woodlands",
+      "address": "3713 College Park Dr, Conroe, TX 77384",
+      "cuisines": ["healthy"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Drive-thru salads; opened 2024 at SE corner of Hwy 242 and Fellowship Dr",
+      "signatureDishes": []
     },
     {
       "id": "763f5b85-74e2-5dc8-87e9-c09dc5515096",
