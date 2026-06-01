@@ -6706,6 +6706,21 @@
       "signatureDishes": []
     },
     {
+      "id": "a289379b-957a-5591-9a32-d996c4c438b6",
+      "name": "Victoriously Made Memaw's",
+      "latitude": 30.08232,
+      "longitude": -95.46634,
+      "area": "klein",
+      "address": "3211 Spring Stuebner Rd, Spring, TX 77389",
+      "cuisines": ["southern"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Soul-food truck permanently parked at Spring Food Park (Klein border)",
+      "signatureDishes": []
+    },
+    {
       "id": "8fd1b24a-8b21-5f49-8ebb-1af9c9d96c19",
       "name": "Viva Jalisco Restaurant #5",
       "latitude": 30.07046,
@@ -11146,6 +11161,21 @@
       "signatureDishes": []
     },
     {
+      "id": "da47c3b4-77de-51cc-acba-233bd448ad65",
+      "name": "Adriatic Cafe Italian Grill",
+      "latitude": 30.18839,
+      "longitude": -95.45274,
+      "area": "shenandoah",
+      "address": "17825 I-45, Shenandoah, TX 77385",
+      "cuisines": ["italian"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Opened April 2024; fifth location",
+      "signatureDishes": []
+    },
+    {
       "id": "92bc078e-d57b-540a-bc4a-cd3f93ccd0bb",
       "name": "Alonti Catering Kitchen",
       "latitude": 30.16629,
@@ -14236,6 +14266,21 @@
       "signatureDishes": []
     },
     {
+      "id": "ebdf8319-5696-5507-b342-db2adc635935",
+      "name": "Tbaar",
+      "latitude": 30.19523,
+      "longitude": -95.45242,
+      "area": "shenandoah",
+      "address": "8821 Metropark Dr, Shenandoah, TX 77385",
+      "cuisines": ["dessert", "cafeBakery"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Bubble tea/smoothies; opened Nov 14, 2024 next to Kyuramen",
+      "signatureDishes": []
+    },
+    {
       "id": "9aa7b51c-d6c0-5c6f-a00f-2754a7d0ac54",
       "name": "Tea Hive",
       "latitude": 30.20574,
@@ -14836,6 +14881,21 @@
       "signatureDishes": []
     },
     {
+      "id": "b23c0064-049c-5faf-9a43-9f4077f29b80",
+      "name": "A'Mordiscos Fast Food",
+      "latitude": 30.08232,
+      "longitude": -95.46634,
+      "area": "spring",
+      "address": "3211 Spring Stuebner Rd, Spring, TX 77389",
+      "cuisines": ["latin"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "South American cuisine truck at Spring Food Park",
+      "signatureDishes": []
+    },
+    {
       "id": "83e116a7-9e30-5397-99ba-783824b2eb94",
       "name": "Acai Brasil Spring",
       "latitude": 30.08411,
@@ -15331,6 +15391,21 @@
       "signatureDishes": []
     },
     {
+      "id": "7589e18a-2da2-51de-9002-a2be6c535450",
+      "name": "Bigotes Street Tacos",
+      "latitude": 30.12353,
+      "longitude": -95.50536,
+      "area": "spring",
+      "address": "24600 Gosling Rd, Spring, TX 77389",
+      "cuisines": ["mexican"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Permanent food-truck stall at Gosling Express; tortas, tacos, churros",
+      "signatureDishes": []
+    },
+    {
       "id": "b07eccd3-a4f7-51b0-8ded-6e2d69b4a0a2",
       "name": "Birnham Woods Market Place",
       "latitude": 30.11861,
@@ -15433,6 +15508,21 @@
       "website": "http://www.bolingolounge.com/",
       "phone": "(281) 982-3261",
       "description": "Sourced from Google Places (spring).",
+      "signatureDishes": []
+    },
+    {
+      "id": "b3621a77-0493-5388-ad93-90683bafc1fe",
+      "name": "Boriken Puerto Rican Kitchen",
+      "latitude": 30.12353,
+      "longitude": -95.50536,
+      "area": "spring",
+      "address": "24600 Gosling Rd, Spring, TX 77389",
+      "cuisines": ["latin"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Puerto Rican food truck",
       "signatureDishes": []
     },
     {
@@ -16111,6 +16201,21 @@
       "signatureDishes": []
     },
     {
+      "id": "a565a621-f93a-58cb-b629-dc96816d4ae5",
+      "name": "Cinco de Mayo Taqueria",
+      "latitude": 30.05489,
+      "longitude": -95.45899,
+      "area": "spring",
+      "address": "5838 Louetta Rd, Spring, TX 77379",
+      "cuisines": ["mexican"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Permanent food-truck stand on Louetta; tacos, birria eggrolls",
+      "signatureDishes": []
+    },
+    {
       "id": "01ad0e96-7a55-5317-a0da-2d6c72607b10",
       "name": "Circle K",
       "latitude": 30.02444,
@@ -16273,6 +16378,21 @@
       "website": null,
       "phone": null,
       "description": "Sourced from Google Places (spring).",
+      "signatureDishes": []
+    },
+    {
+      "id": "f7cf861b-dd4c-5581-bad6-643ad859a861",
+      "name": "Crazy Chick",
+      "latitude": 30.05922,
+      "longitude": -95.45341,
+      "area": "spring",
+      "address": "2477 Louetta Rd, Spring, TX 77388",
+      "cuisines": ["southern", "american"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Hot-chicken food truck on Louetta",
       "signatureDishes": []
     },
     {
@@ -16591,6 +16711,21 @@
       "signatureDishes": []
     },
     {
+      "id": "390fd53e-5b00-585f-90ec-9c7b33363034",
+      "name": "District Chicken & Gyro",
+      "latitude": 30.05489,
+      "longitude": -95.45899,
+      "area": "spring",
+      "address": "7724 Louetta Rd, Spring, TX 77379",
+      "cuisines": ["mediterranean"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Opened Dec 1, 2024",
+      "signatureDishes": []
+    },
+    {
       "id": "2a4f1b96-6c13-5875-804e-65b382c32f1c",
       "name": "Divine Dough",
       "latitude": 30.13011,
@@ -16633,6 +16768,21 @@
       "website": "https://www.dolceniente.com/",
       "phone": "(832) 810-7499",
       "description": "Sourced from Google Places (spring).",
+      "signatureDishes": []
+    },
+    {
+      "id": "bac55d47-49b5-5c1d-b6cc-36e853fbfd99",
+      "name": "Dolce Niente Ristorante Italiano",
+      "latitude": 30.12428,
+      "longitude": -95.41453,
+      "area": "spring",
+      "address": "3784 Rayford Rd, Spring, TX 77386",
+      "cuisines": ["italian"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Family-operated by Mac DeLaup and Chef Bob Getchell; handcrafted pastas and pizzas, locals' go-to upscale-casual Italian",
       "signatureDishes": []
     },
     {
@@ -16798,6 +16948,36 @@
       "website": "https://www.dairyqueen.com/locations/tx/houston/2015-fm-1960-e/3993",
       "phone": "+1 281-443-6906",
       "description": "Dessert quick-service spot in Spring.",
+      "signatureDishes": []
+    },
+    {
+      "id": "2dab7ec7-2b69-5039-981b-1c736a328968",
+      "name": "Dragon Bowl C",
+      "latitude": 30.12428,
+      "longitude": -95.41453,
+      "area": "spring",
+      "address": "610 Rayford Rd, Spring, TX 77386",
+      "cuisines": ["vietnamese", "japanese"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Anime-themed pho/ramen/boba; opened May 4, 2024 inside Sabbatical Spirits",
+      "signatureDishes": []
+    },
+    {
+      "id": "a805d014-2749-5245-84b8-6cba5cc79e74",
+      "name": "Dripped Birria - Spring",
+      "latitude": 30.08232,
+      "longitude": -95.46634,
+      "area": "spring",
+      "address": "3211 Spring Stuebner Rd, Spring, TX 77389",
+      "cuisines": ["mexican"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Halal birria taco brand with a Spring Stuebner Rd outpost serving Grand Oaks/Woodson's Reserve",
       "signatureDishes": []
     },
     {
@@ -16993,6 +17173,21 @@
       "website": null,
       "phone": null,
       "description": "Mexican quick-service spot in Spring.",
+      "signatureDishes": []
+    },
+    {
+      "id": "72d118cd-3370-5497-8a31-f2e7bf5d96a6",
+      "name": "El Norteño Tacos",
+      "latitude": 30.0633,
+      "longitude": -95.39164,
+      "area": "spring",
+      "address": "26836 Cypresswood Dr, Spring, TX 77373",
+      "cuisines": ["mexican"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Family-owned truck at Cypresswood cluster; tortas, norteño pizzas, birria tacos",
       "signatureDishes": []
     },
     {
@@ -19276,6 +19471,21 @@
       "signatureDishes": []
     },
     {
+      "id": "893a517c-398a-55d6-8931-36a55cbf6dbb",
+      "name": "Midnight Cravingz",
+      "latitude": 30.12428,
+      "longitude": -95.41453,
+      "area": "spring",
+      "address": "440 Rayford Rd, Spring, TX 77386",
+      "cuisines": ["dessert"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Cookie/ice cream desserts; opened April 3, 2025",
+      "signatureDishes": []
+    },
+    {
       "id": "b08949c3-e9bf-5d14-878b-744a9045a479",
       "name": "Mimi Garden",
       "latitude": 30.12804,
@@ -19561,6 +19771,36 @@
       "signatureDishes": []
     },
     {
+      "id": "d1a7e3c4-e78f-57ee-a867-6e57abb895c7",
+      "name": "Oh' Mazing Potatoes and Que",
+      "latitude": 30.07055,
+      "longitude": -95.45463,
+      "area": "spring",
+      "address": "4625 FM 2920, Spring, TX 77388",
+      "cuisines": ["bbq", "american"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Family-owned BBQ and baked-potato food truck on FM 2920",
+      "signatureDishes": []
+    },
+    {
+      "id": "a5a06cec-1aba-54be-8cb4-962bc6c3c196",
+      "name": "Olatee Mobile Eats",
+      "latitude": 30.12601,
+      "longitude": -95.42119,
+      "area": "spring",
+      "address": "1439 Rayford Rd, Spring, TX 77386",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Nigerian/African food truck on Rayford",
+      "signatureDishes": []
+    },
+    {
       "id": "ba8e35ea-aa81-58da-baf7-14bc62c836b3",
       "name": "One Stop Nutrition",
       "latitude": 30.10721,
@@ -19723,6 +19963,21 @@
       "website": "https://locations.papajohns.com/united-states/tx/77386/spring/2725-rayford-rd?utm_source=yext-listings&utm_medium=referral&y_source=1_MTA1MzQyMTYzMi03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D",
       "phone": "(281) 298-7272",
       "description": "Sourced from Google Places (spring).",
+      "signatureDishes": []
+    },
+    {
+      "id": "2e2728ca-4a73-5cf4-872d-e3f8b383dc43",
+      "name": "PBR Food Park and Sports Bar",
+      "latitude": 30.12428,
+      "longitude": -95.41453,
+      "area": "spring",
+      "address": "846 Rayford Rd, Spring, TX 77386",
+      "cuisines": ["american"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Sports bar with food trucks, axe throwing, shuffleboard; opened Jan 2026",
       "signatureDishes": []
     },
     {
@@ -19981,6 +20236,21 @@
       "signatureDishes": []
     },
     {
+      "id": "33386795-1fff-5e9b-9361-cf54fd2155c6",
+      "name": "Popeyes Louisiana Kitchen",
+      "latitude": 30.09191,
+      "longitude": -95.4057,
+      "area": "spring",
+      "address": "3157 Riley Fuzzel Rd, Spring, TX 77386",
+      "cuisines": ["southern"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Opened February 21, 2025",
+      "signatureDishes": []
+    },
+    {
       "id": "37fc5c42-2fb2-5059-bec3-ee3f3236e856",
       "name": "Popps Parlor - Old Town Spring",
       "latitude": 30.0788,
@@ -20008,6 +20278,21 @@
       "website": null,
       "phone": null,
       "description": "American quick-service spot in Spring.",
+      "signatureDishes": []
+    },
+    {
+      "id": "8ddb7257-bc2e-5c97-aca9-2dfece58dc84",
+      "name": "Primo's Venezuelan Street Food",
+      "latitude": 30.12353,
+      "longitude": -95.50536,
+      "area": "spring",
+      "address": "24600 Gosling Rd, Spring, TX 77389",
+      "cuisines": ["latin"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Venezuelan street food truck at Gosling Express food-truck park; patacon mixto, arepas",
       "signatureDishes": []
     },
     {
@@ -20278,6 +20563,21 @@
       "website": "https://rocknrollsushi.com/locations/spring-tx/",
       "phone": "(346) 268-7050",
       "description": "Sourced from Google Places (spring).",
+      "signatureDishes": []
+    },
+    {
+      "id": "44f90730-d3e2-55cf-925c-a81db07ff68f",
+      "name": "Rosemeyer Bar-B-Q",
+      "latitude": 30.09191,
+      "longitude": -95.4057,
+      "area": "spring",
+      "address": "2111 Riley Fuzzel Rd, Spring, TX 77386",
+      "cuisines": ["bbq"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Two-dudes-slingin'-que BBQ trailer near Imperial Oaks; brisket, pulled pork, ribs",
       "signatureDishes": []
     },
     {
@@ -20866,6 +21166,21 @@
       "signatureDishes": []
     },
     {
+      "id": "cca78b39-5af3-571f-8efc-4836fc8ba61a",
+      "name": "Spring Food Park",
+      "latitude": 30.08232,
+      "longitude": -95.46634,
+      "area": "spring",
+      "address": "3211 Spring Stuebner Rd, Spring, TX 77389",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Food-truck park (multiple vendors); Caribbean/Latin/American rotating tenants",
+      "signatureDishes": []
+    },
+    {
       "id": "778fd134-4d62-5fae-807c-8cefee6e86ed",
       "name": "Spring Medical Center",
       "latitude": 30.07638,
@@ -21316,6 +21631,21 @@
       "signatureDishes": []
     },
     {
+      "id": "00d855ef-4f4f-54cf-b438-161950bb036c",
+      "name": "Sweet Talker Coffee & Blender Bar",
+      "latitude": 30.08232,
+      "longitude": -95.46634,
+      "area": "spring",
+      "address": "3211 Spring Stuebner Rd, Spring, TX 77389",
+      "cuisines": ["cafeBakery", "dessert"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Coffee and smoothie truck at Spring Food Park; organic locally-roasted coffee, gluten-free pastries",
+      "signatureDishes": []
+    },
+    {
       "id": "b5c90de3-46b5-5649-84d4-96e6d0ba76ea",
       "name": "Swig",
       "latitude": 30.12256,
@@ -21511,6 +21841,21 @@
       "signatureDishes": []
     },
     {
+      "id": "6379714a-70f0-553c-814d-26bf98f7a917",
+      "name": "Taco Palenque",
+      "latitude": 30.07939,
+      "longitude": -95.5183,
+      "area": "spring",
+      "address": "21430 Kuykendahl Rd, Spring, TX 77389",
+      "cuisines": ["mexican"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Opened early 2026; founded 1979 in Laredo, 85+ locations",
+      "signatureDishes": []
+    },
+    {
       "id": "25c15286-0ff0-53a5-8388-dcff2d58b1df",
       "name": "Taco Real",
       "latitude": 30.07246,
@@ -21661,6 +22006,21 @@
       "signatureDishes": []
     },
     {
+      "id": "cce26e98-a9a1-5464-9179-f4f65c03c9cb",
+      "name": "Taqueria La Guera",
+      "latitude": 30.06264,
+      "longitude": -95.39326,
+      "area": "spring",
+      "address": "26835 Cypresswood Dr, Spring, TX 77373",
+      "cuisines": ["mexican"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Family-owned trailer at Cypresswood cluster; tacos, wings, gorditas, birria",
+      "signatureDishes": []
+    },
+    {
       "id": "612063c9-9fff-51e2-af65-2897cf5eff18",
       "name": "Taqueria Las Tres Reynas",
       "latitude": 30.04729,
@@ -21721,6 +22081,21 @@
       "signatureDishes": []
     },
     {
+      "id": "a597f6b9-6261-5ba4-9bf4-36626bac28b5",
+      "name": "Taqueria Maverick",
+      "latitude": 30.05274,
+      "longitude": -95.43371,
+      "area": "spring",
+      "address": "25502 Cypresswood Dr, Spring, TX 77373",
+      "cuisines": ["mexican", "latin"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Mexican-Salvadoran trailer; pizzabirria, fajitas, fried plantains",
+      "signatureDishes": []
+    },
+    {
       "id": "36f1abaf-3144-537e-8743-36adb64d0e49",
       "name": "Taqueria Maverick ( Food Truck)",
       "latitude": 30.0688,
@@ -21733,6 +22108,21 @@
       "website": null,
       "phone": "(346) 796-4438",
       "description": "Sourced from Google Places (spring).",
+      "signatureDishes": []
+    },
+    {
+      "id": "d298704d-686a-5a1b-9bea-0a0f05199337",
+      "name": "Taqueria Tampico",
+      "latitude": 30.07341,
+      "longitude": -95.51352,
+      "area": "spring",
+      "address": "6007 FM 2920, Spring, TX 77379",
+      "cuisines": ["mexican"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Permanent food-truck location on FM 2920",
       "signatureDishes": []
     },
     {
@@ -21808,6 +22198,21 @@
       "website": "http://tasteofphospring.com/",
       "phone": "(281) 288-1600",
       "description": "Sourced from Google Places (spring).",
+      "signatureDishes": []
+    },
+    {
+      "id": "d1f9308a-113f-5566-b9fc-24f15b489fd8",
+      "name": "Tasty A's Cajun Cuisine",
+      "latitude": 30.11852,
+      "longitude": -95.38167,
+      "area": "spring",
+      "address": "3731 Riley Fuzzel Rd, Spring, TX 77386",
+      "cuisines": ["southern", "seafood"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Cajun food truck on Riley Fuzzel near Imperial Oaks",
       "signatureDishes": []
     },
     {
@@ -22066,6 +22471,21 @@
       "signatureDishes": []
     },
     {
+      "id": "2f6efb89-be9b-5350-9f2a-757bffb9b758",
+      "name": "The Grille 82",
+      "latitude": 30.08232,
+      "longitude": -95.46634,
+      "area": "spring",
+      "address": "3211 Spring Stuebner Rd, Spring, TX 77389",
+      "cuisines": ["southern", "latin"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Soul-food and Caribbean truck at Spring Food Park",
+      "signatureDishes": []
+    },
+    {
       "id": "24b015ec-be79-5561-99d0-0b41a3d2b540",
       "name": "The Grove Bar and Kitchen",
       "latitude": 30.12194,
@@ -22168,6 +22588,21 @@
       "website": "https://www.therepublicgrille.com/",
       "phone": null,
       "description": "American restaurant in Spring.",
+      "signatureDishes": []
+    },
+    {
+      "id": "201c54e6-91e6-5e42-9a4b-e39bebf00ab0",
+      "name": "The Sauced Pig",
+      "latitude": 30.12429,
+      "longitude": -95.41516,
+      "area": "spring",
+      "address": "1810 Rayford Rd, Spring, TX 77386",
+      "cuisines": ["bbq"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "BBQ truck at the Milstead/Rayford food-truck park; pulled pork, brisket, ribs",
       "signatureDishes": []
     },
     {
@@ -22423,6 +22858,21 @@
       "website": "https://torchystacos.com/location/spring/",
       "phone": "+1-346-413-2215",
       "description": "Mexican restaurant in Spring.",
+      "signatureDishes": []
+    },
+    {
+      "id": "aca37cb9-48ac-5a4a-9d62-a8b9da9fd2a4",
+      "name": "Toronto Sweets and Shakes",
+      "latitude": 30.08232,
+      "longitude": -95.46634,
+      "area": "spring",
+      "address": "3211 Spring Stuebner Rd, Spring, TX 77389",
+      "cuisines": ["dessert"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Dessert/shake truck at Spring Food Park",
       "signatureDishes": []
     },
     {
@@ -24016,6 +24466,21 @@
       "signatureDishes": []
     },
     {
+      "id": "f6682bd7-ba32-5413-b54f-dcc9b8eed876",
+      "name": "Costa Fina Latin Coastal Kitchen",
+      "latitude": 30.14419,
+      "longitude": -95.55197,
+      "area": "woodlands",
+      "address": "26435 Kuykendahl Rd, The Woodlands, TX 77375",
+      "cuisines": ["latin", "seafood"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Latin coastal/Central & South American; Creekside Park West",
+      "signatureDishes": []
+    },
+    {
       "id": "d03a61f2-5fd7-5280-b613-417fb1f4a7e2",
       "name": "Craft Grill - Breakfast Club",
       "latitude": 30.12794,
@@ -24628,6 +25093,21 @@
       "website": null,
       "phone": "(832) 559-1640",
       "description": "Sourced from Google Places (woodlands).",
+      "signatureDishes": []
+    },
+    {
+      "id": "e4f76c83-536e-57c1-9bc3-a49595fe32d9",
+      "name": "Goose's Acre Bistro & Irish Pub",
+      "latitude": 30.16023,
+      "longitude": -95.45947,
+      "area": "woodlands",
+      "address": "21 Waterway Ave, The Woodlands, TX 77380",
+      "cuisines": ["american", "other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "The Woodlands' only authentic European pub, transplanted from Midleton, County Cork, Ireland; longtime local hangout",
       "signatureDishes": []
     },
     {
@@ -27331,6 +27811,21 @@
       "signatureDishes": ["Lamb Chops", "Spanakopita", "Greek Salad"]
     },
     {
+      "id": "65e4183b-3fef-58f5-82bd-05967937f36a",
+      "name": "The Olive Oil Restaurant",
+      "latitude": 30.13274,
+      "longitude": -95.48259,
+      "area": "woodlands",
+      "address": "373 Sawdust Rd, The Woodlands, TX 77380",
+      "cuisines": ["mediterranean", "other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Family-owned Greek restaurant since 2008, authentic Greek food with live music and belly dancers",
+      "signatureDishes": []
+    },
+    {
       "id": "75687260-d85b-5cdd-a126-740d7eac843f",
       "name": "The Refuge Steakhouse & Bourbon Bar",
       "latitude": 30.14591,
@@ -28003,6 +28498,21 @@
       "website": null,
       "phone": "(713) 292-0678",
       "description": "Sourced from Google Places (woodlands).",
+      "signatureDishes": []
+    },
+    {
+      "id": "e049bc86-a977-54a5-a5eb-f7cc2d0b75f7",
+      "name": "Yummy Pho & Banh Mi",
+      "latitude": 30.16469,
+      "longitude": -95.46643,
+      "area": "woodlands",
+      "address": "9595 Six Pines Dr, The Woodlands, TX 77382",
+      "cuisines": ["vietnamese"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Family-owned Vietnamese with a fun shipping-container setup; fresh-made pho and banh mi sandwiches",
       "signatureDishes": []
     },
     {
