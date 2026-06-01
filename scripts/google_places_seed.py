@@ -1,9 +1,20 @@
 """Bulk-add restaurants from Google Places (New API) into Restaurants.json.
 
-Aggressive v2 pass: ~75 text searches (cuisine x area, shopping centers, major
-roads) PLUS a 5x5 grid of searchNearby calls covering the whole bounding box,
-and tightened name-dedupe that strips area markers so variants like
-"Black Walnut - The Woodlands" merge with "Black Walnut Cafe."
+v3 pass (2026-05-31): explicitly engineered to escape the 60-result cap that
+v2 silently hit in dense corridors.
+
+  - 10x10 grid (vs v2's 5x5) with 1500m radius -> fewer restaurants per cell,
+    so densest cells (Hughes Landing, Market Street, Sawdust corridor) actually
+    return their long tail instead of just the top-60 popular spots.
+  - ~250 text queries (vs v2's 75): adds bars, lounges, food halls, food
+    trucks, breweries, taquerias, panaderias, juice/boba/tea, brand-specific
+    chain queries, and recent-opening discovery queries.
+  - Expanded NEARBY_TYPES: adds sushi/ramen/taco/sandwich/donut/deli/brunch
+    primary types so the nearby pass surfaces specialty spots.
+  - Tighter chain dedup: v2 wiped legitimate same-name chains within 0.5 mi
+    (two Starbucks in adjacent centers both flagged dup). v3 requires
+    proximity < 0.08 mi (~420 ft) for an EXACT normalized-name match, so
+    chain duplicates survive. Substring-match still uses 0.5 mi.
 
 Setup (one-time):
   console.cloud.google.com -> project -> enable "Places API (New)" + billing
@@ -15,6 +26,9 @@ Run:
 
 Re-runnable: existing entries are dedup-skipped, only genuinely-new spots are
 added (deterministic uuid5 from the Google place id).
+
+Cost: ~750-1000 API calls total. At Google's $32/1000 SKU this is ~$25-32,
+well within the $200/month free credit.
 """
 import os, sys, json, re, math, time, uuid, urllib.request
 
@@ -35,11 +49,14 @@ CENTROIDS = {
 }
 
 TEXT_QUERIES = [
-    # broad area sweeps
+    # ─── broad area sweeps ─────────────────────────────────────────────
     "restaurants in The Woodlands TX", "restaurants in Spring TX",
     "restaurants in Old Town Spring TX", "restaurants in Shenandoah TX",
     "restaurants in Oak Ridge North TX", "restaurants in Klein TX",
-    # shopping centers / districts
+    "places to eat The Woodlands TX", "places to eat Spring TX",
+    "dining The Woodlands TX", "dining Spring TX",
+
+    # ─── shopping centers / districts / villages ───────────────────────
     "restaurants Market Street The Woodlands", "restaurants Hughes Landing The Woodlands",
     "restaurants Waterway Square The Woodlands", "restaurants Town Center The Woodlands",
     "restaurants Indian Springs Village The Woodlands",
@@ -49,14 +66,24 @@ TEXT_QUERIES = [
     "restaurants Panther Creek The Woodlands",
     "restaurants Grogan's Mill The Woodlands",
     "restaurants Pinecroft Center The Woodlands",
+    "restaurants Alden Bridge The Woodlands",
+    "restaurants Carlton Woods The Woodlands",
     "restaurants Metropark Square Shenandoah TX",
     "restaurants CityPlace Springwoods Village TX",
     "restaurants Harmony Commons Spring TX",
-    # roads / corridors
+    "restaurants Vintage Park Spring TX",
+    "restaurants Spring Town Center TX",
+    "restaurants Woodlands Mall TX",
+    "restaurants Portofino Shopping Center Shenandoah",
+    "restaurants Pinecroft Place The Woodlands",
+
+    # ─── roads / corridors ─────────────────────────────────────────────
     "restaurants Six Pines Dr The Woodlands",
     "restaurants Lake Robbins Dr The Woodlands",
     "restaurants Research Forest Dr The Woodlands",
     "restaurants Woodlands Pkwy",
+    "restaurants Lake Woodlands Dr",
+    "restaurants Grogans Mill Rd",
     "restaurants Sawdust Rd Spring TX",
     "restaurants Kuykendahl Rd Spring TX",
     "restaurants Gosling Rd Spring TX",
@@ -67,13 +94,19 @@ TEXT_QUERIES = [
     "restaurants FM 2920 Spring TX",
     "restaurants Champion Forest Dr Spring TX",
     "restaurants Rayford Rd Spring TX",
-    # cuisine x area
+    "restaurants Riley Fuzzel Rd Spring TX",
+    "restaurants Birnham Woods Dr Spring TX",
+    "restaurants Hardy Toll Rd Spring TX",
+    "restaurants I-45 Spring TX",
+    "restaurants Aldine Westfield Rd Spring TX",
+
+    # ─── cuisine x area (broad) ────────────────────────────────────────
     "italian restaurants The Woodlands TX", "italian restaurants Spring TX",
     "mexican restaurants The Woodlands TX", "mexican restaurants Spring TX",
     "tex mex The Woodlands TX", "tex mex Spring TX",
     "sushi The Woodlands TX", "sushi Spring TX",
     "chinese restaurants The Woodlands TX", "chinese restaurants Spring TX",
-    "japanese restaurants The Woodlands TX",
+    "japanese restaurants The Woodlands TX", "japanese restaurants Spring TX",
     "thai restaurants The Woodlands TX", "thai restaurants Spring TX",
     "indian restaurants The Woodlands TX", "indian restaurants Spring TX",
     "vietnamese The Woodlands TX", "vietnamese Spring TX",
@@ -85,31 +118,137 @@ TEXT_QUERIES = [
     "brunch The Woodlands TX", "brunch Spring TX",
     "pizza The Woodlands TX", "pizza Spring TX",
     "burgers The Woodlands TX", "burgers Spring TX",
-    "mediterranean The Woodlands TX", "greek The Woodlands TX",
-    "vegan The Woodlands TX", "healthy The Woodlands TX",
+    "mediterranean The Woodlands TX", "mediterranean Spring TX",
+    "greek The Woodlands TX", "greek Spring TX",
+    "vegan The Woodlands TX", "vegetarian The Woodlands TX",
+    "healthy The Woodlands TX", "healthy Spring TX",
+
+    # ─── cafe / bakery / dessert / drinks ──────────────────────────────
     "cafe The Woodlands TX", "cafe Spring TX",
+    "coffee shop The Woodlands TX", "coffee shop Spring TX",
     "bakery The Woodlands TX", "bakery Spring TX",
-    "ice cream The Woodlands TX", "dessert The Woodlands TX",
-    "wine bar The Woodlands TX", "cocktail bar The Woodlands TX",
-    # discovery / signal
-    "new restaurants The Woodlands TX", "new restaurants Spring TX",
-    "best restaurants The Woodlands TX", "hidden gem restaurants The Woodlands",
+    "panaderia Spring TX", "panaderia The Woodlands TX",
+    "donut shop The Woodlands TX", "donut shop Spring TX",
+    "ice cream The Woodlands TX", "ice cream Spring TX",
+    "dessert The Woodlands TX", "dessert Spring TX",
+    "boba tea The Woodlands TX", "boba tea Spring TX",
+    "milk tea Spring TX", "bubble tea The Woodlands TX",
+    "juice bar The Woodlands TX", "smoothie Spring TX",
+    "tea house The Woodlands TX",
+
+    # ─── bars / breweries / nightlife (food-serving) ───────────────────
+    "wine bar The Woodlands TX", "wine bar Spring TX",
+    "cocktail bar The Woodlands TX", "cocktail lounge Spring TX",
+    "sports bar The Woodlands TX", "sports bar Spring TX",
+    "gastropub The Woodlands TX", "gastropub Spring TX",
+    "bar and grill The Woodlands TX", "bar and grill Spring TX",
+    "tavern Spring TX", "pub The Woodlands TX",
+    "brewery The Woodlands TX", "brewery Spring TX",
+    "taproom The Woodlands TX", "beer garden Spring TX",
+    "speakeasy The Woodlands TX",
+
+    # ─── specialty / niche cuisines ────────────────────────────────────
+    "ramen The Woodlands TX", "ramen Spring TX",
+    "pho The Woodlands TX", "pho Spring TX",
+    "dim sum The Woodlands TX", "hot pot Spring TX",
+    "korean bbq The Woodlands TX",
+    "taqueria Spring TX", "taqueria The Woodlands TX",
+    "taco truck Spring TX",
+    "torta Spring TX", "elote Spring TX",
+    "biryani Spring TX", "halal Spring TX",
+    "lebanese The Woodlands TX", "shawarma Spring TX",
+    "ethiopian Houston", "venezuelan Spring TX",
+    "peruvian The Woodlands TX", "colombian Spring TX",
+    "argentinian The Woodlands TX", "cuban Spring TX",
+    "filipino Spring TX", "polish Houston TX",
+    "russian Spring TX", "ukrainian Spring TX",
+
+    # ─── format-specific ───────────────────────────────────────────────
+    "food truck The Woodlands TX", "food truck Spring TX",
+    "food hall The Woodlands TX",
+    "deli The Woodlands TX", "deli Spring TX",
+    "sandwich shop The Woodlands TX",
+    "diner The Woodlands TX", "diner Spring TX",
+    "buffet The Woodlands TX", "buffet Spring TX",
+    "hibachi The Woodlands TX",
+    "rotisserie chicken The Woodlands TX",
+    "rooftop restaurant The Woodlands TX",
+    "waterfront restaurant The Woodlands TX",
+    "outdoor dining The Woodlands TX",
+    "late night food The Woodlands TX",
+    "24 hour restaurant Spring TX",
+    "open late Spring TX",
+
+    # ─── chain-specific (catches missed locations of known chains) ─────
+    "Starbucks The Woodlands TX", "Starbucks Spring TX",
+    "Whataburger Spring TX", "Whataburger The Woodlands TX",
+    "Chipotle Spring TX", "Chipotle The Woodlands TX",
+    "Torchys Tacos Spring TX", "Torchys Tacos The Woodlands TX",
+    "Chick-fil-A Spring TX", "Chick-fil-A The Woodlands TX",
+    "Raising Canes Spring TX",
+    "Five Guys The Woodlands TX",
+    "Panera Bread The Woodlands TX",
+    "Jersey Mikes Spring TX",
+    "Jasons Deli The Woodlands TX",
+    "Snooze AM Eatery The Woodlands TX",
+    "First Watch Spring TX",
+    "Black Walnut Cafe The Woodlands TX",
+    "Crisp The Woodlands TX",
+    "Hubbell Hudson Spring TX",
+    "Del Frisco The Woodlands TX",
+    "Eddie V The Woodlands TX",
+    "Truluck The Woodlands TX",
+    "Fleming Steakhouse The Woodlands TX",
+    "Perry Steakhouse The Woodlands TX",
+    "Carrabbas Spring TX",
+    "Olive Garden Spring TX",
+    "BJs Brewhouse Spring TX",
+    "Cheesecake Factory The Woodlands TX",
+    "PF Changs The Woodlands TX",
+    "Chuys Spring TX",
+    "Lupe Tortilla The Woodlands TX",
+    "El Tiempo Cantina Spring TX",
+    "Berryhill Tacos Spring TX",
+
+    # ─── discovery / signal / freshness ────────────────────────────────
+    "new restaurants The Woodlands TX 2024", "new restaurants The Woodlands TX 2025",
+    "new restaurants Spring TX 2024", "new restaurants Spring TX 2025",
+    "just opened restaurants The Woodlands TX",
+    "now open Spring TX restaurants",
+    "best restaurants The Woodlands TX", "best restaurants Spring TX",
+    "hidden gem restaurants The Woodlands",
+    "local restaurants The Woodlands TX",
+    "family owned restaurants Spring TX",
     "upscale dining The Woodlands TX",
+    "casual dining Spring TX",
+    "kid friendly restaurants The Woodlands TX",
+    "patio dining The Woodlands TX",
+    "happy hour The Woodlands TX", "happy hour Spring TX",
 ]
 
-# 5x5 grid of (lat, lon) centers covering the bbox with ~2.4km radius overlap.
-NEARBY_CENTERS = [
-    (30.021, -95.548), (30.021, -95.504), (30.021, -95.460), (30.021, -95.416), (30.021, -95.372),
-    (30.063, -95.548), (30.063, -95.504), (30.063, -95.460), (30.063, -95.416), (30.063, -95.372),
-    (30.105, -95.548), (30.105, -95.504), (30.105, -95.460), (30.105, -95.416), (30.105, -95.372),
-    (30.147, -95.548), (30.147, -95.504), (30.147, -95.460), (30.147, -95.416), (30.147, -95.372),
-    (30.189, -95.548), (30.189, -95.504), (30.189, -95.460), (30.189, -95.416), (30.189, -95.372),
-]
-NEARBY_RADIUS_M = 2400
+# 10x10 grid of (lat, lon) centers covering the bbox with 1500m radius —
+# tighter cells than v2 so dense corridors don't hit the 60-result cap.
+def _grid(n=10):
+    lats = [LAT_MIN + (LAT_MAX - LAT_MIN) * (i + 0.5) / n for i in range(n)]
+    lons = [LON_MIN + (LON_MAX - LON_MIN) * (i + 0.5) / n for i in range(n)]
+    return [(la, lo) for la in lats for lo in lons]
 
+NEARBY_CENTERS = _grid(10)
+NEARBY_RADIUS_M = 1500
+
+# Expanded NEARBY_TYPES — adds specialty primary types that v2 missed.
 NEARBY_TYPES = [
     "restaurant", "fast_food_restaurant", "cafe", "bar", "bakery",
     "ice_cream_shop", "meal_takeaway", "meal_delivery",
+    "sandwich_shop", "coffee_shop", "donut_shop",
+    "breakfast_restaurant", "brunch_restaurant",
+    "sushi_restaurant", "ramen_restaurant", "pizza_restaurant",
+    "barbecue_restaurant", "seafood_restaurant", "steak_house",
+    "mexican_restaurant", "italian_restaurant", "chinese_restaurant",
+    "japanese_restaurant", "thai_restaurant", "vietnamese_restaurant",
+    "indian_restaurant", "mediterranean_restaurant", "french_restaurant",
+    "korean_restaurant", "vegan_restaurant", "vegetarian_restaurant",
+    "dessert_restaurant", "tea_house",
 ]
 
 FIELDS = ",".join([
@@ -139,6 +278,7 @@ TYPE_TO_CUISINE = {
     "vegan_restaurant": "healthy", "ramen_restaurant": "japanese",
     "middle_eastern_restaurant": "mediterranean", "greek_restaurant": "mediterranean",
     "tex_mex_restaurant": "texMex", "fast_food_restaurant": "burgers",
+    "donut_shop": "dessert", "tea_house": "cafeBakery",
 }
 PRICE_MAP = {
     "PRICE_LEVEL_INEXPENSIVE": "$", "PRICE_LEVEL_MODERATE": "$$",
@@ -267,19 +407,44 @@ def serialize(doc):
     return "\n".join(out) + "\n"
 
 
+def is_duplicate(name_norm, lat, lon, existing):
+    """v3 dedup: tightened so legitimate chain locations survive.
+
+    - Exact normalized-name match: only flag dup if within 0.08 mi (~420 ft).
+      Two Starbucks in adjacent shopping centers (~0.2 mi apart) BOTH survive.
+    - Substring match (one contains the other): 0.5 mi as before, since
+      'Tasty Pizza' vs 'Tasty Pizza Spring' is the same place even across a
+      block.
+    """
+    if len(name_norm) < 3:
+        return True   # too short to dedupe meaningfully, drop to be safe
+    for (en, elat, elon) in existing:
+        if len(en) < 3:
+            continue
+        d = haversine_mi(lat, lon, elat, elon)
+        if name_norm == en:
+            if d < 0.08:
+                return True
+        elif name_norm in en or en in name_norm:
+            if d < 0.5:
+                return True
+    return False
+
+
 def main():
     seen, places = set(), []
     calls = 0
 
-    # 1. Text search across cuisines, areas, shopping centers, corridors.
-    for q in TEXT_QUERIES:
+    # 1. Text search — broad query vocabulary.
+    print(f"Running {len(TEXT_QUERIES)} text queries (3 pages each, ~{len(TEXT_QUERIES)*3} calls)...")
+    for i, q in enumerate(TEXT_QUERIES):
         token = None
         for _ in range(3):
             try:
                 resp = places_text(q, token)
                 calls += 1
             except Exception as e:
-                print(f"text [{q}] failed: {e}")
+                print(f"  text [{q}] failed: {e}")
                 break
             for p in resp.get("places", []):
                 pid = p.get("id")
@@ -292,16 +457,19 @@ def main():
             token = resp.get("nextPageToken")
             if not token:
                 break
-            time.sleep(2)  # nextPageToken needs a brief warm-up
+            time.sleep(2)   # nextPageToken needs a brief warm-up
         time.sleep(0.3)
+        if (i + 1) % 25 == 0:
+            print(f"  ...{i+1}/{len(TEXT_QUERIES)} queries done, {len(places)} unique in-box so far")
 
-    # 2. Nearby grid — sweep every cell of the bounded area for restaurant-cluster types.
-    for (lat, lon) in NEARBY_CENTERS:
+    # 2. Nearby grid — 10x10 with 1500m radius beats the 60-result cap.
+    print(f"\nRunning {len(NEARBY_CENTERS)} nearby cells (~{len(NEARBY_CENTERS)} calls)...")
+    for i, (lat, lon) in enumerate(NEARBY_CENTERS):
         try:
             resp = places_nearby(lat, lon)
             calls += 1
         except Exception as e:
-            print(f"nearby ({lat},{lon}) failed: {e}")
+            print(f"  nearby ({lat},{lon}) failed: {e}")
             continue
         for p in resp.get("places", []):
             pid = p.get("id")
@@ -312,24 +480,18 @@ def main():
             if m:
                 places.append(m)
         time.sleep(0.3)
+        if (i + 1) % 25 == 0:
+            print(f"  ...{i+1}/{len(NEARBY_CENTERS)} cells done, {len(places)} unique in-box so far")
 
-    print(f"Made {calls} API calls. Fetched {len(places)} unique places in box.")
+    print(f"\nMade {calls} API calls. Fetched {len(places)} unique places in box.")
 
-    # 3. Dedupe against existing seed (normalized name + 0.5 mi proximity).
+    # 3. Dedupe against existing seed (tightened logic — see is_duplicate).
     doc = json.load(open(SEED, encoding="utf-8"))
     existing = [(norm(r["name"]), r["latitude"], r["longitude"]) for r in doc["restaurants"]]
     added, skipped_dup = [], 0
     for p in places:
         nn = norm(p["name"])
-        if len(nn) < 3:
-            skipped_dup += 1
-            continue
-        is_dup = any(
-            len(en) >= 3 and (nn in en or en in nn) and
-            haversine_mi(p["latitude"], p["longitude"], elat, elon) < 0.5
-            for (en, elat, elon) in existing
-        )
-        if is_dup:
+        if is_duplicate(nn, p["latitude"], p["longitude"], existing):
             skipped_dup += 1
             continue
         rid = str(uuid.uuid5(NS, f"woodlandseats:google:{p['google_id']}"))
@@ -346,7 +508,7 @@ def main():
     tmp = SEED + ".tmp"
     open(tmp, "w", encoding="utf-8").write(serialize(doc))
     os.replace(tmp, SEED)
-    print(f"Added {len(added)} | dup-skipped {skipped_dup} | TOTAL {len(doc['restaurants'])}")
+    print(f"\nAdded {len(added)} | dup-skipped {skipped_dup} | TOTAL {len(doc['restaurants'])}")
     for n in added[:80]:
         print("  +", n)
     if len(added) > 80:
