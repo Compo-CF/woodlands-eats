@@ -33,7 +33,7 @@ targets:
     info:
       path: WoodlandsEats/Info.plist
       properties:
-        CFBundleDisplayName: Woodlands Eats
+        CFBundleDisplayName: Top Tier Eats
         CFBundleShortVersionString: "0.1"
         CFBundleVersion: "18"
         CFBundleIconName: AppIcon

@@ -1,37 +1,43 @@
-# App Store Metadata — Woodlands Eats
+# App Store Metadata — Top Tier Eats
 
 Drafts for the fields you'll fill in App Store Connect. Edit before submission. Character limits are Apple's hard caps.
+
+> Note: the app's bundle identifier and CloudKit container stay as
+> `com.compofelice.WoodlandsEats` / `iCloud.com.compofelice.WoodlandsEats`
+> forever (Apple's accounting + all community data are keyed on them). Only
+> the user-facing strings — App Store name, home-screen label, and the
+> Map-tab header — read "Top Tier Eats."
 
 ---
 
 ## App name
-**Woodlands Eats**
+**Top Tier Eats**
 
-If taken in the store, fall back to one of: `Woodlands Eats — Tier List`, `WoodlandsEats`, `Woodlands Tier List`.
+If taken in the store, fall back to one of: `Top Tier Eats — Tier List`, `Top Tier Eats: Woodlands`, `Top Tier Eats TX`.
 
 ## Subtitle (30 char limit)
-**Rank your local restaurants** — 27 chars ✓
+**The Woodlands & Spring, ranked** — 30 chars ✓
 
 *Alternates:*
-- `Tier-list The Woodlands` (23)
-- `Restaurants ranked S to F` (25)
-- `Find & rank local spots` (23)
+- `Rank The Woodlands & Spring` (27)
+- `Local restaurants, ranked` (25)
+- `Tier-list The Woodlands eats` (28)
 
 ## Promotional text (170 chars — editable anytime without review)
-> 1,400+ restaurants from The Woodlands to Spring, ranked by you on a classic S/A/B/C/F tier list. No stars, no algorithm — just where each spot belongs.
+> 1,800+ restaurants from The Woodlands to Spring, ranked by you on a classic S/A/B/C/F tier list. No stars, no algorithm — just where each spot belongs.
 
 (154 chars — leaves room for seasonal pulls like "Spring crawfish season tier list inside.")
 
 ## Description (4000 char limit, plain text only)
 
 ```
-A no-nonsense restaurant discovery app for The Woodlands, Spring, and the surrounding towns — ranked by you on a classic S/A/B/C/F tier list instead of stars.
+Top Tier Eats is a restaurant discovery app for The Woodlands, Spring, and the surrounding towns — ranked by you on a classic S/A/B/C/F tier list instead of stars.
 
 WHY A TIER LIST
 Five-star ratings smear everything into a featureless 3.9-to-4.4 blob. A tier list forces you to pick: is this place ELITE, or just GREAT, or just FINE? Your tier list becomes a memory of your favorites — and the community average becomes a genuinely useful "is this worth going to" answer.
 
 WHAT'S INSIDE
-• 1,400+ restaurants curated across six areas: The Woodlands, Spring, Shenandoah, Oak Ridge North, Old Town Spring, and Klein
+• 1,800+ restaurants curated across six areas: The Woodlands, Spring, Shenandoah, Oak Ridge North, Old Town Spring, and Klein
 • Live map with every spot color-coded by your tier (and the unranked ones a neutral gray, so the map becomes a snapshot of your taste over time)
 • Distance-sorted list with one-tap Apple Maps directions
 • Filters for area, cuisine, price tier, and a fast-food toggle (off by default)
@@ -60,7 +66,7 @@ anthony.compofelice@centricfiber.com — for bug reports, takedown requests, or 
 ```
 restaurants,woodlands,spring,texas,tier,list,food,dining,bbq,tex-mex,sushi,map,local,eats
 ```
-(95 chars ✓)
+(95 chars ✓ — note: "Top Tier Eats" already includes the words "top", "tier", and "eats" in the app name itself, so the keyword field doesn't need to repeat them. Apple matches search on name + subtitle + keywords combined.)
 
 ## Support URL
 `https://github.com/Compo-CF/woodlands-eats/issues`
@@ -193,7 +199,7 @@ Paste this into the "Notes for the App Review team" field. Reviewers love contex
 ```
 Hi reviewer,
 
-Woodlands Eats is a hyperlocal restaurant discovery + S/A/B/C/F tier list
+Top Tier Eats is a hyperlocal restaurant discovery + S/A/B/C/F tier list
 app for The Woodlands and Spring, Texas. It uses CloudKit for the
 community features so there's no separate account to create.
 
