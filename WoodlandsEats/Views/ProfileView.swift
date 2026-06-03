@@ -22,6 +22,7 @@ struct ProfileView: View {
     @State private var suggestionError: String?
     @State private var photoReports: [(report: PhotoReport, photo: DishPhoto?)] = []
     @State private var actingPhotoID: String?
+    @State private var showAbout = false
 
     private var nameEmpty: Bool {
         displayName.trimmingCharacters(in: .whitespaces).isEmpty
@@ -71,6 +72,14 @@ struct ProfileView: View {
                         showSuggest = true
                     } label: {
                         Label("Suggest a missing restaurant", systemImage: "plus.circle")
+                    }
+                }
+
+                Section(header: Text("About")) {
+                    Button {
+                        showAbout = true
+                    } label: {
+                        Label("About S-Tier Eats", systemImage: "info.circle")
                     }
                 }
 
@@ -198,6 +207,10 @@ struct ProfileView: View {
             .task { await load() }
             .sheet(isPresented: $showSuggest) {
                 SuggestRestaurantView()
+            }
+            .sheet(isPresented: $showAbout) {
+                AboutSheetView()
+                    .presentationDetents([.medium, .large])
             }
         }
     }
