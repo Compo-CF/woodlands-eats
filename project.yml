@@ -13,6 +13,13 @@ options:
   createIntermediateGroups: true
   generateEmptyDirectories: true
 
+packages:
+  # v1.1: Google Mobile Ads SDK for AdMob banner integration.
+  # Pinned to a major; minor updates auto-pulled.
+  GoogleMobileAds:
+    url: https://github.com/googleads/swift-package-manager-google-mobile-ads
+    from: "11.0.0"
+
 settings:
   base:
     SWIFT_VERSION: "5.10"
@@ -30,6 +37,10 @@ targets:
       - path: WoodlandsEats
         excludes:
           - "Info.plist"
+    dependencies:
+      # v1.1: AdMob SDK for banner ads on the Browse tab.
+      - package: GoogleMobileAds
+        product: GoogleMobileAds
     info:
       path: WoodlandsEats/Info.plist
       properties:
@@ -45,6 +56,53 @@ targets:
         UIRequiredDeviceCapabilities:
           - armv7
         ITSAppUsesNonExemptEncryption: false
+        # v1.1: AdMob test app ID. Swap for real app ID when AdMob console
+        # has S-Tier Eats registered. Format: ca-app-pub-PUBLISHER~APP.
+        GADApplicationIdentifier: ca-app-pub-3940256099942544~1458002511
+        # SKAdNetwork IDs for the major ad networks the SDK reports to.
+        # Apple requires these to be declared so attribution can flow without IDFA.
+        # Source: Google's published list for SDK 11.x.
+        SKAdNetworkItems:
+          - SKAdNetworkIdentifier: cstr6suwn9.skadnetwork
+          - SKAdNetworkIdentifier: 4fzdc2evr5.skadnetwork
+          - SKAdNetworkIdentifier: 2fnua5tdw4.skadnetwork
+          - SKAdNetworkIdentifier: ydx93a7ass.skadnetwork
+          - SKAdNetworkIdentifier: p78axxw29g.skadnetwork
+          - SKAdNetworkIdentifier: v72qych5uu.skadnetwork
+          - SKAdNetworkIdentifier: c6k4g5qg8m.skadnetwork
+          - SKAdNetworkIdentifier: s39g8k73mm.skadnetwork
+          - SKAdNetworkIdentifier: 3qy4746246.skadnetwork
+          - SKAdNetworkIdentifier: 3sh42y64q3.skadnetwork
+          - SKAdNetworkIdentifier: f38h382jlk.skadnetwork
+          - SKAdNetworkIdentifier: hs6bdukanm.skadnetwork
+          - SKAdNetworkIdentifier: prcb7njmu6.skadnetwork
+          - SKAdNetworkIdentifier: wzmmz9fp6w.skadnetwork
+          - SKAdNetworkIdentifier: yclnxrl5pm.skadnetwork
+          - SKAdNetworkIdentifier: t38b2kh725.skadnetwork
+          - SKAdNetworkIdentifier: 7ug5zh24hu.skadnetwork
+          - SKAdNetworkIdentifier: 9rd848q2bz.skadnetwork
+          - SKAdNetworkIdentifier: y5ghdn5j9k.skadnetwork
+          - SKAdNetworkIdentifier: n6fk4nfna4.skadnetwork
+          - SKAdNetworkIdentifier: kbd757ywx3.skadnetwork
+          - SKAdNetworkIdentifier: 9t245vhmpl.skadnetwork
+          - SKAdNetworkIdentifier: 4468km3ulz.skadnetwork
+          - SKAdNetworkIdentifier: 2u9pt9hc89.skadnetwork
+          - SKAdNetworkIdentifier: 8s468mfl3y.skadnetwork
+          - SKAdNetworkIdentifier: av6w8kgt66.skadnetwork
+          - SKAdNetworkIdentifier: klf5c3l5u5.skadnetwork
+          - SKAdNetworkIdentifier: ppxm28t8ap.skadnetwork
+          - SKAdNetworkIdentifier: 424m5254lk.skadnetwork
+          - SKAdNetworkIdentifier: ecpz2srf59.skadnetwork
+          - SKAdNetworkIdentifier: uw77j35x4d.skadnetwork
+          - SKAdNetworkIdentifier: mlmmfzh3r3.skadnetwork
+          - SKAdNetworkIdentifier: 578prtvx9j.skadnetwork
+          - SKAdNetworkIdentifier: 4dzt52r2t5.skadnetwork
+          - SKAdNetworkIdentifier: gta9lk7p23.skadnetwork
+          - SKAdNetworkIdentifier: e5fvkxwrpn.skadnetwork
+          - SKAdNetworkIdentifier: 8c4e2ghe7u.skadnetwork
+          - SKAdNetworkIdentifier: zq492l623r.skadnetwork
+          - SKAdNetworkIdentifier: 3rd42ekr43.skadnetwork
+          - SKAdNetworkIdentifier: 3qcr597p9d.skadnetwork
     entitlements:
       path: WoodlandsEats/WoodlandsEats.entitlements
       properties:
