@@ -261,6 +261,34 @@ FIELDS_NEARBY = ",".join([
     "places.types", "places.priceLevel", "places.websiteUri", "places.nationalPhoneNumber",
 ])
 
+# Google Places types we REJECT outright in map_place(). Text searches
+# like "restaurants Hughes Landing" can surface hotels/groceries/etc.
+# whose Google entry happens to mention "restaurant"; the nearby grid is
+# already filtered by NEARBY_TYPES, but text search bypasses that filter.
+# Drop any place where one of these appears in its types[] list.
+TYPE_DENY = {
+    "lodging", "hotel", "motel", "resort_hotel", "bed_and_breakfast",
+    "extended_stay_hotel",
+    "grocery_store", "supermarket", "convenience_store", "gas_station",
+    "pharmacy", "drugstore",
+    "department_store", "home_goods_store", "hardware_store",
+    "electronics_store", "clothing_store", "shoe_store", "jewelry_store",
+    "book_store", "furniture_store",
+    "movie_theater", "casino", "amusement_park", "tourist_attraction",
+    "gym", "fitness_center", "hair_care", "beauty_salon", "spa",
+    "veterinary_care", "pet_store",
+    "car_repair", "car_dealer", "car_rental", "car_wash",
+    "school", "university", "primary_school", "secondary_school", "library",
+    "church", "place_of_worship", "mosque", "synagogue", "hindu_temple",
+    "hospital", "doctor", "dentist", "physiotherapist",
+    "atm", "bank", "finance",
+    "real_estate_agency", "lawyer", "accounting", "insurance_agency",
+    "storage", "post_office", "moving_company",
+    "rv_park", "campground", "park",
+    "apartment_complex",
+}
+
+
 TYPE_TO_CUISINE = {
     "pizza_restaurant": "pizza", "mexican_restaurant": "mexican",
     "italian_restaurant": "italian", "american_restaurant": "american",
@@ -365,6 +393,12 @@ def map_place(p):
     if not (LAT_MIN <= lat <= LAT_MAX and LON_MIN <= lon <= LON_MAX):
         return None
     types = p.get("types") or []
+    # Regression guard: reject hotels, grocery stores, gas stations, etc.
+    # that text-search may have surfaced. Nearby search is already type-
+    # filtered, but text-search "restaurants Hughes Landing" can return
+    # the Embassy Suites because its description mentions a restaurant.
+    if any(t in TYPE_DENY for t in types):
+        return None
     cuisines = []
     for t in types:
         m = TYPE_TO_CUISINE.get(t)

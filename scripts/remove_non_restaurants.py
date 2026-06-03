@@ -1,0 +1,268 @@
+"""Remove non-restaurants from Restaurants.json.
+
+The v3 Google Places expansion pulled in collateral: hotels, grocery stores,
+gas stations, pharmacies, retail, country clubs, banquet halls — places
+Google tags with restaurant-adjacent types even though they aren't consumer-
+facing dining.
+
+Approach:
+  1. Apply a name-substring denylist (hotel chains, grocery, gas, pharmacy,
+     retail, service businesses, etc).
+  2. RESTAURANT_WORDS exception: if an entry's name ALSO contains a true
+     restaurant word ("steakhouse", "kitchen", "grill", "cafe", etc), it's
+     kept even when a denylist pattern matches. This preserves real
+     restaurants whose names happen to contain a chain brand (e.g.,
+     "Robard's Steakhouse" at The Westin survives, but "The Westin" drops).
+
+Idempotent — re-runnable; entries already cleaned out stay out.
+
+Run:
+  python3 scripts/remove_non_restaurants.py
+"""
+import os, re, json
+
+SEED = "WoodlandsEats/Resources/Restaurants.json"
+KEYS = ["id", "name", "latitude", "longitude", "area", "address", "cuisines",
+        "priceTier", "isFastFood", "website", "phone", "description", "signatureDishes"]
+
+# Substring patterns (case-insensitive) that signal non-restaurant entries.
+# (pattern, category — for logging/reporting).
+DENY_PATTERNS = [
+    # ─── Hotels ──────────────────────────────────────────────────────
+    (r"\bhilton\b", "hotel"),
+    (r"\bhampton inn\b", "hotel"),
+    (r"\bholiday inn\b", "hotel"),
+    (r"\bembassy suites\b", "hotel"),
+    (r"\bhyatt\b", "hotel"),
+    (r"\bmarriott\b", "hotel"),
+    (r"\bcourtyard by\b", "hotel"),
+    (r"\bresidence inn\b", "hotel"),
+    (r"\bspringhill suites\b", "hotel"),
+    (r"\bfairfield inn\b", "hotel"),
+    (r"\bbest western\b", "hotel"),
+    (r"\bred roof\b", "hotel"),
+    (r"\bdays inn\b", "hotel"),
+    (r"\bla quinta\b", "hotel"),
+    (r"\bcomfort (suites|inn)\b", "hotel"),
+    (r"\bcountry inn\b", "hotel"),
+    (r"\bquality inn\b", "hotel"),
+    (r"\bwingate\b", "hotel"),
+    (r"\btru by hilton\b", "hotel"),
+    (r"\bhome2 suites\b", "hotel"),
+    (r"\bdoubletree\b", "hotel"),
+    (r"\bsheraton\b", "hotel"),
+    (r"\bwestin\b", "hotel"),
+    (r"\baloft\b", "hotel"),
+    (r"\bmotel 6\b", "hotel"),
+    (r"\bsuper 8\b", "hotel"),
+    (r"\bextended stay\b", "hotel"),
+    (r"\bmainstay suites\b", "hotel"),
+    (r"\bsleep inn\b", "hotel"),
+    (r"\bhomewood suites\b", "hotel"),
+    (r"\bcandlewood suites\b", "hotel"),
+    (r"\bstaybridge\b", "hotel"),
+    (r"\btownplace suites\b", "hotel"),
+    (r"\bmicrotel\b", "hotel"),
+    (r"\bwoodspring suites\b", "hotel"),
+    (r"\bresort\b", "hotel"),
+    (r"\binn at\b", "hotel"),
+    # ─── Grocery / supermarket ───────────────────────────────────────
+    (r"\bh-?e-?b\b", "grocery"),
+    (r"\bkroger\b", "grocery"),
+    (r"\bwalmart\b", "grocery"),
+    (r"\btarget\b", "grocery"),
+    (r"\bcostco\b", "grocery"),
+    (r"\bsam'?s club\b", "grocery"),
+    (r"\bwhole foods\b", "grocery"),
+    (r"\baldi\b", "grocery"),
+    (r"\bsprouts\b", "grocery"),
+    (r"\brandalls\b", "grocery"),
+    (r"\bfiesta mart\b", "grocery"),
+    (r"\btrader joe'?s\b", "grocery"),
+    (r"\bfood town\b", "grocery"),
+    (r"\bmi tienda\b", "grocery"),
+    (r"\bla michoacana meat market\b", "grocery"),
+    # ─── Convenience / gas ───────────────────────────────────────────
+    (r"\b7-?eleven\b", "convenience"),
+    (r"\bbuc-?ee'?s?\b", "convenience"),
+    (r"\bracetrac\b", "convenience"),
+    (r"\bshell\s+(?:gas|station|food mart)\b", "convenience"),
+    (r"\bchevron\b", "convenience"),
+    (r"\bexxon\b", "convenience"),
+    (r"\bphillips 66\b", "convenience"),
+    (r"\btexaco\b", "convenience"),
+    (r"\bvalero\b", "convenience"),
+    (r"\bspeedway\b", "convenience"),
+    (r"\bstripes\b", "convenience"),
+    (r"\bcefco\b", "convenience"),
+    (r"\bcircle k\b", "convenience"),
+    (r"\bquiktrip\b", "convenience"),
+    (r"\bsunoco\b", "convenience"),
+    # ─── Pharmacy ────────────────────────────────────────────────────
+    (r"^cvs( pharmacy)?\b", "pharmacy"),
+    (r"\bcvs pharmacy\b", "pharmacy"),
+    (r"\bwalgreens\b", "pharmacy"),
+    (r"\brite aid\b", "pharmacy"),
+    # ─── Big-box / retail non-food ───────────────────────────────────
+    (r"\bbest buy\b", "retail"),
+    (r"\bhome depot\b", "retail"),
+    (r"\blowe'?s\b", "retail"),
+    (r"\boffice depot\b", "retail"),
+    (r"\boffice max\b", "retail"),
+    (r"\bstaples\b", "retail"),
+    (r"\bpetco\b", "retail"),
+    (r"\bpetsmart\b", "retail"),
+    (r"\bgamestop\b", "retail"),
+    (r"\bdollar (tree|general)\b", "retail"),
+    (r"\bfamily dollar\b", "retail"),
+    (r"\b99 cents only\b", "retail"),
+    (r"\bbig lots\b", "retail"),
+    (r"\bross\b", "retail"),
+    (r"\bmarshalls\b", "retail"),
+    (r"\bross dress for less\b", "retail"),
+    (r"\bmichaels\b", "retail"),
+    (r"\bhobby lobby\b", "retail"),
+    # ─── Clubs / event venues / not consumer dining ──────────────────
+    (r"\bcountry club\b", "club"),
+    (r"\bgolf club\b", "club"),
+    (r"\bbanquet\b", "event"),
+    (r"\bevent center\b", "event"),
+    (r"\breception hall\b", "event"),
+    (r"\bvending\b", "service"),
+    # ─── Schools / churches / institutions ───────────────────────────
+    (r"\bisd\b", "school"),
+    (r"\b(elementary|middle|high) school\b", "school"),
+    (r"\bchurch\b", "religious"),
+    (r"\bmosque\b", "religious"),
+    (r"\bsynagogue\b", "religious"),
+    # ─── Other obvious non-restaurants ───────────────────────────────
+    (r"\bdaycare\b", "daycare"),
+    (r"\bpreschool\b", "daycare"),
+    (r"\bfitness\b", "fitness"),
+    (r"\borangetheory\b", "fitness"),
+    (r"\bcrunch fitness\b", "fitness"),
+    (r"\blife time\b", "fitness"),
+    (r"\bplanet fitness\b", "fitness"),
+    (r"\byoga\b", "fitness"),
+    (r"\bpilates\b", "fitness"),
+    (r"\bcrossfit\b", "fitness"),
+    (r"\bbarber\b", "service"),
+    (r"\bnail (salon|spa|bar)\b", "service"),
+    (r"\bhair (salon|studio)\b", "service"),
+    (r"\bmedical (clinic|center)\b", "medical"),
+    (r"\bdental\b", "medical"),
+    (r"\burgent care\b", "medical"),
+    (r"\bhospital\b", "medical"),
+    (r"\bclinic\b(?!al)", "medical"),
+    (r"\bself storage\b", "storage"),
+    (r"\bauto repair\b", "auto"),
+    (r"\btire (shop|store)\b", "auto"),
+    (r"\boil change\b", "auto"),
+    (r"\bcarwash\b", "auto"),
+    (r"\bcar wash\b", "auto"),
+    (r"\bjiffy lube\b", "auto"),
+    (r"\bvalvoline\b", "auto"),
+    (r"\bautozone\b", "auto"),
+    (r"\bo'?reilly auto\b", "auto"),
+    (r"\bnapa auto\b", "auto"),
+    (r"\bdiscount tire\b", "auto"),
+    (r"\bfedex\b", "shipping"),
+    (r"\bups store\b", "shipping"),
+    (r"\bpostnet\b", "shipping"),
+    # ─── Banks (often have small cafes inside that get tagged) ───────
+    (r"\bbank of america\b", "bank"),
+    (r"\bjpmorgan\b", "bank"),
+    (r"\bchase bank\b", "bank"),
+    (r"\bwells fargo\b", "bank"),
+    (r"\bcitibank\b", "bank"),
+    (r"\bcredit union\b", "bank"),
+    # ─── Apartments / real estate ────────────────────────────────────
+    (r"\bapartments\b", "residential"),
+    (r"\bapartment homes\b", "residential"),
+    (r"\bassisted living\b", "residential"),
+    (r"\bsenior living\b", "residential"),
+    (r"\bnursing home\b", "residential"),
+    (r"\brehab\b", "residential"),
+]
+
+# Exception: legitimate restaurants whose names happen to contain a denylist
+# brand. If an entry name matches RESTAURANT_WORDS in addition to a deny
+# pattern, it survives. Catches real spots like "Robard's Steakhouse"
+# (inside Westin) or "Avia Restaurant" (inside Embassy Suites).
+RESTAURANT_WORDS = re.compile(
+    r"\b(restaurant|bar(?!\s+method)|grill|cafe|kitchen|lounge|steakhouse|diner|"
+    r"bistro|brewery|brasserie|tavern|pub|trattoria|pizzeria|pizza|sushi|"
+    r"deli|bakery|patisserie|izakaya|cantina|cocina|taqueria|"
+    r"churrascaria|coffeehouse|teahouse|smokehouse|alehouse|"
+    r"chophouse|brewpub|gastropub|noodle|ramen|hot pot|bbq|barbecue|"
+    r"creamery|ice cream|frozen yogurt|donut|donuts|kolache|"
+    r"pho|banh mi|sandwich|burger|burgers|wings|tacos|tortas|"
+    r"crawfish|seafood|oyster|sushi|dim sum)\b",
+    re.IGNORECASE,
+)
+
+
+def should_drop(name):
+    """Return (drop, category) for an entry name."""
+    name_lower = name.lower()
+    for pat, category in DENY_PATTERNS:
+        if re.search(pat, name_lower):
+            # Allow exception: legitimate restaurant inside a hotel/etc keeps
+            # itself in if its name contains a real restaurant word.
+            if RESTAURANT_WORDS.search(name):
+                return (False, None)
+            return (True, category)
+    return (False, None)
+
+
+def fmt_coord(x):
+    return f"{x:.5f}".rstrip("0").rstrip(".")
+
+
+def serialize(doc):
+    out = ["{", '  "restaurants": [']
+    rs = doc["restaurants"]
+    for i, r in enumerate(rs):
+        out.append("    {")
+        for j, k in enumerate(KEYS):
+            v = r[k]
+            sval = fmt_coord(v) if k in ("latitude", "longitude") else json.dumps(v, ensure_ascii=False)
+            out.append(f'      "{k}": {sval}' + ("," if j < len(KEYS) - 1 else ""))
+        out.append("    }" + ("," if i < len(rs) - 1 else ""))
+    out += ["  ]", "}"]
+    return "\n".join(out) + "\n"
+
+
+def main():
+    doc = json.load(open(SEED, encoding="utf-8"))
+    before = len(doc["restaurants"])
+    print(f"Loaded {before} restaurants from {SEED}\n")
+
+    kept, dropped = [], []
+    drop_by_category = {}
+    for r in doc["restaurants"]:
+        drop, category = should_drop(r["name"])
+        if drop:
+            dropped.append((r["name"], category, r["area"]))
+            drop_by_category[category] = drop_by_category.get(category, 0) + 1
+        else:
+            kept.append(r)
+
+    doc["restaurants"] = kept
+    doc["restaurants"].sort(key=lambda r: (r["area"], r["name"].lower()))
+    tmp = SEED + ".tmp"
+    open(tmp, "w", encoding="utf-8").write(serialize(doc))
+    os.replace(tmp, SEED)
+
+    print(f"Dropped {len(dropped)} non-restaurants. TOTAL kept: {len(kept)}\n")
+    if drop_by_category:
+        print("By category:")
+        for cat, n in sorted(drop_by_category.items(), key=lambda x: -x[1]):
+            print(f"  {n:4d}  {cat}")
+    print(f"\nFull list of dropped entries:")
+    for name, cat, area in dropped:
+        print(f"  - [{cat:11s}] {name}  ({area})")
+
+
+if __name__ == "__main__":
+    main()
