@@ -1,4 +1,4 @@
-# App Store Metadata — Top Tier Eats
+# App Store Metadata — S-Tier Eats
 
 Drafts for the fields you'll fill in App Store Connect. Edit before submission. Character limits are Apple's hard caps.
 
@@ -6,14 +6,14 @@ Drafts for the fields you'll fill in App Store Connect. Edit before submission. 
 > `com.compofelice.WoodlandsEats` / `iCloud.com.compofelice.WoodlandsEats`
 > forever (Apple's accounting + all community data are keyed on them). Only
 > the user-facing strings — App Store name, home-screen label, and the
-> Map-tab header — read "Top Tier Eats."
+> Map-tab header — read "S-Tier Eats."
 
 ---
 
 ## App name
-**Top Tier Eats**
+**S-Tier Eats**
 
-If taken in the store, fall back to one of: `Top Tier Eats — Tier List`, `Top Tier Eats: Woodlands`, `Top Tier Eats TX`.
+If taken in the store, fall back to one of: `S-Tier Eats — Tier List`, `S-Tier Eats: Woodlands`, `S-Tier Eats TX`.
 
 ## Subtitle (30 char limit)
 **The Woodlands & Spring, ranked** — 30 chars ✓
@@ -31,7 +31,7 @@ If taken in the store, fall back to one of: `Top Tier Eats — Tier List`, `Top 
 ## Description (4000 char limit, plain text only)
 
 ```
-Top Tier Eats is a restaurant discovery app for The Woodlands, Spring, and the surrounding towns — ranked by you on a classic S/A/B/C/F tier list instead of stars.
+S-Tier Eats is a restaurant discovery app for The Woodlands, Spring, and the surrounding towns — ranked by you on a classic S/A/B/C/F tier list instead of stars.
 
 WHY A TIER LIST
 Five-star ratings smear everything into a featureless 3.9-to-4.4 blob. A tier list forces you to pick: is this place ELITE, or just GREAT, or just FINE? Your tier list becomes a memory of your favorites — and the community average becomes a genuinely useful "is this worth going to" answer.
@@ -66,7 +66,7 @@ anthony.compofelice@centricfiber.com — for bug reports, takedown requests, or 
 ```
 restaurants,woodlands,spring,texas,tier,list,food,dining,bbq,tex-mex,sushi,map,local,eats
 ```
-(95 chars ✓ — note: "Top Tier Eats" already includes the words "top", "tier", and "eats" in the app name itself, so the keyword field doesn't need to repeat them. Apple matches search on name + subtitle + keywords combined.)
+(95 chars ✓ — note: "S-Tier Eats" already includes the words "top", "tier", and "eats" in the app name itself, so the keyword field doesn't need to repeat them. Apple matches search on name + subtitle + keywords combined.)
 
 ## Support URL
 `https://github.com/Compo-CF/woodlands-eats/issues`
@@ -199,7 +199,7 @@ Paste this into the "Notes for the App Review team" field. Reviewers love contex
 ```
 Hi reviewer,
 
-Top Tier Eats is a hyperlocal restaurant discovery + S/A/B/C/F tier list
+S-Tier Eats is a hyperlocal restaurant discovery + S/A/B/C/F tier list
 app for The Woodlands and Spring, Texas. It uses CloudKit for the
 community features so there's no separate account to create.
 

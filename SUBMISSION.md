@@ -1,6 +1,6 @@
 # Submission Day — End-to-End Guide
 
-The playbook for taking Top Tier Eats from build 14 on TestFlight to live on the App Store. Pull this doc up on your second screen.
+The playbook for taking S-Tier Eats from build 14 on TestFlight to live on the App Store. Pull this doc up on your second screen.
 
 ## Prerequisites (verify before starting)
 
@@ -41,7 +41,7 @@ No new Queryable indexes are required for build 14 — the new types are looked 
 
 ## Step 2 — Confirm build 14 in TestFlight
 
-1. `appstoreconnect.apple.com` → My Apps → (Top Tier Eats) → TestFlight tab.
+1. `appstoreconnect.apple.com` → My Apps → (S-Tier Eats) → TestFlight tab.
 2. Build 14 should be processed and "Ready to Test." If it says "Missing Compliance," click the build, answer the encryption question (No: no non-exempt encryption), and submit.
 3. Install it on your iPhone via the TestFlight app, log in, and confirm:
    - Long-pressing a dish photo shows "Report photo" + "Block this uploader."
@@ -76,7 +76,7 @@ Browser, Mac or Windows either works:
 
 1. App Store Connect → My Apps → **+** → New App (if not already created; if you've been using TestFlight, the app record already exists — skip to step 2).
    - Platform: iOS
-   - Name: **Top Tier Eats**
+   - Name: **S-Tier Eats**
    - Primary Language: English (U.S.)
    - Bundle ID: `com.compofelice.WoodlandsEats`
    - SKU: `woodlands-eats-001`
@@ -127,7 +127,7 @@ When Apple approves, the build is "Ready for Sale" but won't release until you t
 
 For v1.0, manual release is safer — gives you a chance to coordinate the launch.
 
-After release: takes 30 min to a few hours to propagate across the App Store storefronts. Search by `Top Tier Eats` to confirm.
+After release: takes 30 min to a few hours to propagate across the App Store storefronts. Search by `S-Tier Eats` to confirm.
 
 ---
 

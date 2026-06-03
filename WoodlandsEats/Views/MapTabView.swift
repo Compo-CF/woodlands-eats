@@ -40,7 +40,7 @@ struct MapTabView: View {
                     locationManager.requestPermission()
                 }
             }
-            .navigationTitle("Top Tier Eats")
+            .navigationTitle("S-Tier Eats")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
