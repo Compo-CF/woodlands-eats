@@ -46,21 +46,6 @@
       "signatureDishes": []
     },
     {
-      "id": "ef4cb8cf-4aeb-5732-9a48-2871d28f0908",
-      "name": "7-Eleven",
-      "latitude": 30.08623,
-      "longitude": -95.5267,
-      "area": "klein",
-      "address": "22017 Kuykendahl Rd, Spring, TX 77379, USA",
-      "cuisines": ["pizza", "cafeBakery"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.7-eleven.com/?utm_source=G&utm_medium=local&utm_campaign=google-local",
-      "phone": "(832) 717-7417",
-      "description": "Sourced from Google Places (klein).",
-      "signatureDishes": []
-    },
-    {
       "id": "2ed8bc9b-eb17-5082-9cb6-8cfa4bf58741",
       "name": "888 Chinese Restaurant",
       "latitude": 30.07472,
@@ -1243,36 +1228,6 @@
       "website": "https://locations.cinnaholic.com/ll/us/tx/spring/6525-n-grand-prkwy-w/",
       "phone": "+1-832-422-3324",
       "description": "Dessert quick-service spot in Klein.",
-      "signatureDishes": []
-    },
-    {
-      "id": "fed67810-3f84-517b-930f-8d4738fa1cc4",
-      "name": "Circle K",
-      "latitude": 30.04507,
-      "longitude": -95.53905,
-      "area": "klein",
-      "address": "7505 Spring Cypress Rd, Spring, TX 77379, USA",
-      "cuisines": ["other"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://www.circlek.com/store-locator/US/spring/7505-spring-cypress-rd/2741427?utm_source=google&utm_medium=local&utm_campaign=google-local",
-      "phone": "(281) 655-0613",
-      "description": "Sourced from Google Places (klein).",
-      "signatureDishes": []
-    },
-    {
-      "id": "3a31a798-0e00-5460-b2a6-ab3b4134d075",
-      "name": "Circle K",
-      "latitude": 30.05144,
-      "longitude": -95.46613,
-      "area": "klein",
-      "address": "3421 Louetta Rd, Spring, TX 77388, USA",
-      "cuisines": ["cafeBakery"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://www.circlek.com/store-locator/US/spring/3421-louetta-rd/2741479?utm_source=google&utm_medium=local&utm_campaign=google-local",
-      "phone": "(281) 288-0250",
-      "description": "Sourced from Google Places (klein).",
       "signatureDishes": []
     },
     {
@@ -3361,51 +3316,6 @@
       "signatureDishes": []
     },
     {
-      "id": "3ca30f68-6211-540b-8ded-ad953206f641",
-      "name": "La Michoacana Meat Market",
-      "latitude": 30.01443,
-      "longitude": -95.51824,
-      "area": "klein",
-      "address": "16215 Stuebner Airline Rd, Spring, TX 77379, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.lamichoacanameatmarket.com/16215-stuebner-airline-rd/",
-      "phone": "(832) 717-0072",
-      "description": "Sourced from Google Places (klein).",
-      "signatureDishes": []
-    },
-    {
-      "id": "3999858a-7e27-5962-9b16-3896b6760766",
-      "name": "La Michoacana Meat Market",
-      "latitude": 30.016,
-      "longitude": -95.4491,
-      "area": "klein",
-      "address": "1220 FM 1960 W, Houston, TX 77090, USA",
-      "cuisines": ["cafeBakery", "mexican"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.lamichoacanameatmarket.com/1220-fm-1960-w-rd-houston/",
-      "phone": "(281) 440-0551",
-      "description": "Sourced from Google Places (klein).",
-      "signatureDishes": []
-    },
-    {
-      "id": "0677551c-b388-5631-b06d-e186985b7e57",
-      "name": "La Michoacana Meat Market",
-      "latitude": 30.07166,
-      "longitude": -95.48962,
-      "area": "klein",
-      "address": "4623 Farm to Market 2920, Spring, TX 77388, USA",
-      "cuisines": ["cafeBakery", "mexican"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.lamichoacanameatmarket.com/en/4623-fm-2920-spring-tx-77388/",
-      "phone": "(281) 907-0067",
-      "description": "Sourced from Google Places (klein).",
-      "signatureDishes": []
-    },
-    {
       "id": "69f72b05-7dc6-58a4-87a3-e367dde9c5ba",
       "name": "La Palapa Coastal Cantina Spring",
       "latitude": 30.07351,
@@ -5476,21 +5386,6 @@
       "signatureDishes": []
     },
     {
-      "id": "91aeb9c6-d025-5943-b32b-b2f25cff0cbd",
-      "name": "Sprouts Farmers Market",
-      "latitude": 30.07096,
-      "longitude": -95.50801,
-      "area": "klein",
-      "address": "20708 Kuykendahl Rd, Spring, TX 77379, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://sprouts.com/store/tx/spring/spring",
-      "phone": "(832) 764-5424",
-      "description": "Sourced from Google Places (klein).",
-      "signatureDishes": []
-    },
-    {
       "id": "1a877772-0cbf-53ee-bc74-5fdc257577e1",
       "name": "Starbucks",
       "latitude": 30.03986,
@@ -6826,21 +6721,6 @@
       "signatureDishes": []
     },
     {
-      "id": "ee42c477-3129-5805-8609-8c69258f2ebe",
-      "name": "Walmart Supercenter",
-      "latitude": 30.07734,
-      "longitude": -95.51269,
-      "area": "klein",
-      "address": "21150 Kuykendahl Rd, Spring, TX 77379, USA",
-      "cuisines": ["cafeBakery"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://www.walmart.com/store/5287-spring-tx/?veh=seo_loc",
-      "phone": "(281) 288-6437",
-      "description": "Sourced from Google Places (klein).",
-      "signatureDishes": []
-    },
-    {
       "id": "1f61e7c9-c96c-5204-a791-82fe82f1c19d",
       "name": "Waterfalls Cafe spring",
       "latitude": 30.07005,
@@ -7756,21 +7636,6 @@
       "signatureDishes": []
     },
     {
-      "id": "2d3f6633-bf75-50d4-8119-d4371fc08672",
-      "name": "Circle K",
-      "latitude": 30.12685,
-      "longitude": -95.46519,
-      "area": "oakRidgeNorth",
-      "address": "1480 Sawdust Rd, The Woodlands, TX 77380, USA",
-      "cuisines": ["cafeBakery"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://www.circlek.com/store-locator/US/the-woodlands/1480-sawdust-rd/2742180?utm_source=google&utm_medium=local&utm_campaign=google-local",
-      "phone": "(281) 367-1331",
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
-    },
-    {
       "id": "b326a3b7-b0ca-5f56-954b-ff2cd57d25a3",
       "name": "Como Social Club",
       "latitude": 30.16023,
@@ -7797,21 +7662,6 @@
       "isFastFood": false,
       "website": "https://www.compadrestexascafe.com/",
       "phone": "(281) 292-0333",
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
-    },
-    {
-      "id": "4a29e498-0343-5841-aa92-a679cdac0ad1",
-      "name": "CoTech Vending Service",
-      "latitude": 30.14009,
-      "longitude": -95.47112,
-      "area": "oakRidgeNorth",
-      "address": "7 Switchbud Pl #416, Spring, TX 77380, USA",
-      "cuisines": ["cafeBakery"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
       "description": "Sourced from Google Places (oakRidgeNorth).",
       "signatureDishes": []
     },
@@ -9586,21 +9436,6 @@
       "signatureDishes": []
     },
     {
-      "id": "0cecbb64-bf67-552e-8d6e-023c1efd3c89",
-      "name": "One Medical Primary Care Clinic - The Woodlands",
-      "latitude": 30.16107,
-      "longitude": -95.45767,
-      "area": "oakRidgeNorth",
-      "address": "1501 Lake Robbins Dr Suite 100, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://onemedical.com/locations/hou/thewoodlands?y_source=1_MTA1Mzk0OTQ2Ni03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D",
-      "phone": "(888) 663-6331",
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
-    },
-    {
       "id": "92541b71-d23d-5c64-bc27-f7fe2390df20",
       "name": "Ostioneria Michoacan #6",
       "latitude": 30.13916,
@@ -10561,21 +10396,6 @@
       "signatureDishes": []
     },
     {
-      "id": "60032c20-a4da-51a2-ad97-e1feaab9b34b",
-      "name": "The Westin at The Woodlands®",
-      "latitude": 30.16014,
-      "longitude": -95.45748,
-      "area": "oakRidgeNorth",
-      "address": "2 Waterway Square Pl, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.marriott.com/en-us/hotels/iahwi-the-westin-at-the-woodlands/overview/?scid=f2ae0541-1279-4f24-b197-a979c79310b0",
-      "phone": "(281) 419-4300",
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
-    },
-    {
       "id": "b24e7f8c-1c3a-5804-a95e-42244a3fdee9",
       "name": "The Woodlands Farmers' Market",
       "latitude": 30.14127,
@@ -10617,51 +10437,6 @@
       "isFastFood": false,
       "website": "https://woodlandswellnessmd.com/",
       "phone": "(281) 298-6742",
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
-    },
-    {
-      "id": "854caa97-a375-5c84-97f9-c64fb95e0032",
-      "name": "The Woodlands Resort, Curio Collection by Hilton",
-      "latitude": 30.14498,
-      "longitude": -95.47354,
-      "area": "oakRidgeNorth",
-      "address": "2301 N Millbend Dr, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.hilton.com/en/hotels/iahwrqq-the-woodlands-resort/?SEO_id=GMB-AMER-QQ-IAHWRQQ&y_source=1_Mjc3Mjg5MTctNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
-      "phone": "(281) 367-1100",
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
-    },
-    {
-      "id": "595dcbac-655d-5753-9a0a-1bfe61c69387",
-      "name": "The Woodlands Waterway Marriott Convention Center",
-      "latitude": 30.16119,
-      "longitude": -95.46055,
-      "area": "oakRidgeNorth",
-      "address": "1601 Lake Robbins Dr, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.marriott.com/en-us/hotels/houmw-the-woodlands-waterway-marriott-hotel-and-convention-center/events/",
-      "phone": "(281) 367-9797",
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
-    },
-    {
-      "id": "c4ae5645-c759-5c7d-adb5-aaab0b7936f5",
-      "name": "The Woodlands Waterway Marriott Hotel & Convention Center",
-      "latitude": 30.16059,
-      "longitude": -95.4601,
-      "area": "oakRidgeNorth",
-      "address": "1601 Lake Robbins Dr, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.marriott.com/en-us/hotels/houmw-the-woodlands-waterway-marriott-hotel-and-convention-center/overview/?scid=f2ae0541-1279-4f24-b197-a979c79310b0",
-      "phone": "(281) 367-9797",
       "description": "Sourced from Google Places (oakRidgeNorth).",
       "signatureDishes": []
     },
@@ -10767,21 +10542,6 @@
       "isFastFood": false,
       "website": "https://www.walmart.com/ideas/entertaining/deli-platters-and-hot-appetizers/44369",
       "phone": null,
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
-    },
-    {
-      "id": "11a26cfd-67e7-5299-8fb8-2920d5aec481",
-      "name": "Walmart Supercenter",
-      "latitude": 30.12354,
-      "longitude": -95.45763,
-      "area": "oakRidgeNorth",
-      "address": "1025 Sawdust Rd, Spring, TX 77380, USA",
-      "cuisines": ["cafeBakery"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://www.walmart.com/store/602-spring-tx/?veh=seo_loc",
-      "phone": "(281) 298-4306",
       "description": "Sourced from Google Places (oakRidgeNorth).",
       "signatureDishes": []
     },
@@ -11656,21 +11416,6 @@
       "signatureDishes": []
     },
     {
-      "id": "4d94ddf6-1acd-5cad-b1fe-c2853047ad2c",
-      "name": "Church's Chicken",
-      "latitude": 30.17805,
-      "longitude": -95.45076,
-      "area": "shenandoah",
-      "address": "Shenandoah, TX",
-      "cuisines": ["american"],
-      "priceTier": "$",
-      "isFastFood": true,
-      "website": null,
-      "phone": null,
-      "description": "American quick-service spot in Shenandoah.",
-      "signatureDishes": []
-    },
-    {
       "id": "9f1a6e6a-dfdb-5b0f-9558-c91ed282f708",
       "name": "Chuy's",
       "latitude": 30.1945,
@@ -11742,21 +11487,6 @@
       "isFastFood": false,
       "website": "https://www.sacomplete.com/",
       "phone": "(210) 591-8649",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
-      "id": "f4b61a77-09e3-5f8f-b78a-324811ef2753",
-      "name": "Costco Food Court",
-      "latitude": 30.20918,
-      "longitude": -95.45256,
-      "area": "shenandoah",
-      "address": "8185 TX-242 #1189b, The Woodlands, TX 77385, USA",
-      "cuisines": ["other"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://www.costco.com/warehouse-locations/the-woodlands-conroe-tx-1189.html",
-      "phone": null,
       "description": "Sourced from Google Places (shenandoah).",
       "signatureDishes": []
     },
@@ -12391,21 +12121,6 @@
       "signatureDishes": []
     },
     {
-      "id": "0c6c1e8f-144f-599a-b93a-bb6e262bbed9",
-      "name": "Hilton Garden Inn Houston/The Woodlands",
-      "latitude": 30.16919,
-      "longitude": -95.46225,
-      "area": "shenandoah",
-      "address": "9301 Six Pines Dr, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.hilton.com/en/hotels/houwdgi-hilton-garden-inn-houston-the-woodlands/?SEO_id=GMB-AMER-GI-HOUWDGI&y_source=1_MjA4NTI5OS03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D",
-      "phone": "(281) 364-9300",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
       "id": "be36c54d-c66b-57ab-a156-7a08f9cdae66",
       "name": "Houston Health & Sports Medicine",
       "latitude": 30.1757,
@@ -12436,21 +12151,6 @@
       "signatureDishes": []
     },
     {
-      "id": "5cabad56-b432-5ab5-a2ce-d489ab40099b",
-      "name": "Houston Methodist The Woodlands Hospital",
-      "latitude": 30.20581,
-      "longitude": -95.45352,
-      "area": "shenandoah",
-      "address": "17201 I-45, Conroe, TX 77385, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.houstonmethodist.org/locations/the-woodlands/?utm_source=gmb&utm_medium=organic&utm_campaign=all_location_gmb&utm_content=website-click",
-      "phone": "(936) 270-2000",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
       "id": "b88bc78b-7e49-5dcc-b18b-c36856ec58f2",
       "name": "Houston Wellness Center",
       "latitude": 30.17214,
@@ -12462,21 +12162,6 @@
       "isFastFood": false,
       "website": "https://www.houstonwellnesscenter.org/",
       "phone": "(281) 465-8630",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
-      "id": "e5e30c98-2371-531d-8bf6-9675d51fb259",
-      "name": "Hyatt Centric The Woodlands",
-      "latitude": 30.16353,
-      "longitude": -95.46465,
-      "area": "shenandoah",
-      "address": "9595 Six Pines Dr #1100, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.hyatt.com/hyatt-centric/en-US/hourw-hyatt-centric-the-woodlands?src=corp_lclb_google_seo_hourw&utm_source=google&utm_medium=organic&utm_campaign=lmr",
-      "phone": "(281) 203-5005",
       "description": "Sourced from Google Places (shenandoah).",
       "signatureDishes": []
     },
@@ -13141,21 +12826,6 @@
       "signatureDishes": []
     },
     {
-      "id": "0f1253fa-59a1-5265-8851-9a5ff921a05c",
-      "name": "Memorial Hermann The Woodlands Medical Center",
-      "latitude": 30.17432,
-      "longitude": -95.45423,
-      "area": "shenandoah",
-      "address": "9250 Pinecroft Dr, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://memorialhermann.org/locations/woodlands?utm_campaign=reputation-management&utm_segment=gmb_location-listing&utm_source=yext&utm_medium=organic-search",
-      "phone": "(713) 897-2300",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
       "id": "a6e96418-2a6e-58b3-9aec-66d3251c3c11",
       "name": "Mestizos Mexican Cafe",
       "latitude": 30.20909,
@@ -13317,21 +12987,6 @@
       "isFastFood": false,
       "website": "http://www.txdnutrition.com/",
       "phone": "(281) 475-2275",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
-      "id": "4ea6a427-bead-50b2-afdc-ae5e8ab0ef6a",
-      "name": "NEAD Health Colon and Pilonidal Clinic & Hemorrhoid Center - The Woodlands",
-      "latitude": 30.17396,
-      "longitude": -95.45248,
-      "area": "shenandoah",
-      "address": "920 Medical Plaza Dr Suite 330, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://txcolon.com/",
-      "phone": "(832) 663-0037",
       "description": "Sourced from Google Places (shenandoah).",
       "signatureDishes": []
     },
@@ -13542,21 +13197,6 @@
       "isFastFood": false,
       "website": "https://paradisegrillsdirect.com/showroom/woodlands-outdoor-kitchens/?utm_source=Google&utm_medium=Knowledge_Panel_and_Google_Maps&utm_campaign=The_Woodlands",
       "phone": "(832) 871-4271",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
-      "id": "aa806f98-528e-58ca-8a72-f45acb40a977",
-      "name": "Pediatric Bridge Clinic at St. Luke's Health - The Woodlands, TX",
-      "latitude": 30.1992,
-      "longitude": -95.45793,
-      "area": "shenandoah",
-      "address": "17521 St Lukes Way #190, The Woodlands, TX 77384, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.stlukeshealth.org/locations/pediatric-bridge-clinic-woodlands?utm_source=LocalSearch&utm_medium=Facility&utm_campaign=CHITexas&utm_term=PediatricBridgeClinic",
-      "phone": "(936) 266-3400",
       "description": "Sourced from Google Places (shenandoah).",
       "signatureDishes": []
     },
@@ -14146,21 +13786,6 @@
       "signatureDishes": []
     },
     {
-      "id": "94d931f1-d850-5fb3-baeb-2552e3876749",
-      "name": "St. Luke's Health - The Woodlands Hospital - The Woodlands, TX",
-      "latitude": 30.20591,
-      "longitude": -95.45862,
-      "area": "shenandoah",
-      "address": "17200 St Lukes Way, The Woodlands, TX 77384, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.stlukeshealth.org/locations/woodlands-hospital",
-      "phone": "(936) 266-2000",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
       "id": "e60f7799-0a17-5dc4-b9bd-8e45642c2674",
       "name": "Starbucks",
       "latitude": 30.16431,
@@ -14247,21 +13872,6 @@
       "isFastFood": false,
       "website": "https://www.sweetgreen.com/locations/the-woodlands",
       "phone": "(281) 524-3725",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
-      "id": "39faf1a4-4a92-5702-8e8f-cc4e3d6cf7e0",
-      "name": "Sydenham Clinic The Woodlands",
-      "latitude": 30.17199,
-      "longitude": -95.47034,
-      "area": "shenandoah",
-      "address": "1800 Hughes Landing Blvd #125, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://sydenhamclinic.com/sydenham-clinic-the-woodlands//?utm_source=gmb&utm_medium=organic&utm_campaign=marketing",
-      "phone": "(713) 769-9586",
       "description": "Sourced from Google Places (shenandoah).",
       "signatureDishes": []
     },
@@ -14367,21 +13977,6 @@
       "isFastFood": false,
       "website": "https://www.audreyrestaurant.com/",
       "phone": "(832) 924-8500",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
-      "id": "5d1f3db5-7ed2-576c-a523-d589e9e8aa7e",
-      "name": "The Pavilion Event Center",
-      "latitude": 30.16197,
-      "longitude": -95.46295,
-      "area": "shenandoah",
-      "address": "2005 Lake Robbins Dr, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.woodlandscenter.org/rentals",
-      "phone": "(281) 364-3024",
       "description": "Sourced from Google Places (shenandoah).",
       "signatureDishes": []
     },
@@ -14878,21 +14473,6 @@
       "website": null,
       "phone": null,
       "description": "Restaurant in Spring.",
-      "signatureDishes": []
-    },
-    {
-      "id": "462873d5-515e-5f80-b96a-04db7d945d91",
-      "name": "24 Hour Fitness",
-      "latitude": 30.09618,
-      "longitude": -95.43981,
-      "area": "spring",
-      "address": "1000 Lake Plaza Dr, Spring, TX 77389, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.24hourfitness.com/gyms/spring-tx/spring-energy-super-sport?Adb_id=GGL_LOC_ACQ_CDP",
-      "phone": "(346) 372-3746",
-      "description": "Sourced from Google Places (spring).",
       "signatureDishes": []
     },
     {
@@ -15571,21 +15151,6 @@
       "signatureDishes": []
     },
     {
-      "id": "87479a86-1218-5e2d-8b98-9b35e2f7e37c",
-      "name": "Botanic Living Apartments",
-      "latitude": 30.0649,
-      "longitude": -95.44403,
-      "area": "spring",
-      "address": "Botanic Living Apartments, 20525 Holzwarth Rd, Spring, TX 77388, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.botanicapthome.com/",
-      "phone": "(281) 806-5366",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
       "id": "7b7bb58b-7a32-5afc-87a1-488bc67709ac",
       "name": "Bright Food Mart",
       "latitude": 30.05604,
@@ -15627,21 +15192,6 @@
       "isFastFood": false,
       "website": null,
       "phone": "(281) 651-5664",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
-      "id": "74cb4506-11a6-51f4-a825-10363fb5939f",
-      "name": "Budget Family Clinic",
-      "latitude": 30.07025,
-      "longitude": -95.40754,
-      "area": "spring",
-      "address": "25422 Aldine Westfield Rd, Spring, TX 77373, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.budgetfamilyclinic.com/",
-      "phone": "(877) 749-6410",
       "description": "Sourced from Google Places (spring).",
       "signatureDishes": []
     },
@@ -16171,21 +15721,6 @@
       "signatureDishes": []
     },
     {
-      "id": "6d10af84-4f00-5473-a31f-5f25c786a579",
-      "name": "Church's Texas Chicken",
-      "latitude": 30.02723,
-      "longitude": -95.38029,
-      "area": "spring",
-      "address": "21502 Aldine Westfield Rd, Humble, TX 77338, USA",
-      "cuisines": ["burgers"],
-      "priceTier": "$",
-      "isFastFood": true,
-      "website": "https://locations.churchs.com/tx/humble/21502-aldine-westfield-road",
-      "phone": "(281) 821-5211",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
       "id": "1679b5f0-f4dd-538c-ba2a-3e221012a325",
       "name": "Chycho's",
       "latitude": 30.04923,
@@ -16258,36 +15793,6 @@
       "website": null,
       "phone": null,
       "description": "Permanent food-truck stand on Louetta; tacos, birria eggrolls",
-      "signatureDishes": []
-    },
-    {
-      "id": "01ad0e96-7a55-5317-a0da-2d6c72607b10",
-      "name": "Circle K",
-      "latitude": 30.02444,
-      "longitude": -95.41869,
-      "area": "spring",
-      "address": "805 FM 1960, Houston, TX 77073, USA",
-      "cuisines": ["other"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://www.circlek.com/store-locator/US/houston/805-fm-1960-rd/2741923?utm_source=google&utm_medium=local&utm_campaign=google-local",
-      "phone": "(281) 209-2247",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
-      "id": "1873e6d0-3e02-5128-a3d0-067ef0459bc3",
-      "name": "Circle K",
-      "latitude": 30.07103,
-      "longitude": -95.40836,
-      "area": "spring",
-      "address": "25500 Aldine Westfield Rd, Spring, TX 77373, USA",
-      "cuisines": ["cafeBakery"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://www.circlek.com/store-locator/US/spring/25500-aldine-westfield-rd/2741405?utm_source=google&utm_medium=local&utm_campaign=google-local",
-      "phone": "(281) 350-5547",
-      "description": "Sourced from Google Places (spring).",
       "signatureDishes": []
     },
     {
@@ -17506,21 +17011,6 @@
       "signatureDishes": []
     },
     {
-      "id": "3ec78925-ab8f-5116-a5e5-4766a0cfd18e",
-      "name": "Food Town",
-      "latitude": 30.04851,
-      "longitude": -95.3884,
-      "area": "spring",
-      "address": "23221 Aldine Westfield Rd, Spring, TX 77373, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.yourfoodtown.com/store/food-town-spring-texas-215/",
-      "phone": "(281) 296-3278",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
       "id": "62c18345-4b56-51af-bbb2-0faa68576ec5",
       "name": "Fortress BeerWorks",
       "latitude": 30.06747,
@@ -17851,21 +17341,6 @@
       "signatureDishes": []
     },
     {
-      "id": "be292d96-ca34-56cf-a3b1-c27794995890",
-      "name": "H-E-B",
-      "latitude": 30.06864,
-      "longitude": -95.44989,
-      "area": "spring",
-      "address": "2121 Farm to Market 2920, Spring, TX 77388, USA",
-      "cuisines": ["other"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://www.heb.com/heb-store/US/tx/spring/spring-market-h-e-b-610?utm_source=google&utm_medium=organic&utm_campaign=gmb_stores",
-      "phone": "(281) 907-7900",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
       "id": "62fe5348-9ede-51a2-b683-8967881b8275",
       "name": "H-E-B Bakery",
       "latitude": 30.10759,
@@ -18061,21 +17536,6 @@
       "signatureDishes": []
     },
     {
-      "id": "b9230284-33d0-5b0b-9edb-548da0a48006",
-      "name": "Houston CityPlace Marriott at Springwoods Village",
-      "latitude": 30.09838,
-      "longitude": -95.44064,
-      "area": "spring",
-      "address": "1200 Lake Plaza Dr, Spring, TX 77389, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.marriott.com/en-us/hotels/houns-houston-cityplace-marriott-at-springwoods-village/overview/?scid=f2ae0541-1279-4f24-b197-a979c79310b0",
-      "phone": "(281) 350-4000",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
       "id": "57f9bdf3-6576-587e-b464-39b942f9c161",
       "name": "hTX Cones and Daiquiris",
       "latitude": 30.06508,
@@ -18162,21 +17622,6 @@
       "isFastFood": false,
       "website": null,
       "phone": "(281) 528-6078",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
-      "id": "1aa6910a-0517-56cd-b8ea-4baaca7dc1a3",
-      "name": "In Town Food Mart (Chevron)",
-      "latitude": 30.06911,
-      "longitude": -95.37093,
-      "area": "spring",
-      "address": "25502 Cypresswood Dr, Spring, TX 77373, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": "(281) 907-6200",
       "description": "Sourced from Google Places (spring).",
       "signatureDishes": []
     },
@@ -18736,21 +18181,6 @@
       "signatureDishes": []
     },
     {
-      "id": "501a1c8d-c630-59dd-86b2-7026fb67f6ad",
-      "name": "Kroger Marketplace",
-      "latitude": 30.11851,
-      "longitude": -95.38174,
-      "area": "spring",
-      "address": "3731 Riley Fuzzel Rd, Spring, TX 77386, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.kroger.com/stores/grocery/tx/spring/birnham-woods/034/00137?cid=loc_03400137_gmb",
-      "phone": "(281) 602-0282",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
       "id": "87a2819b-47c1-5b32-8373-bf3c0f6b3c66",
       "name": "La Cabana",
       "latitude": 30.01902,
@@ -18796,36 +18226,6 @@
       "signatureDishes": []
     },
     {
-      "id": "aca8fa88-b20c-5dd1-8c65-b24658654e71",
-      "name": "La Michoacana Meat Market",
-      "latitude": 30.07623,
-      "longitude": -95.43434,
-      "area": "spring",
-      "address": "1424 Spring Cypress Rd, Spring, TX 77373, USA",
-      "cuisines": ["cafeBakery", "mexican"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.lamichoacanameatmarket.com/1424-spring-cypress-rd-spring/",
-      "phone": "(281) 528-5757",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
-      "id": "8fcafe6b-0593-551f-9501-91ba6c7937cd",
-      "name": "La Michoacana Meat Market",
-      "latitude": 30.02192,
-      "longitude": -95.39015,
-      "area": "spring",
-      "address": "2598 FM 1960, Houston, TX 77073, USA",
-      "cuisines": ["mexican", "cafeBakery"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.lamichoacanameatmarket.com/2598-fm-1960-rd-e-houston/",
-      "phone": "(281) 209-2543",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
       "id": "8b754ffc-c0c2-59eb-a40b-9d8eff28ea19",
       "name": "La Olla",
       "latitude": 30.06723,
@@ -18867,21 +18267,6 @@
       "isFastFood": false,
       "website": null,
       "phone": "(281) 907-0505",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
-      "id": "ae78e00a-5c60-56f1-a39b-cddaeb1e03c2",
-      "name": "La Quinta Inn & Suites by Wyndham Houston Spring South",
-      "latitude": 30.07234,
-      "longitude": -95.43707,
-      "area": "spring",
-      "address": "21119 North Fwy, Spring, TX 77388, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.wyndhamhotels.com/laquinta/spring-texas/la-quinta-inn-and-suites-houston-spring-south/overview?CID=LC:6ysy27krtpcrqev:53868&iata=00093796",
-      "phone": "(346) 224-2323",
       "description": "Sourced from Google Places (spring).",
       "signatureDishes": []
     },
@@ -21301,21 +20686,6 @@
       "signatureDishes": []
     },
     {
-      "id": "778fd134-4d62-5fae-807c-8cefee6e86ed",
-      "name": "Spring Medical Center",
-      "latitude": 30.07638,
-      "longitude": -95.4339,
-      "area": "spring",
-      "address": "1416 Spring Cypress Rd, Spring, TX 77373, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://springmedicalcenter.net/",
-      "phone": "(281) 719-5215",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
       "id": "d928b18e-4ba1-52aa-9ed3-2bca75beede1",
       "name": "Spring Pizza",
       "latitude": 30.07907,
@@ -21342,36 +20712,6 @@
       "isFastFood": false,
       "website": null,
       "phone": "(281) 350-2122",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
-      "id": "f70bba25-546c-5edd-8714-e81f9f487d8d",
-      "name": "St Jonah Orthodox Church",
-      "latitude": 30.06608,
-      "longitude": -95.46176,
-      "area": "spring",
-      "address": "2910 Spring Cypress Rd, Spring, TX 77388, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.saintjonah.org/",
-      "phone": "(281) 467-0264",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
-      "id": "544c0845-55e9-5c3f-83fb-2874c2b73063",
-      "name": "St. Luke's Health - Springwoods Village Hospital - Spring, TX",
-      "latitude": 30.09053,
-      "longitude": -95.44882,
-      "area": "spring",
-      "address": "2255 E Mossy Oaks Rd, Spring, TX 77389, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.stlukeshealth.org/locations/springwoods-village-hospital",
-      "phone": "(346) 305-5000",
       "description": "Sourced from Google Places (spring).",
       "signatureDishes": []
     },
@@ -23281,21 +22621,6 @@
       "signatureDishes": []
     },
     {
-      "id": "13b89f02-5b9e-5d68-a408-7ea09362238a",
-      "name": "Village Medical at Walgreens - Spring",
-      "latitude": 30.06973,
-      "longitude": -95.44691,
-      "area": "spring",
-      "address": "2103 Farm to Market 2920 A, Spring, TX 77388, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.villagemedical.com/locations/texas/2103-fm-2920-rd-suite-a-spring-tx-77388?utm_source=gmb&utm_medium=profile&utm_campaign=villagemedical_organic-search_location",
-      "phone": "(346) 646-3429",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
       "id": "42b6dcb7-5ccc-539d-9ed1-929d1bf8a70a",
       "name": "Villas at Birnham Woods",
       "latitude": 30.10586,
@@ -23352,51 +22677,6 @@
       "isFastFood": false,
       "website": "https://www.walmart.com/store/849-spring-tx/deli?veh=seo_loc",
       "phone": "(281) 651-9963",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
-      "id": "cd47759f-804b-542e-971b-fb4289c8dca9",
-      "name": "Walmart Neighborhood Market",
-      "latitude": 30.06439,
-      "longitude": -95.40598,
-      "area": "spring",
-      "address": "24809 Aldine Westfield Rd, Spring, TX 77373, USA",
-      "cuisines": ["cafeBakery"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://www.walmart.com/store/5353-spring-tx/?veh=seo_loc",
-      "phone": "(281) 203-3323",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
-      "id": "5dda188a-55a5-5169-b880-8f56e8ffa933",
-      "name": "Walmart Supercenter",
-      "latitude": 30.06474,
-      "longitude": -95.43029,
-      "area": "spring",
-      "address": "155 Louetta Crossing, Spring, TX 77373, USA",
-      "cuisines": ["cafeBakery"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://www.walmart.com/store/849-spring-tx/?veh=seo_loc",
-      "phone": "(281) 651-9963",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
-      "id": "b2c9fc5d-f381-5a1c-8a48-c42aab3cc356",
-      "name": "Walmart Supercenter",
-      "latitude": 30.11427,
-      "longitude": -95.38734,
-      "area": "spring",
-      "address": "2901 Riley Fuzzel Rd, Spring, TX 77386, USA",
-      "cuisines": ["cafeBakery"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://www.walmart.com/store/3585-spring-tx/?veh=seo_loc",
-      "phone": "(832) 823-7815",
       "description": "Sourced from Google Places (spring).",
       "signatureDishes": []
     },
@@ -23776,36 +23056,6 @@
       "signatureDishes": []
     },
     {
-      "id": "591ad3c4-2862-5e0f-b646-5d827b0ccd0e",
-      "name": "7-Eleven",
-      "latitude": 30.14556,
-      "longitude": -95.54794,
-      "area": "woodlands",
-      "address": "26620 Kuykendahl Rd, Spring, TX 77389, USA",
-      "cuisines": ["pizza", "cafeBakery"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.7-eleven.com/locations/tx/spring/26620-kuykendahl-rd-38472?utm_source=G&utm_medium=local&utm_campaign=google-local",
-      "phone": "(346) 224-5537",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
-      "id": "381ed84a-ed57-5585-82cf-b0967bf61d68",
-      "name": "AFC Urgent Care The Woodlands",
-      "latitude": 30.17959,
-      "longitude": -95.53776,
-      "area": "woodlands",
-      "address": "6777 Woodlands Pkwy, The Woodlands, TX 77382, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.afcurgentcare.com/the-woodlands/",
-      "phone": "(281) 429-8698",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
       "id": "6d54e239-d7c5-5594-9a64-289ab85f485f",
       "name": "Aji Robota & Ramen Tomball",
       "latitude": 30.13294,
@@ -24012,21 +23262,6 @@
       "isFastFood": false,
       "website": "http://www.bigotesstreettacos.com/",
       "phone": "(832) 534-1937",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
-      "id": "0f83d5bb-3df1-55b6-9e0c-52955c67f180",
-      "name": "Bitsarang Woodlands Church",
-      "latitude": 30.16815,
-      "longitude": -95.50187,
-      "area": "woodlands",
-      "address": "4881 W Panther Creek Dr, The Woodlands, TX 77381, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.facebook.com/BitsarangWoodlandsChurch",
-      "phone": "(832) 661-8870",
       "description": "Sourced from Google Places (woodlands).",
       "signatureDishes": []
     },
@@ -24466,21 +23701,6 @@
       "signatureDishes": []
     },
     {
-      "id": "262c8e71-1835-5dba-9047-eacd7ba76f6a",
-      "name": "Church's Chicken",
-      "latitude": 30.1222,
-      "longitude": -95.5536,
-      "area": "woodlands",
-      "address": "Tomball, TX",
-      "cuisines": ["american"],
-      "priceTier": "$",
-      "isFastFood": true,
-      "website": null,
-      "phone": null,
-      "description": "American quick-service spot in The Woodlands.",
-      "signatureDishes": []
-    },
-    {
       "id": "5a285d9f-7f5b-5255-becf-d25ee4e9b793",
       "name": "Cinépolis Luxury Cinemas Woodlands",
       "latitude": 30.14499,
@@ -24492,36 +23712,6 @@
       "isFastFood": false,
       "website": "https://www.cinepolisusa.com/woodlands/theater-details",
       "phone": "(346) 246-7177",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
-      "id": "da29df61-e392-595a-8b64-f2c1ccaff3b0",
-      "name": "Circle K",
-      "latitude": 30.12789,
-      "longitude": -95.50515,
-      "area": "woodlands",
-      "address": "24834 Gosling Rd, Spring, TX 77389, USA",
-      "cuisines": ["cafeBakery"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://www.circlek.com/store-locator/US/spring/24834-gosling-rd/2741907?utm_source=google&utm_medium=local&utm_campaign=google-local",
-      "phone": "(281) 516-9597",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
-      "id": "e3c385ad-041d-5635-b717-20cad7e1a21b",
-      "name": "Circle K",
-      "latitude": 30.18317,
-      "longitude": -95.56008,
-      "area": "woodlands",
-      "address": "8101 Woodlands Pkwy, The Woodlands, TX 77382, USA",
-      "cuisines": ["other"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://www.circlek.com/store-locator/US/the-woodlands/8101-woodlands-pkwy/2741433?utm_source=google&utm_medium=local&utm_campaign=google-local",
-      "phone": "(281) 681-0371",
       "description": "Sourced from Google Places (woodlands).",
       "signatureDishes": []
     },
@@ -25306,21 +24496,6 @@
       "signatureDishes": ["Margherita Pizza", "White Pizza", "Calzones"]
     },
     {
-      "id": "f2bae680-c404-59c5-870b-5b5523818767",
-      "name": "Grove at Sterling Ridge Apartments",
-      "latitude": 30.1837,
-      "longitude": -95.53989,
-      "area": "woodlands",
-      "address": "6900 Lake Woodlands Dr, Spring, TX 77382, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://groveatsterlingridge.com/?switch_cls[id]=101204",
-      "phone": "(281) 975-1042",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
       "id": "da0f2d97-cada-50e1-a748-d1c554b1f9b1",
       "name": "H-E-B Bakery",
       "latitude": 30.14453,
@@ -25678,21 +24853,6 @@
       "website": "https://locations.kolachefactory.com/kolache-factory-9ada6fb8f259",
       "phone": "+1 281-292-1133",
       "description": "Restaurant in The Woodlands.",
-      "signatureDishes": []
-    },
-    {
-      "id": "0bf3f331-88f8-5fb0-a919-ea17785aca14",
-      "name": "Korean The Woodlands Family Church",
-      "latitude": 30.20988,
-      "longitude": -95.50438,
-      "area": "woodlands",
-      "address": "8200 Northway Dr, Spring, TX 77382, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://twfch.com/",
-      "phone": "(713) 550-2582",
-      "description": "Sourced from Google Places (woodlands).",
       "signatureDishes": []
     },
     {
@@ -28036,21 +27196,6 @@
       "signatureDishes": ["American Wagyu Chicken-Fried Steak", "Crab Cakes", "Strawberry Shortcake"]
     },
     {
-      "id": "dbf18e08-3d9f-5ba2-8d46-1b5c3530e323",
-      "name": "The Spring Country Club",
-      "latitude": 30.12899,
-      "longitude": -95.50494,
-      "area": "woodlands",
-      "address": "25110 Gosling Rd, Spring, TX 77389, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.springcountryclub.com/",
-      "phone": "(281) 351-8628",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
       "id": "dee9f954-651e-59d0-8ca6-b259469c7426",
       "name": "The Stand",
       "latitude": 30.1699,
@@ -28107,21 +27252,6 @@
       "isFastFood": false,
       "website": "http://woodlandschildrensmuseum.org/",
       "phone": "(281) 465-0955",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
-      "id": "471c0793-2997-50b8-8a3a-68a663afdb51",
-      "name": "The Woodlands Country Club",
-      "latitude": 30.18915,
-      "longitude": -95.519,
-      "area": "woodlands",
-      "address": "100 Grand Fairway, The Woodlands, TX 77381, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.invitedclubs.com/clubs/the-woodlands-country-club",
-      "phone": "(281) 863-1400",
       "description": "Sourced from Google Places (woodlands).",
       "signatureDishes": []
     },
@@ -28228,21 +27358,6 @@
       "website": null,
       "phone": null,
       "description": "Quick-service spot in The Woodlands.",
-      "signatureDishes": []
-    },
-    {
-      "id": "c9eb76a4-6d40-59c1-9d76-201da3471bcd",
-      "name": "Trader Joe's",
-      "latitude": 30.17619,
-      "longitude": -95.53608,
-      "area": "woodlands",
-      "address": "10868 Kuykendahl Rd, The Woodlands, TX 77381, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://locations.traderjoes.com/tx/the-woodlands/428/?utm_source=gmb&utm_medium=organic&utm_campaign=local",
-      "phone": "(281) 465-0254",
-      "description": "Sourced from Google Places (woodlands).",
       "signatureDishes": []
     },
     {
@@ -28411,21 +27526,6 @@
       "signatureDishes": []
     },
     {
-      "id": "f6916740-ce4f-507e-9437-764d33994094",
-      "name": "Walmart Supercenter",
-      "latitude": 30.13502,
-      "longitude": -95.54999,
-      "area": "woodlands",
-      "address": "25800 Kuykendahl Rd, Tomball, TX 77375, USA",
-      "cuisines": ["cafeBakery"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://www.walmart.com/store/351-tomball-tx/?veh=seo_loc",
-      "phone": "(832) 761-8499",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
       "id": "e5e3c7d0-b449-5515-8a0d-4dcccf951535",
       "name": "Wendy's",
       "latitude": 30.20803,
@@ -28512,21 +27612,6 @@
       "isFastFood": false,
       "website": "https://www.wholefoodsmarket.com/departments/bakery",
       "phone": null,
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
-      "id": "36ca6be6-b777-5461-af84-b436de1aca44",
-      "name": "Whole Foods Market",
-      "latitude": 30.16941,
-      "longitude": -95.47099,
-      "area": "woodlands",
-      "address": "1925 Hughes Landing Blvd Ste 100, The Woodlands, TX 77380, USA",
-      "cuisines": ["cafeBakery"],
-      "priceTier": "$$$",
-      "isFastFood": false,
-      "website": "https://www.wholefoodsmarket.com/stores/thewoodlands?utm_source=google&utm_medium=organic&utm_campaign=listings",
-      "phone": "(832) 246-5600",
       "description": "Sourced from Google Places (woodlands).",
       "signatureDishes": []
     },
