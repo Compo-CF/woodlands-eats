@@ -47,7 +47,7 @@ WHAT'S INSIDE
 • Suggest a missing restaurant from inside the app — admin-approved entries become public
 
 WHAT'S NOT INSIDE
-No social feed. No follower counts. No subscriptions. No advertising. No data brokered to third parties. No real-name accounts.
+No social feed. No follower counts. No subscriptions. No personalized tracking. No data brokered to third parties. No real-name accounts.
 
 HOW IDENTITY WORKS
 Sign-in is implicit — your iCloud account handles attribution invisibly, so there's no password, no email signup, no profile to maintain. Your rankings sync across your own devices and (anonymously) contribute to the community average. The optional "display name" only appears to the app administrator if you request Foodie Pro status.
@@ -217,3 +217,129 @@ Contact: anthony.compofelice@centricfiber.com
 
 Thanks!
 ```
+
+---
+
+# v1.1 Submission Supplement (build 20)
+
+Everything in this section is incremental to the v1.0 (build 19) submission above. Use this checklist the moment v1.0 is approved + released — submit v1.1 the same day so the privacy declaration update lands while you're already in the ASC flow.
+
+## What's new in v1.1
+- AdMob banner ad (single banner, bottom of Map and Browse tabs, non-personalized mode)
+- Ko-fi "Buy me a coffee" link prominently on the Profile tab
+- About sheet from Profile → About S-Tier Eats
+- Native pin clustering on the Map tab (handles the 1,854-pin density gracefully)
+- Restaurant detail action row: Call · Directions · Reserve · Order · Website pills, data-aware (only render when the underlying signal supports the action)
+- First-tap delivery-app picker (DoorDash vs Uber Eats), persisted in Profile preferences
+
+## Required ASC changes BEFORE submitting build 20
+
+### 1. Description — update one line
+
+Find the "WHAT'S NOT INSIDE" paragraph. Replace `No advertising.` with `No personalized tracking.` The full paragraph becomes:
+
+> No social feed. No follower counts. No subscriptions. No personalized tracking. No data brokered to third parties. No real-name accounts.
+
+(Already updated in this doc.)
+
+### 2. App Privacy declaration — ADD four new data categories
+
+Keep the five entries from v1.0. ADD these four to disclose Google AdMob's SDK behavior. All four are "Linked to user: No" and "Used for tracking: No" because we run AdMob in non-personalized mode without the advertising identifier.
+
+#### 6. Identifiers → Device ID
+- Linked to identity? **No**
+- Used for tracking? **No**
+- Purpose: **Third-Party Advertising** + **Analytics**
+- (AdMob receives a per-request device fingerprint to serve and report on the banner ad. Not joined to any of the App's CloudKit data.)
+
+#### 7. Usage Data → Product Interaction
+- Linked to identity? **No**
+- Used for tracking? **No**
+- Purpose: **Third-Party Advertising** + **Analytics**
+
+#### 8. Diagnostics → Crash Data
+- Linked to identity? **No**
+- Used for tracking? **No**
+- Purpose: **App Functionality** + **Analytics**
+- (AdMob SDK reports its own crashes to Google.)
+
+#### 9. Diagnostics → Performance Data
+- Linked to identity? **No**
+- Used for tracking? **No**
+- Purpose: **App Functionality** + **Analytics**
+- (AdMob SDK reports loading times and rendering performance.)
+
+### 3. Privacy policy URL — already updated
+
+`docs/privacy.html` is already revised for v1.1. The published URL stays the same: `https://compo-cf.github.io/woodlands-eats/privacy.html`. GitHub Pages will redeploy the moment v1.1 is pushed to `main`.
+
+### 4. Promotional text — optional refresh
+
+Current (v1.0) text is fine. If you want to highlight the new actions:
+
+> 1,800+ restaurants from The Woodlands to Spring, ranked by you on a classic S/A/B/C/F tier list. Now with one-tap Call, Reserve, and Order from any restaurant.
+
+(168 chars ✓)
+
+### 5. Keywords — no change
+
+Keep `restaurants,woodlands,spring,texas,tier,list,food,dining,bbq,tex-mex,sushi,map,local,eats`.
+
+### 6. Screenshots — no change required
+
+The action row visually changes the detail-view screenshot, but it's small enough that you can keep the existing 5 screenshots for v1.1. Optional follow-up: re-capture the detail screenshot to include the new pills. Skip for now — ship v1.1 with the existing screenshots and update opportunistically.
+
+## "What's New in This Version" copy
+
+You'll paste this into the release-notes field when you create the v1.1 version in ASC. **Pick one** — option A is fully transparent, option B is silent on the ad, option C frames the ad positively.
+
+### Option A — transparent (recommended)
+```
+What's new in 1.1:
+• Quick actions on every restaurant page: Call, Directions, Reserve a table, or Order delivery — all without leaving the app
+• Smarter map: 1,800+ pins now cluster as you zoom out
+• Coffee tip jar in Profile — your support keeps the app going
+• A small banner ad has been added to help keep the app free
+
+Thanks to everyone who's been ranking. Bug reports always welcome.
+```
+
+### Option B — silent on the ad
+```
+What's new in 1.1:
+• Quick actions on every restaurant: Call, Directions, Reserve, Order
+• The map now clusters pins as you zoom out for a cleaner overview
+• Coffee tip jar in Profile
+• Performance and stability improvements
+```
+
+### Option C — ad framed positively
+```
+What's new in 1.1:
+• Tap Call, Directions, Reserve, or Order right from any restaurant page
+• Smarter map with pin clustering for the 1,800+ spots in the area
+• Profile now has a quick coffee tip jar
+• A small banner now lives at the bottom of two tabs so the app can stay free — no full-screen ads, no personalized tracking
+```
+
+## ASC submission steps (run in order, after v1.0 is live)
+
+1. **App Store Connect → My Apps → S-Tier Eats → + Version or Platform → iOS**
+   - Version string: **1.1**
+   - Click Create
+2. **Description** — paste the updated description (the one-line "No personalized tracking" change is already in this doc).
+3. **What's New in This Version** — paste your chosen option above.
+4. **Build** — scroll to "Build" section, click **+**, select **build 20**.
+5. **App Privacy** — left sidebar → App Privacy → Edit Data Types. Add the four new categories from §2 above. Save.
+6. **Promotional text** — optional refresh from §4.
+7. **App Review Information** — keep the v1.0 reviewer notes. Optionally append:
+   > v1.1 adds a non-personalized AdMob banner ad on the Map and Browse tabs and an OpenTable / DoorDash / Uber Eats / phone / website action row on each restaurant detail page. No personalized tracking; the App does not request the advertising identifier and does not show an ATT prompt.
+8. **Save** → top-right.
+9. **Add for Review** → top-right, then **Submit for Review**.
+10. Wait ~24-48 hours.
+
+## Things that could trip the review
+
+- **Reviewers occasionally bounce builds that add ad SDKs without an App Privacy update.** This checklist prevents that. Double-check the four new categories are present before submitting.
+- **The privacy policy's effective date is now June 4, 2026.** Make sure GitHub Pages has redeployed before submission — visit the URL in a private browser tab and confirm you see "Effective date: June 4, 2026" at the top.
+- **If the reviewer asks where the ATT prompt is**, the answer is: there isn't one. AdMob runs in NPA (non-personalized) mode, which by definition doesn't use the IDFA, so no ATT prompt is required. You can preempt this in the reviewer notes (§7 above).

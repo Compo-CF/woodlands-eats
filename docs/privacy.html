@@ -32,7 +32,7 @@
 <body>
 
 <h1>Privacy Policy</h1>
-<div class="updated">Effective date: May 31, 2026</div>
+<div class="updated">Effective date: June 4, 2026</div>
 
 <p>S-Tier Eats ("the App") is a small, independent iOS application that helps users discover restaurants in The Woodlands, Texas area, place them on a personal S/A/B/C/F tier list, and (optionally) contribute to a community consensus ranking via Apple iCloud. This policy explains exactly what the App accesses, what it stores, and what it never does.</p>
 
@@ -68,17 +68,30 @@
   <li>Letting the administrator review and approve Foodie Pro requests, restaurant suggestions, and photo reports</li>
   <li>Letting you re-sync your own placements when you reinstall the App or use it on another device under the same iCloud account</li>
 </ul>
-<p>None of this data is used for advertising, marketing, profiling, or analytics. No data is sold or shared with any third party.</p>
+<p>None of the data described above is used for advertising, marketing, profiling, or analytics. No CloudKit data is sold or shared with any third party. (Separately, the App displays a small banner advertisement supplied by Google AdMob — see "Advertising" below for details on what data AdMob receives.)</p>
 
 <h2>What the App does not do</h2>
 <ul>
   <li>The App does not transmit your location to any server</li>
-  <li>The App does not contain analytics, tracking, or advertising SDKs</li>
+  <li>The App does not contain analytics SDKs and does not perform cross-app tracking (the Google AdMob banner described below is configured for non-personalized ads, so it does not request the Apple advertising identifier or build a cross-app profile)</li>
   <li>The App does not collect your name, email, phone number, or any contact information</li>
   <li>The App does not require account creation or login (iCloud identity is provided implicitly by your device)</li>
   <li>The App does not sell, share, or rent any user data to any third party</li>
   <li>The App does not link the data it stores to your real-world identity</li>
 </ul>
+
+<h2>Advertising</h2>
+<p>Starting in version 1.1, the App displays a single small banner advertisement at the bottom of the Map and Browse tabs. The banner is supplied by <strong>Google AdMob</strong>. The App is configured in <em>non-personalized</em> mode (the standard <code>npa=1</code> setting), which means:</p>
+<ul>
+  <li>The App does <strong>not</strong> request access to Apple's advertising identifier (no App Tracking Transparency prompt is shown)</li>
+  <li>AdMob does <strong>not</strong> use your data to personalize the ad you see</li>
+  <li>AdMob does still passively receive standard request data when the banner loads — including the device IP address, basic device characteristics (model, OS version, language), the coarse region, and SDK diagnostic and performance telemetry. This data is governed by <a href="https://policies.google.com/privacy">Google's privacy policy</a>.</li>
+  <li>This advertising data is not joined to any of the CloudKit data described above and is not used by the App's developer for any purpose. The developer's only access to AdMob is an aggregate revenue dashboard.</li>
+</ul>
+
+<h2>External links and deeplinks</h2>
+<p>The App contains buttons on each restaurant's detail page that hand off to other apps you may have installed — for example, "Reserve" opens OpenTable, "Order" opens DoorDash or Uber Eats, "Website" opens Safari, and "Directions" opens Apple Maps. Tapping these buttons sends only the restaurant's name (and, for Maps, its coordinates) to the destination app. Once you leave the App, the destination app's own privacy policy applies. The App does not transmit any data to these services in the background; the handoff happens only when you tap the corresponding button.</p>
+<p>The App's Profile tab also contains a one-tap "Buy me a coffee" link to <a href="https://ko-fi.com/subtlefoodie">ko-fi.com/subtlefoodie</a>. Tipping is entirely optional and is processed by Ko-fi under its own privacy policy; the App never sees your payment information.</p>
 
 <h2>Content moderation, reporting, and blocking</h2>
 <p>The App contains user-generated content in the form of dish photos and (admin-visible) display names. As required by Apple App Review Guideline 1.2:</p>
