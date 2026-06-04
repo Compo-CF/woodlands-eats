@@ -3,18 +3,21 @@ import GoogleMobileAds
 import UIKit
 
 /// SwiftUI wrapper around `GADBannerView` for the standard 320x50 banner
-/// at the bottom of the Browse tab. Uses non-personalized ads (no ATT
-/// prompt) and the AdMob test ad unit by default.
+/// at the bottom of the Browse and Map tabs. Uses non-personalized ads
+/// (no ATT prompt).
 ///
-/// Production ad unit (shared with the Woodlands Fishing app):
-///   ca-app-pub-1927040492403163/4580765066
+/// Production ad unit for S-Tier Eats (registered standalone in AdMob,
+/// distinct from the Fishing app's unit — AdMob server-side binds unit
+/// IDs to the registered app's bundle ID at request time, so reuse across
+/// bundle IDs returns no-fill):
+///   ca-app-pub-1927040492403163/8897080292
 ///
 /// Override the default to test with Google's published test unit
 /// (`ca-app-pub-3940256099942544/2934735716`) if needed during local dev.
 struct BannerAdView: UIViewRepresentable {
     let adUnitID: String
 
-    init(adUnitID: String = "ca-app-pub-1927040492403163/4580765066") {
+    init(adUnitID: String = "ca-app-pub-1927040492403163/8897080292") {
         self.adUnitID = adUnitID
     }
 
