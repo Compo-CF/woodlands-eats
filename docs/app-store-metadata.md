@@ -220,9 +220,14 @@ Thanks!
 
 ---
 
-# v1.1 Submission Supplement (build 20)
+# v1.1 Submission Supplement (build 21)
 
 Everything in this section is incremental to the v1.0 (build 19) submission above. Use this checklist the moment v1.0 is approved + released — submit v1.1 the same day so the privacy declaration update lands while you're already in the ASC flow.
+
+> Build history note: build 20 was the first v1.1 binary uploaded but its
+> AdMob banner returned no-fill (it reused the Fishing app's ad unit, which
+> AdMob server-side binds to Fishing's bundle ID). Build 21 swapped in
+> S-Tier Eats's own AdMob app + ad unit. **Submit build 21**, not build 20.
 
 ## What's new in v1.1
 - AdMob banner ad (single banner, bottom of Map and Browse tabs, non-personalized mode)
@@ -232,7 +237,7 @@ Everything in this section is incremental to the v1.0 (build 19) submission abov
 - Restaurant detail action row: Call · Directions · Reserve · Order · Website pills, data-aware (only render when the underlying signal supports the action)
 - First-tap delivery-app picker (DoorDash vs Uber Eats), persisted in Profile preferences
 
-## Required ASC changes BEFORE submitting build 20
+## Required ASC changes BEFORE submitting build 21
 
 ### 1. Description — update one line
 
@@ -329,7 +334,7 @@ What's new in 1.1:
    - Click Create
 2. **Description** — paste the updated description (the one-line "No personalized tracking" change is already in this doc).
 3. **What's New in This Version** — paste your chosen option above.
-4. **Build** — scroll to "Build" section, click **+**, select **build 20**.
+4. **Build** — scroll to "Build" section, click **+**, select **build 21** (NOT build 20 — that one's the no-fill version we already obsoleted).
 5. **App Privacy** — left sidebar → App Privacy → Edit Data Types. Add the four new categories from §2 above. Save.
 6. **Promotional text** — optional refresh from §4.
 7. **App Review Information** — keep the v1.0 reviewer notes. Optionally append:
