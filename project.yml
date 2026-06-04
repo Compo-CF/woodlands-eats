@@ -56,9 +56,11 @@ targets:
         UIRequiredDeviceCapabilities:
           - armv7
         ITSAppUsesNonExemptEncryption: false
-        # v1.1: AdMob test app ID. Swap for real app ID when AdMob console
-        # has S-Tier Eats registered. Format: ca-app-pub-PUBLISHER~APP.
-        GADApplicationIdentifier: ca-app-pub-3940256099942544~1458002511
+        # v1.1: AdMob app ID. Shared with the Woodlands Fishing app under
+        # the same publisher (1927040492403163). When S-Tier Eats is large
+        # enough to want separate analytics, register it standalone in the
+        # AdMob console and swap this string + the BannerAdView default.
+        GADApplicationIdentifier: ca-app-pub-1927040492403163~3283839730
         # SKAdNetwork IDs for the major ad networks the SDK reports to.
         # Apple requires these to be declared so attribution can flow without IDFA.
         # Source: Google's published list for SDK 11.x.

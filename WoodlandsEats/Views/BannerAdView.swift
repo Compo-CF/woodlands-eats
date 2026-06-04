@@ -6,16 +6,15 @@ import UIKit
 /// at the bottom of the Browse tab. Uses non-personalized ads (no ATT
 /// prompt) and the AdMob test ad unit by default.
 ///
-/// Test ad unit (no AdMob account required during development):
-///   ca-app-pub-3940256099942544/2934735716
+/// Production ad unit (shared with the Woodlands Fishing app):
+///   ca-app-pub-1927040492403163/4580765066
 ///
-/// When AdMob is set up for production, pass the real ad unit ID to the
-/// initializer. The banner displays test mockups against the test ID and
-/// real inventory against a production ID — no other code change needed.
+/// Override the default to test with Google's published test unit
+/// (`ca-app-pub-3940256099942544/2934735716`) if needed during local dev.
 struct BannerAdView: UIViewRepresentable {
     let adUnitID: String
 
-    init(adUnitID: String = "ca-app-pub-3940256099942544/2934735716") {
+    init(adUnitID: String = "ca-app-pub-1927040492403163/4580765066") {
         self.adUnitID = adUnitID
     }
 
