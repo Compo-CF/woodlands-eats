@@ -16,6 +16,7 @@ struct RestaurantDetailView: View {
     @State private var reportedByMe = false
     @State private var reportingPhotoID: String?
     @State private var reportConfirmation: String?
+    @State private var showDeliveryPicker = false
 
     var body: some View {
         ScrollView {
@@ -54,6 +55,14 @@ struct RestaurantDetailView: View {
             Button("OK", role: .cancel) { reportConfirmation = nil }
         } message: {
             Text(reportConfirmation ?? "")
+        }
+        .sheet(isPresented: $showDeliveryPicker) {
+            DeliveryPickerSheet { app in
+                DeliveryPreference.set(app)
+                showDeliveryPicker = false
+                openDeliveryApp(app)
+            }
+            .presentationDetents([.height(280)])
         }
     }
 
@@ -269,33 +278,110 @@ struct RestaurantDetailView: View {
         }
     }
 
+    // v1.2: data-aware horizontal capsule row. Buttons render only when the
+    // underlying Google Places signals say the action is available, so e.g.
+    // a walk-in BBQ joint doesn't show a hollow "Reserve" pill that goes
+    // nowhere useful. Directions always shows (we always have a coordinate);
+    // everything else is conditional on the enriched seed fields.
     private var actionsSection: some View {
-        VStack(spacing: 10) {
-            Button {
-                openInMaps()
-            } label: {
-                Label("Directions", systemImage: "car.fill")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.borderedProminent)
-
-            HStack(spacing: 10) {
-                if let url = restaurant.websiteURL {
-                    Link(destination: url) {
-                        Label("Website", systemImage: "safari")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                actionPill(systemImage: "car.fill", label: "Directions", tint: .blue) {
+                    openInMaps()
                 }
                 if let tel = telURL {
-                    Link(destination: tel) {
-                        Label("Call", systemImage: "phone")
-                            .frame(maxWidth: .infinity)
+                    actionPill(systemImage: "phone.fill", label: "Call", tint: .green) {
+                        UIApplication.shared.open(tel)
                     }
-                    .buttonStyle(.bordered)
+                }
+                if showReserveButton {
+                    actionPill(systemImage: "fork.knife", label: "Reserve", tint: .orange) {
+                        openReserve()
+                    }
+                }
+                if showOrderButton {
+                    actionPill(systemImage: "bag.fill", label: "Order", tint: .purple) {
+                        handleOrderTap()
+                    }
+                }
+                if let url = restaurant.websiteURL {
+                    Button {
+                        UIApplication.shared.open(url)
+                    } label: {
+                        pillContent(systemImage: "safari.fill", label: "Website", tint: .gray)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
+            .padding(.horizontal, 1)
         }
+    }
+
+    private func actionPill(systemImage: String, label: String, tint: Color,
+                            action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            pillContent(systemImage: systemImage, label: label, tint: tint)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func pillContent(systemImage: String, label: String, tint: Color) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: systemImage)
+            Text(label).fontWeight(.semibold)
+        }
+        .font(.subheadline)
+        .foregroundStyle(.white)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(tint, in: Capsule())
+    }
+
+    private var showReserveButton: Bool {
+        if restaurant.reservable == true { return true }
+        // Some restaurants don't have the `reservable` boolean set but their
+        // website is already an OpenTable / Resy listing — treat those as
+        // bookable too.
+        if let host = restaurant.websiteURL?.host?.lowercased() {
+            if host.contains("opentable.com") || host.contains("resy.com") {
+                return true
+            }
+        }
+        return false
+    }
+
+    private var showOrderButton: Bool {
+        restaurant.delivery == true || restaurant.takeout == true
+    }
+
+    private func openReserve() {
+        // Prefer the direct booking URL if the website is already OpenTable
+        // or Resy (most precise deeplink we have). Fall back to an OpenTable
+        // search-by-name in the Woodlands metro.
+        if let url = restaurant.websiteURL,
+           let host = url.host?.lowercased(),
+           host.contains("opentable.com") || host.contains("resy.com") {
+            UIApplication.shared.open(url)
+            return
+        }
+        let q = restaurant.name.addingPercentEncoding(
+            withAllowedCharacters: .urlQueryAllowed) ?? ""
+        if let url = URL(string: "https://www.opentable.com/s?term=\(q)&location=The+Woodlands+TX") {
+            UIApplication.shared.open(url)
+        }
+    }
+
+    private func handleOrderTap() {
+        if let app = DeliveryPreference.current {
+            openDeliveryApp(app)
+        } else {
+            showDeliveryPicker = true
+        }
+    }
+
+    private func openDeliveryApp(_ app: DeliveryApp) {
+        UIApplication.shared.open(
+            app.searchURL(for: restaurant.name, city: "The Woodlands TX"))
     }
 
     private var telURL: URL? {

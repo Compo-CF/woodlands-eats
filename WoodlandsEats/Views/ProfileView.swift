@@ -23,6 +23,7 @@ struct ProfileView: View {
     @State private var photoReports: [(report: PhotoReport, photo: DishPhoto?)] = []
     @State private var actingPhotoID: String?
     @State private var showAbout = false
+    @State private var preferredDeliveryApp: DeliveryApp?
 
     private var nameEmpty: Bool {
         displayName.trimmingCharacters(in: .whitespaces).isEmpty
@@ -92,6 +93,28 @@ struct ProfileView: View {
                         .foregroundStyle(.white)
                     }
                     .listRowBackground(Color.red)
+                }
+
+                if let app = preferredDeliveryApp {
+                    Section(
+                        header: Text("Preferences"),
+                        footer: Text("Tap to forget this choice. We'll ask again the next time you tap Order on a restaurant.")
+                    ) {
+                        Button {
+                            DeliveryPreference.clear()
+                            preferredDeliveryApp = nil
+                        } label: {
+                            HStack {
+                                Label("Delivery app", systemImage: "bag")
+                                Spacer()
+                                Text(app.displayName)
+                                    .foregroundStyle(.secondary)
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(.tertiary)
+                            }
+                        }
+                        .tint(.primary)
+                    }
                 }
 
                 Section(header: Text("About")) {
@@ -236,6 +259,7 @@ struct ProfileView: View {
 
     private func load() async {
         loading = true
+        preferredDeliveryApp = DeliveryPreference.current
         userID = await cloudKit.currentUserID() ?? ""
         let profile = await cloudKit.fetchMyProfile()
         displayName = profile.displayName
