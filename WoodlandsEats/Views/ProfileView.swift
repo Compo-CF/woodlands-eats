@@ -22,6 +22,12 @@ struct ProfileView: View {
     @State private var suggestionError: String?
     @State private var photoReports: [(report: PhotoReport, photo: DishPhoto?)] = []
     @State private var actingPhotoID: String?
+    // Build 22: a tap on Save name / Request Foodie Pro with an empty name
+    // surfaces this alert string instead of being silently disabled. Apple
+    // rejected build 19 under Guideline 2.1(a) because the reviewer read the
+    // disabled state as "unresponsive button" — this makes every tap respond.
+    @State private var requirementAlert: String?
+    @FocusState private var nameFieldFocused: Bool
 
     private var nameEmpty: Bool {
         displayName.trimmingCharacters(in: .whitespaces).isEmpty
@@ -36,10 +42,16 @@ struct ProfileView: View {
                 ) {
                     TextField("Your name", text: $displayName)
                         .autocorrectionDisabled()
+                        .focused($nameFieldFocused)
                     Button("Save name") {
-                        Task { await save(requestingPro: false) }
+                        if nameEmpty {
+                            requirementAlert = "Please type a display name in the field above before saving."
+                            nameFieldFocused = true
+                        } else {
+                            Task { await save(requestingPro: false) }
+                        }
                     }
-                    .disabled(saving || nameEmpty)
+                    .disabled(saving)
                 }
 
                 Section(
@@ -55,11 +67,16 @@ struct ProfileView: View {
                             .foregroundStyle(.secondary)
                     default:
                         Button {
-                            Task { await save(requestingPro: true) }
+                            if nameEmpty {
+                                requirementAlert = "Please set a display name first — it appears next to your rankings on the Foodie Pro leaderboard. Type one in the Display name field above, then tap Request Foodie Pro."
+                                nameFieldFocused = true
+                            } else {
+                                Task { await save(requestingPro: true) }
+                            }
                         } label: {
                             Label("Request Foodie Pro", systemImage: "star")
                         }
-                        .disabled(saving || nameEmpty)
+                        .disabled(saving)
                     }
                 }
 
@@ -198,6 +215,15 @@ struct ProfileView: View {
             .task { await load() }
             .sheet(isPresented: $showSuggest) {
                 SuggestRestaurantView()
+            }
+            .alert("Display name needed",
+                   isPresented: Binding(
+                    get: { requirementAlert != nil },
+                    set: { if !$0 { requirementAlert = nil } }
+                   )) {
+                Button("OK", role: .cancel) { requirementAlert = nil }
+            } message: {
+                Text(requirementAlert ?? "")
             }
         }
     }
