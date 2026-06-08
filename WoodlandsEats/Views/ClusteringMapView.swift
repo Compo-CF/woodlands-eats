@@ -163,6 +163,12 @@ final class RestaurantAnnotationView: MKMarkerAnnotationView {
     override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
         super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
         clusteringIdentifier = "restaurant"
+        // The default `.rectangle` collision mode uses the marker's full
+        // bounding box, which is generous and forces users to zoom in further
+        // than necessary before pins separate. `.circle` inscribes a circle
+        // into that box (~21% less area), so diagonal neighbors stop colliding
+        // at a wider zoom and uncluster sooner.
+        collisionMode = .circle
     }
     required init?(coder aDecoder: NSCoder) { fatalError("not implemented") }
 }
