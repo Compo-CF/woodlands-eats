@@ -134,7 +134,15 @@ struct RestaurantDetailView: View {
         blockList.block(uploader)
         // Drop every photo from this uploader currently on screen.
         dishPhotos.removeAll { $0.submitterUserID == uploader }
-        reportConfirmation = "You won't see photos from this uploader again."
+        reportConfirmation = "You won't see photos from this uploader again. The administrator has been notified and will review."
+        // App Review Guideline 1.2: blocking must also notify the developer of
+        // the inappropriate content so the admin can investigate the user's
+        // other uploads and remove them if warranted. Piggyback on the same
+        // CloudKit PhotoReport flow that explicit reports use — admin's queue
+        // doesn't need to distinguish reason; either signal triggers a review.
+        Task {
+            _ = await cloudKit.reportPhoto(photoID: photo.id)
+        }
     }
 
     private func handlePick(_ item: PhotosPickerItem?) async {

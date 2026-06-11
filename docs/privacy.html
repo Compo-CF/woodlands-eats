@@ -32,7 +32,7 @@
 <body>
 
 <h1>Privacy Policy</h1>
-<div class="updated">Effective date: May 31, 2026</div>
+<div class="updated">Effective date: June 9, 2026</div>
 
 <p>S-Tier Eats ("the App") is a small, independent iOS application that helps users discover restaurants in The Woodlands, Texas area, place them on a personal S/A/B/C/F tier list, and (optionally) contribute to a community consensus ranking via Apple iCloud. This policy explains exactly what the App accesses, what it stores, and what it never does.</p>
 
@@ -55,7 +55,7 @@
   <li><strong>Display name (optional):</strong> if you fill in a display name on the Profile tab, that text is stored so it can be shown when you request "Foodie Pro" status. The display name is shown only to the App's administrator during the approval flow; it is not publicly displayed to other users in this version.</li>
   <li><strong>Foodie Pro request status:</strong> "requested" or (after admin approval) "approved" — used to weight your rankings on the Pros leaderboard.</li>
   <li><strong>Restaurant suggestions:</strong> if you suggest a missing restaurant, the name, address, area, cuisines, and description you typed are stored for admin review. Approved suggestions become public restaurant entries visible to all users.</li>
-  <li><strong>Photo reports and block list:</strong> when you report a dish photo, a report record is created in CloudKit (containing only the photo ID and your opaque user ID) so the administrator can review it. When you block an uploader, that decision is stored locally on your device only — it never leaves the device.</li>
+  <li><strong>Photo reports and block list:</strong> when you report a dish photo, a report record is created in CloudKit (containing only the photo ID and your opaque user ID) so the administrator can review it. When you block an uploader, the same kind of report record is created so the administrator is notified to investigate that uploader's other photos; in addition, the block decision is stored locally on your device so that uploader's photos are immediately hidden for you across the app.</li>
 </ul>
 
 <p>Apple's general CloudKit data-handling practices are covered by <a href="https://www.apple.com/legal/privacy/">Apple's privacy policy</a>.</p>
@@ -83,8 +83,9 @@
 <h2>Content moderation, reporting, and blocking</h2>
 <p>The App contains user-generated content in the form of dish photos and (admin-visible) display names. As required by Apple App Review Guideline 1.2:</p>
 <ul>
+  <li>Every user must accept the App's terms of use on first launch. The terms state that there is zero tolerance for objectionable content or abusive behavior, and that violating users may be removed from the service.</li>
   <li>You can <strong>report</strong> any dish photo by long-pressing it and choosing "Report photo." Reports are reviewed by the administrator within 24 hours and offending content is removed.</li>
-  <li>You can <strong>block</strong> any uploader by long-pressing one of their photos and choosing "Block this uploader." Blocked uploaders' photos no longer appear for you on the device that blocked them.</li>
+  <li>You can <strong>block</strong> any uploader by long-pressing one of their photos and choosing "Block this uploader." Blocking immediately hides that uploader's photos across the App for you, and also creates a report record so the administrator is notified to investigate that uploader's other content.</li>
   <li>The administrator can hide individual photos for all users, which removes them from view across the App.</li>
   <li>To contact the administrator about objectionable content or any other concern, email <a href="mailto:anthony.compofelice@centricfiber.com">anthony.compofelice@centricfiber.com</a>.</li>
 </ul>
