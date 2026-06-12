@@ -17,7 +17,7 @@ import urllib.parse
 import urllib.request
 
 SEED = "WoodlandsEats/Resources/Restaurants.json"
-UA = "WoodlandsEats-geocoder/1.0 (anthony.compofelice@centricfiber.com)"
+UA = "WoodlandsEats-geocoder/1.0 (acompofelice@outlook.com)"
 
 # Bounding box that comfortably contains all six areas; reject anything outside.
 LAT_MIN, LAT_MAX = 29.70, 30.45

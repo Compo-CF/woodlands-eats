@@ -31,7 +31,7 @@ CENTROIDS = {
 }
 NAME_STOP = ["thewoodlands", "oldtownspring", "oakridgenorth", "shenandoah",
              "spring", "klein", "woodlands", "tx", "texas", "houston"]
-USER_AGENT = "WoodlandsEats/1.0 (anthony.compofelice@centricfiber.com)"
+USER_AGENT = "WoodlandsEats/1.0 (acompofelice@outlook.com)"
 
 # Restaurants the agents surfaced that we know shouldn't go in (cigar lounges,
 # venues that aren't really restaurants, etc.). Keyed on normalized name.

@@ -59,7 +59,7 @@ A NOTE ON THE COMMUNITY
 This is a tiny, local app made by one person who lives in the area. If you spot a restaurant that should be in here, use "Suggest a restaurant" on the Profile tab. If you spot a permanently-closed listing, hit "Report as permanently closed" on its detail page. The list improves every week because of that.
 
 CONTACT
-anthony.compofelice@centricfiber.com — for bug reports, takedown requests, or anything else.
+acompofelice@outlook.com — for bug reports, takedown requests, or anything else.
 ```
 
 ## Keywords (100 char limit, comma-separated, NO spaces after commas)
@@ -169,7 +169,7 @@ Please test:
 • Map pins: F-tier should look distinctly purple, unranked stays gray.
 • All previous features (suggest, closure reports, Foodie Pro, community board) still work.
 
-Bug reports to anthony.compofelice@centricfiber.com.
+Bug reports to acompofelice@outlook.com.
 ```
 
 ---
@@ -213,7 +213,7 @@ UGC moderation (Guideline 1.2):
   Hide control or via the email address below.
 • Blocks are local to the reporter's device.
 
-Contact: anthony.compofelice@centricfiber.com
+Contact: acompofelice@outlook.com
 
 Thanks!
 ```

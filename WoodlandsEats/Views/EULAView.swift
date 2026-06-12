@@ -95,10 +95,10 @@ struct EULAView: View {
                     Text("Contact")
                         .font(.title3.weight(.semibold))
 
-                    Link(destination: URL(string: "mailto:anthony.compofelice@centricfiber.com")!) {
+                    Link(destination: URL(string: "mailto:acompofelice@outlook.com")!) {
                         HStack {
                             Image(systemName: "envelope")
-                            Text("anthony.compofelice@centricfiber.com")
+                            Text("acompofelice@outlook.com")
                             Spacer()
                         }
                         .font(.callout)

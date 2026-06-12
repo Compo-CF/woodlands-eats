@@ -8,7 +8,7 @@ Run in background: python scripts/recheck_coords.py
 import json, re, math, time, os, urllib.parse, urllib.request
 
 SEED = "WoodlandsEats/Resources/Restaurants.json"
-UA = "WoodlandsEats-geocoder/1.0 (anthony.compofelice@centricfiber.com)"
+UA = "WoodlandsEats-geocoder/1.0 (acompofelice@outlook.com)"
 LAT_MIN, LAT_MAX = 30.00, 30.21
 LON_MIN, LON_MAX = -95.57, -95.35
 THRESH_MI = 0.35

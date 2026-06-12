@@ -97,7 +97,7 @@ Browser, Mac or Windows either works:
 
 4. **App Review Information** tab:
    - Paste the "App Review notes" block from `docs/app-store-metadata.md` into the notes field.
-   - Contact: your name + the centricfiber email.
+   - Contact: your name + acompofelice@outlook.com.
    - Demo account: not needed (no login).
 
 5. **Version Information** ("1.0 Prepare for Submission"):
