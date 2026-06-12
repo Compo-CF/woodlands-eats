@@ -89,8 +89,8 @@ struct AboutSheetView: View {
             linkRow(
                 systemImage: "envelope",
                 label: "Contact",
-                detail: "anthony.compofelice@centricfiber.com",
-                url: URL(string: "mailto:anthony.compofelice@centricfiber.com")!
+                detail: "acompofelice@outlook.com",
+                url: URL(string: "mailto:acompofelice@outlook.com")!
             )
             Divider().padding(.leading, 60)
             linkRow(
