@@ -24,9 +24,9 @@ If taken in the store, fall back to one of: `S-Tier Eats — Tier List`, `S-Tier
 - `Tier-list The Woodlands eats` (28)
 
 ## Promotional text (170 chars — editable anytime without review)
-> 1,800+ restaurants from The Woodlands to Spring, ranked by you on a classic S/A/B/C/F tier list. No stars, no algorithm — just where each spot belongs.
+> 2,300+ restaurants from The Woodlands to Conroe to Atascocita, ranked by you on a classic S/A/B/C/F tier list. No stars, no algorithm — just where each spot belongs.
 
-(154 chars — leaves room for seasonal pulls like "Spring crawfish season tier list inside.")
+(166 chars — leaves room for seasonal pulls like "Spring crawfish season tier list inside.")
 
 ## Description (4000 char limit, plain text only)
 
@@ -37,7 +37,7 @@ WHY A TIER LIST
 Five-star ratings smear everything into a featureless 3.9-to-4.4 blob. A tier list forces you to pick: is this place ELITE, or just GREAT, or just FINE? Your tier list becomes a memory of your favorites — and the community average becomes a genuinely useful "is this worth going to" answer.
 
 WHAT'S INSIDE
-• 1,800+ restaurants curated across six areas: The Woodlands, Spring, Shenandoah, Oak Ridge North, Old Town Spring, and Klein
+• 2,300+ restaurants curated across nine areas: The Woodlands, Spring, Shenandoah, Oak Ridge North, Old Town Spring, Klein, Conroe, Magnolia, and Atascocita
 • Live map with every spot color-coded by your tier (and the unranked ones a neutral gray, so the map becomes a snapshot of your taste over time)
 • Distance-sorted list with one-tap Apple Maps directions
 • Filters for area, cuisine, price tier, and a fast-food toggle (off by default)

@@ -1,12 +1,25 @@
 import Foundation
 import SwiftUI
 
-/// The geographic sub-areas this app covers. Kept tight on purpose
-/// (Woodlands + Spring + the strip between them) so the seed stays local.
+/// The geographic sub-areas this app covers. Expanded in build 33 to
+/// follow the polygon service area: original six (Woodlands core + Spring
+/// + adjacent) plus Conroe to the north, Magnolia to the west, and
+/// Atascocita to the east. New restaurants are auto-tagged to whichever
+/// area centroid is closest by haversine distance (see scripts/retag_areas.py).
+///
+/// Lenient decode: rows with an unknown area string fall back to
+/// `.woodlands` instead of failing the whole JSON parse — useful if a
+/// future seed introduces a new area string before the enum is updated.
 enum Area: String, Codable, CaseIterable, Identifiable {
-    case woodlands, spring, shenandoah, oakRidgeNorth, oldTownSpring, klein
+    case woodlands, spring, shenandoah, oakRidgeNorth, oldTownSpring, klein,
+         conroe, magnolia, atascocita
 
     var id: String { rawValue }
+
+    init(from decoder: Decoder) throws {
+        let raw = try decoder.singleValueContainer().decode(String.self)
+        self = Area(rawValue: raw) ?? .woodlands
+    }
 
     var displayName: String {
         switch self {
@@ -16,6 +29,9 @@ enum Area: String, Codable, CaseIterable, Identifiable {
         case .oakRidgeNorth: "Oak Ridge North"
         case .oldTownSpring: "Old Town Spring"
         case .klein: "Klein"
+        case .conroe: "Conroe"
+        case .magnolia: "Magnolia"
+        case .atascocita: "Atascocita"
         }
     }
 }
