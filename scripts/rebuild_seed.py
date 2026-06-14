@@ -10,7 +10,13 @@ Run: python scripts/rebuild_seed.py
 import json, re, math, uuid, urllib.parse, urllib.request
 
 SEED = "WoodlandsEats/Resources/Restaurants.json"
-BBOX = (30.00, -95.57, 30.21, -95.35)  # S, W, N, E — the six areas, trimming Champions/Houston/Porter
+# Bounds come from scripts/service_area.py (twin of ServiceArea.swift).
+# BBOX is the polygon's bounding rectangle in Overpass's S/W/N/E order.
+# The polygon itself is wider than what's strictly needed for the six
+# original areas — re-running rebuild_seed.py will now pick up restaurants
+# in the expanded Conroe / Magnolia / Atascocita extents too.
+from service_area import LAT_MIN, LAT_MAX, LON_MIN, LON_MAX, contains  # noqa: F401
+BBOX = (LAT_MIN, LON_MIN, LAT_MAX, LON_MAX)  # S, W, N, E
 NS = uuid.NAMESPACE_URL
 KEYS = ["id", "name", "latitude", "longitude", "area", "address", "cuisines",
         "priceTier", "isFastFood", "website", "phone", "description", "signatureDishes"]

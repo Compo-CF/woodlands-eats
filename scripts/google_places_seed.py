@@ -37,8 +37,10 @@ KEY = os.environ.get("GOOGLE_PLACES_API_KEY")
 if not KEY:
     sys.exit("Set the GOOGLE_PLACES_API_KEY env var first.")
 
-LAT_MIN, LAT_MAX = 30.00, 30.21
-LON_MIN, LON_MAX = -95.57, -95.35
+# Bounds come from scripts/service_area.py (twin of ServiceArea.swift).
+# LAT_MIN/MAX/LON_MIN/MAX is the polygon's bounding rectangle for grid use;
+# contains() is the precise polygon test for filtering individual results.
+from service_area import LAT_MIN, LAT_MAX, LON_MIN, LON_MAX, contains  # noqa: F401
 NS = uuid.NAMESPACE_URL
 KEYS = ["id", "name", "latitude", "longitude", "area", "address", "cuisines",
         "priceTier", "isFastFood", "website", "phone", "description", "signatureDishes"]

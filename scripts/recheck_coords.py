@@ -9,8 +9,10 @@ import json, re, math, time, os, urllib.parse, urllib.request
 
 SEED = "WoodlandsEats/Resources/Restaurants.json"
 UA = "WoodlandsEats-geocoder/1.0 (acompofelice@outlook.com)"
-LAT_MIN, LAT_MAX = 30.00, 30.21
-LON_MIN, LON_MAX = -95.57, -95.35
+# Bounds come from scripts/service_area.py (twin of ServiceArea.swift).
+# LAT_MIN/MAX/LON_MIN/MAX is the polygon's bounding rectangle for grid use;
+# contains() is the precise polygon test for filtering individual results.
+from service_area import LAT_MIN, LAT_MAX, LON_MIN, LON_MAX, contains  # noqa: F401
 THRESH_MI = 0.35
 KEYS = ["id", "name", "latitude", "longitude", "area", "address", "cuisines",
         "priceTier", "isFastFood", "website", "phone", "description", "signatureDishes"]

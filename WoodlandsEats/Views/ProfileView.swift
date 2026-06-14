@@ -396,8 +396,8 @@ struct ProfileView: View {
             }
             let lat = loc.coordinate.latitude
             let lon = loc.coordinate.longitude
-            guard (30.0...30.21).contains(lat), (-95.57 ... -95.35).contains(lon) else {
-                suggestionError = "\(s.name): geocoded outside the Woodlands/Spring area."
+            guard ServiceArea.contains(lat: lat, lon: lon) else {
+                suggestionError = "\(s.name): geocoded outside the S-Tier Eats service area."
                 return
             }
             let ok = await cloudKit.approveSuggestion(s, latitude: lat, longitude: lon)
