@@ -131,10 +131,16 @@ struct RestaurantFilter {
     var selectedPrices: Set<PriceTier> = []
     /// Commodity fast food is hidden by default; users opt it in.
     var includeFastFood: Bool = false
+    /// Build 28: limit results to restaurants the user has placed in a tier.
+    /// The flag lives here for UI consistency (FilterBar binds to it) but the
+    /// actual ranked-membership check happens at the view layer, because
+    /// only the views have access to TierListStore.
+    var rankedOnly: Bool = false
 
     var isActive: Bool {
         !searchText.isEmpty || !selectedAreas.isEmpty ||
-        !selectedCuisines.isEmpty || !selectedPrices.isEmpty || includeFastFood
+        !selectedCuisines.isEmpty || !selectedPrices.isEmpty ||
+        includeFastFood || rankedOnly
     }
 
     mutating func clear() {
@@ -143,6 +149,7 @@ struct RestaurantFilter {
         selectedCuisines = []
         selectedPrices = []
         includeFastFood = false
+        rankedOnly = false
     }
 }
 

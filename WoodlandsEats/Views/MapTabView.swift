@@ -8,6 +8,15 @@ struct MapTabView: View {
     @Environment(LocationManager.self) private var locationManager
     @State private var selected: Restaurant?
 
+    /// Build 28: applies the "Ranked only" filter on top of the textual /
+    /// area / cuisine filters. Done at the view layer (rather than inside
+    /// RestaurantStore) because only the views see TierListStore.
+    private var visibleRestaurants: [Restaurant] {
+        let base = store.filteredRestaurants
+        guard store.filter.rankedOnly else { return base }
+        return base.filter { tierStore.tier(for: $0.id) != nil }
+    }
+
     var body: some View {
         @Bindable var store = store
         NavigationStack {
@@ -16,7 +25,7 @@ struct MapTabView: View {
             // MKMapView's clusteringIdentifier groups nearby pins into a
             // single badge per zoom level.
             ClusteringMapView(
-                restaurants: store.filteredRestaurants,
+                restaurants: visibleRestaurants,
                 tierColor: { id in
                     UIColor(tierStore.tier(for: id)?.color ?? .gray)
                 },

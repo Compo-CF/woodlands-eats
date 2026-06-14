@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ListTabView: View {
     @Environment(RestaurantStore.self) private var store
+    @Environment(TierListStore.self) private var tierStore
     @State private var sortByDistance = true
 
     var body: some View {
@@ -15,6 +16,11 @@ struct ListTabView: View {
                 }
             }
             .listStyle(.plain)
+            // Build 28: drag-to-dismiss-keyboard on the list. Works with the
+            // FilterBar's Done toolbar button as a second exit path; either
+            // one releases focus so the keyboard collapses and the tab bar
+            // reappears.
+            .scrollDismissesKeyboard(.immediately)
             .navigationDestination(for: Restaurant.self) { r in
                 RestaurantDetailView(restaurant: r)
             }
@@ -54,6 +60,8 @@ struct ListTabView: View {
     }
 
     private var sorted: [Restaurant] {
-        sortByDistance ? store.restaurantsSortedByDistance : store.restaurantsSortedByName
+        let base = sortByDistance ? store.restaurantsSortedByDistance : store.restaurantsSortedByName
+        guard store.filter.rankedOnly else { return base }
+        return base.filter { tierStore.tier(for: $0.id) != nil }
     }
 }

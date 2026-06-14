@@ -23,6 +23,7 @@ struct ProfileView: View {
     @State private var photoReports: [(report: PhotoReport, photo: DishPhoto?)] = []
     @State private var actingPhotoID: String?
     @State private var showAbout = false
+    @State private var showTierGuide = false
     @State private var preferredDeliveryApp: DeliveryApp?
     // Build 22: a tap on Save name / Request Foodie Pro with an empty name
     // surfaces this alert string instead of being silently disabled. Apple
@@ -135,6 +136,11 @@ struct ProfileView: View {
                 }
 
                 Section(header: Text("About")) {
+                    Button {
+                        showTierGuide = true
+                    } label: {
+                        Label("Tier guide", systemImage: "questionmark.circle")
+                    }
                     Button {
                         showAbout = true
                     } label: {
@@ -270,6 +276,9 @@ struct ProfileView: View {
             .sheet(isPresented: $showAbout) {
                 AboutSheetView()
                     .presentationDetents([.medium, .large])
+            }
+            .sheet(isPresented: $showTierGuide) {
+                TierGuideView()
             }
             .alert("Display name needed",
                    isPresented: Binding(
