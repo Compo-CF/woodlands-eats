@@ -1,6 +1,6 @@
 """Remove non-restaurants from Restaurants.json.
 
-The v3 Google Places expansion pulled in collateral: hotels, grocery stores,
+The Google Places expansions pull in collateral: hotels, grocery stores,
 gas stations, pharmacies, retail, country clubs, banquet halls — places
 Google tags with restaurant-adjacent types even though they aren't consumer-
 facing dining.
@@ -17,9 +17,10 @@ Approach:
 Idempotent — re-runnable; entries already cleaned out stay out.
 
 Run:
-  python3 scripts/remove_non_restaurants.py
+  python3 scripts/remove_non_restaurants.py            # writes the seed
+  python3 scripts/remove_non_restaurants.py --dry-run  # report only
 """
-import os, re, json
+import os, re, sys, json, unicodedata
 
 SEED = "WoodlandsEats/Resources/Restaurants.json"
 KEYS = ["id", "name", "latitude", "longitude", "area", "address", "cuisines",
@@ -183,6 +184,39 @@ DENY_PATTERNS = [
     (r"\bsenior living\b", "residential"),
     (r"\bnursing home\b", "residential"),
     (r"\brehab\b", "residential"),
+    # ─── Wellness / home health / personal care ──────────────────────
+    (r"\bwellness\b", "wellness"),
+    (r"\bhome care\b", "home_health"),
+    (r"\bhome health\b", "home_health"),
+    (r"\bcaregivers?\b", "home_health"),
+    # ─── Medical / cosmetic (extended) ───────────────────────────────
+    (r"\bmed[\s-]?spa\b", "medical"),
+    (r"\baesthetics?\b", "medical"),
+    (r"\bdermatolog", "medical"),
+    (r"\bchiropract", "medical"),
+    (r"\bphysical therapy\b", "medical"),
+    (r"\borthodonti", "medical"),
+    (r"\bdentist", "medical"),
+    (r"\beye (care|center)\b", "medical"),
+    (r"\boptometr", "medical"),
+    (r"\bcounseling\b", "medical"),
+    (r"\btherap(y|ist)\b", "medical"),
+    # ─── Personal services (extended) ────────────────────────────────
+    (r"\b(day )?spa\b", "service"),
+    (r"\bmassage\b", "service"),
+    (r"\btattoo\b", "service"),
+    (r"\bsmoke shop\b", "service"),
+    (r"\bvape\b", "service"),
+    (r"\bcigar (lounge|bar|shop)\b", "service"),
+    # ─── Veterinary ──────────────────────────────────────────────────
+    (r"\bveterinar", "veterinary"),
+    (r"\banimal hospital\b", "veterinary"),
+    (r"\bpet hospital\b", "veterinary"),
+    # ─── Shopping centers and venues (not the restaurants within) ────
+    (r"\bvillage center\b", "venue"),
+    (r"\bshopping center\b", "venue"),
+    (r"\btown center\b", "venue"),
+    (r"\bplaza\b", "venue"),
 ]
 
 # Exception: legitimate restaurants whose names happen to contain a denylist
@@ -197,19 +231,31 @@ RESTAURANT_WORDS = re.compile(
     r"chophouse|brewpub|gastropub|noodle|ramen|hot pot|bbq|barbecue|"
     r"creamery|ice cream|frozen yogurt|donut|donuts|kolache|"
     r"pho|banh mi|sandwich|burger|burgers|wings|tacos|tortas|"
-    r"crawfish|seafood|oyster|sushi|dim sum)\b",
+    r"crawfish|seafood|oyster|sushi|dim sum|chicken|hibachi|tap house|"
+    r"food (trucks?|halls?|parks?))",
     re.IGNORECASE,
 )
 
 
+def normalize(s):
+    """Strip diacritics for matching: 'Café' / 'Cafè' / 'CAFÉ' all → 'Cafe'.
+    Owner-typed restaurant names occasionally use the wrong accent variant
+    (è vs é vs ê), so we collapse all of them before pattern matching."""
+    return "".join(
+        c for c in unicodedata.normalize("NFKD", s)
+        if not unicodedata.combining(c)
+    )
+
+
 def should_drop(name):
     """Return (drop, category) for an entry name."""
-    name_lower = name.lower()
+    normalized = normalize(name)
+    name_lower = normalized.lower()
     for pat, category in DENY_PATTERNS:
         if re.search(pat, name_lower):
             # Allow exception: legitimate restaurant inside a hotel/etc keeps
             # itself in if its name contains a real restaurant word.
-            if RESTAURANT_WORDS.search(name):
+            if RESTAURANT_WORDS.search(normalized):
                 return (False, None)
             return (True, category)
     return (False, None)
@@ -234,9 +280,14 @@ def serialize(doc):
 
 
 def main():
+    dry_run = "--dry-run" in sys.argv
     doc = json.load(open(SEED, encoding="utf-8"))
     before = len(doc["restaurants"])
-    print(f"Loaded {before} restaurants from {SEED}\n")
+    print(f"Loaded {before} restaurants from {SEED}")
+    if dry_run:
+        print("DRY RUN — no changes will be written\n")
+    else:
+        print()
 
     kept, dropped = [], []
     drop_by_category = {}
@@ -248,19 +299,21 @@ def main():
         else:
             kept.append(r)
 
-    doc["restaurants"] = kept
-    doc["restaurants"].sort(key=lambda r: (r["area"], r["name"].lower()))
-    tmp = SEED + ".tmp"
-    open(tmp, "w", encoding="utf-8").write(serialize(doc))
-    os.replace(tmp, SEED)
+    if not dry_run:
+        doc["restaurants"] = kept
+        doc["restaurants"].sort(key=lambda r: (r["area"], r["name"].lower()))
+        tmp = SEED + ".tmp"
+        open(tmp, "w", encoding="utf-8").write(serialize(doc))
+        os.replace(tmp, SEED)
 
-    print(f"Dropped {len(dropped)} non-restaurants. TOTAL kept: {len(kept)}\n")
+    verb = "Would drop" if dry_run else "Dropped"
+    print(f"{verb} {len(dropped)} non-restaurants. {'After:' if not dry_run else 'New count would be:'} {len(kept)}\n")
     if drop_by_category:
         print("By category:")
         for cat, n in sorted(drop_by_category.items(), key=lambda x: -x[1]):
             print(f"  {n:4d}  {cat}")
-    print(f"\nFull list of dropped entries:")
-    for name, cat, area in dropped:
+    print(f"\nFull list of {'would-be-' if dry_run else ''}dropped entries:")
+    for name, cat, area in sorted(dropped, key=lambda x: (x[1], x[0].lower())):
         print(f"  - [{cat:11s}] {name}  ({area})")
 
 
