@@ -57,9 +57,18 @@ struct ClusteringMapView: UIViewRepresentable {
         let coordinator = context.coordinator
 
         // Diff annotations: remove ones no longer in the filtered set, add new ones.
+        // NOTE: `uniquingKeysWith` rather than `uniqueKeysWithValues` is critical —
+        // build 33 crashed at first map mount because the re-seeded Restaurants.json
+        // contained 3 duplicate UUIDs (similar-name variants the seed dedup missed,
+        // e.g. "BLEND - Bourbons & Cocktails" vs "BLEND - Bourbons and Cocktails").
+        // `uniqueKeysWithValues` traps on duplicate keys with EXC_BREAKPOINT;
+        // `uniquingKeysWith` keeps the last value silently. Last-wins is fine here
+        // — duplicate restaurants render as a single pin either way.
         let current = map.annotations.compactMap { $0 as? RestaurantAnnotation }
-        let desiredByID = Dictionary(uniqueKeysWithValues: restaurants.map { ($0.id, $0) })
-        let currentByID = Dictionary(uniqueKeysWithValues: current.map { ($0.restaurant.id, $0) })
+        let desiredByID = Dictionary(restaurants.map { ($0.id, $0) },
+                                     uniquingKeysWith: { _, latest in latest })
+        let currentByID = Dictionary(current.map { ($0.restaurant.id, $0) },
+                                     uniquingKeysWith: { _, latest in latest })
 
         let toRemove = current.filter { desiredByID[$0.restaurant.id] == nil }
         if !toRemove.isEmpty { map.removeAnnotations(toRemove) }
