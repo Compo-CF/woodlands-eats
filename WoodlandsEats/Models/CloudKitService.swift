@@ -172,7 +172,7 @@ final class CloudKitService {
             accumulate(matches)
             while let c = cursor {
                 (matches, cursor) = try await publicDB.records(
-                    continuingMatchAt: c, resultsLimit: 200)
+                    continuingMatchFrom: c, resultsLimit: 200)
                 accumulate(matches)
             }
         } catch {
