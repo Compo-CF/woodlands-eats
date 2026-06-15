@@ -130,6 +130,59 @@ final class CloudKitService {
             savePolicy: .allKeys)
     }
 
+    /// Fetch all of this user's tier placements from CloudKit.
+    ///
+    /// Used by TierListStore.restoreFromCloud(via:) at launch to hydrate
+    /// the local cache after a reinstall or device restore — otherwise the
+    /// user's "My Tiers" view appears empty even though their placements
+    /// are still in CloudKit feeding the community consensus.
+    ///
+    /// Implementation: pages through all Placement records and filters
+    /// client-side by recordName prefix `placement_<userID>_`. The
+    /// recordName index is queryable for equality but CloudKit doesn't
+    /// support BEGINSWITH on recordName, so client-side filtering is the
+    /// pragmatic move. At early-app scale (sub-thousand placements
+    /// total in the public DB) the overhead is negligible.
+    ///
+    /// Returns [] on any failure path so callers can no-op gracefully.
+    func fetchMyPlacements() async -> [(restaurantID: UUID, tier: Tier)] {
+        guard isAvailable, let user = await userRecordName() else { return [] }
+        let prefix = "placement_\(user)_"
+        var out: [(restaurantID: UUID, tier: Tier)] = []
+
+        func accumulate(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+            for (recordID, result) in matches {
+                guard recordID.recordName.hasPrefix(prefix) else { continue }
+                guard case .success(let rec) = result else { continue }
+                guard let ridStr = rec["restaurantID"] as? String,
+                      let rid = UUID(uuidString: ridStr),
+                      let tierStr = rec["tier"] as? String,
+                      let tier = Tier(rawValue: tierStr) else { continue }
+                out.append((rid, tier))
+            }
+        }
+
+        do {
+            let query = CKQuery(recordType: placementType,
+                                predicate: NSPredicate(value: true))
+            var (matches, cursor) = try await publicDB.records(
+                matching: query,
+                desiredKeys: ["restaurantID", "tier"],
+                resultsLimit: 200)
+            accumulate(matches)
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(
+                    continuingMatchAt: c, resultsLimit: 200)
+                accumulate(matches)
+            }
+        } catch {
+            // CloudKit unavailable / network error / index missing — return
+            // what we accumulated (possibly nothing). The TierListStore
+            // caller falls through to local cache.
+        }
+        return out
+    }
+
     /// Average everyone's placements for a restaurant into a consensus tier.
     /// Returns nil if no one has ranked it yet (or CloudKit is unavailable).
     func fetchCommunityTier(restaurantID: UUID) async -> CommunityTier? {
