@@ -20941,21 +20941,6 @@
       "signatureDishes": []
     },
     {
-      "id": "6e3bcf94-1ee6-5a4b-9c4b-ca84c71434b5",
-      "name": "The Women's Centre for Well Being",
-      "latitude": 30.17347,
-      "longitude": -95.45464,
-      "area": "shenandoah",
-      "address": "1120 Medical Plaza Dr Suite 200, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://drgeadsdavinci.com/",
-      "phone": "(832) 813-0979",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
       "id": "5ea624fa-ff73-5711-8af9-220b693121b6",
       "name": "The Woodlands Cafe (Memorial Hermann)",
       "latitude": 30.17434,

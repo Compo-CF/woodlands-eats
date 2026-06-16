@@ -287,6 +287,11 @@ DENY_PATTERNS = [
     (r"\baddiction (treatment|recovery|center)\b", "medical"),
     (r"\baudiolog", "medical"),
     (r"\bhearing (aid|center|clinic)\b", "medical"),
+    # Wellness/well-being centers and women's care (caught after Anthony
+    # spotted "The Women's Centre for Well Being"). The earlier pattern
+    # required `health` after "women's"; this catches the broader naming.
+    (r"\bwell[\s-]?being\b", "medical"),               # well being, well-being, wellbeing
+    (r"\bwomen'?s? (centre|center)\b", "medical"),     # women's/womens center/centre
     # ─── Second cleanup pass — Anthony spotted more health entries
     #     that the first pattern set didn't catch (Axiom Medical,
     #     Kindful Health, Woodlands Nutrition, etc.)
