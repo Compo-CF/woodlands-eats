@@ -83,6 +83,12 @@ struct ProfileView: View {
                     }
                 }
 
+                Section(header: Text("My activity")) {
+                    NavigationLink(destination: MyStatsView()) {
+                        Label("My Stats", systemImage: "chart.bar.xaxis")
+                    }
+                }
+
                 Section(
                     header: Text("Help others"),
                     footer: Text("Spotted a place that's not in the app yet? Submit it and an admin will review.")
