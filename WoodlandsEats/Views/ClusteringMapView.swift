@@ -17,12 +17,27 @@ struct ClusteringMapView: UIViewRepresentable {
     /// Resolves a restaurant's UIColor based on the user's current tier.
     /// Caller passes a closure so this view stays free of TierListStore.
     let tierColor: (UUID) -> UIColor
+    /// Standard / Satellite / Hybrid. Persisted by the parent via
+    /// @AppStorage so the user's choice survives launches.
+    let mapType: MKMapType
     @Binding var selected: Restaurant?
+    /// Called when the user taps a cluster that's already so zoomed-in
+    /// that more zooming won't separate it (multiple restaurants at the
+    /// same address, e.g. food halls or strip malls). The parent shows a
+    /// ClusterListSheet so the user can still pick an individual entry.
+    let onClusterAtMaxZoom: ([Restaurant]) -> Void
+
+    /// Threshold below which "tap a cluster" stops zooming and falls back
+    /// to the list sheet. 0.003 latitude span ~ 330 meters visible, which
+    /// is roughly Apple's max-zoom on iPhone. Below this, two pins at the
+    /// same address still collide and zoom-in does nothing.
+    private static let maxZoomLatitudeDelta = 0.003
 
     func makeUIView(context: Context) -> MKMapView {
         let map = MKMapView()
         map.delegate = context.coordinator
         map.showsUserLocation = true
+        map.mapType = mapType
         map.pointOfInterestFilter = .excludingAll   // hide Apple POIs so our pins read clean
         map.register(RestaurantAnnotationView.self,
                      forAnnotationViewWithReuseIdentifier: RestaurantAnnotationView.reuseID)
@@ -56,10 +71,24 @@ struct ClusteringMapView: UIViewRepresentable {
     func updateUIView(_ map: MKMapView, context: Context) {
         let coordinator = context.coordinator
 
+        // Apply the current map style if it's changed.
+        if map.mapType != mapType {
+            map.mapType = mapType
+        }
+
         // Diff annotations: remove ones no longer in the filtered set, add new ones.
+        // NOTE: `uniquingKeysWith` rather than `uniqueKeysWithValues` is critical —
+        // build 33 crashed at first map mount because the re-seeded Restaurants.json
+        // contained 3 duplicate UUIDs (similar-name variants the seed dedup missed,
+        // e.g. "BLEND - Bourbons & Cocktails" vs "BLEND - Bourbons and Cocktails").
+        // `uniqueKeysWithValues` traps on duplicate keys with EXC_BREAKPOINT;
+        // `uniquingKeysWith` keeps the last value silently. Last-wins is fine here
+        // — duplicate restaurants render as a single pin either way.
         let current = map.annotations.compactMap { $0 as? RestaurantAnnotation }
-        let desiredByID = Dictionary(uniqueKeysWithValues: restaurants.map { ($0.id, $0) })
-        let currentByID = Dictionary(uniqueKeysWithValues: current.map { ($0.restaurant.id, $0) })
+        let desiredByID = Dictionary(restaurants.map { ($0.id, $0) },
+                                     uniquingKeysWith: { _, latest in latest })
+        let currentByID = Dictionary(current.map { ($0.restaurant.id, $0) },
+                                     uniquingKeysWith: { _, latest in latest })
 
         let toRemove = current.filter { desiredByID[$0.restaurant.id] == nil }
         if !toRemove.isEmpty { map.removeAnnotations(toRemove) }
@@ -125,15 +154,29 @@ struct ClusteringMapView: UIViewRepresentable {
                 parent.selected = ann.restaurant
                 mapView.deselectAnnotation(ann, animated: false)
             } else if let cluster = view.annotation as? MKClusterAnnotation {
-                // Cluster tap: zoom in so the cluster expands. Use 0.4x of
-                // the current span so we descend gradually rather than
-                // snapping to the cluster's tight bounding box.
-                let region = MKCoordinateRegion(
-                    center: cluster.coordinate,
-                    span: MKCoordinateSpan(
-                        latitudeDelta: mapView.region.span.latitudeDelta * 0.4,
-                        longitudeDelta: mapView.region.span.longitudeDelta * 0.4))
-                mapView.setRegion(region, animated: true)
+                let currentSpan = mapView.region.span.latitudeDelta
+                if currentSpan > ClusteringMapView.maxZoomLatitudeDelta {
+                    // Still room to zoom — descend toward the cluster.
+                    // 0.4x per tap so we don't snap to a too-tight bounding
+                    // box.
+                    let region = MKCoordinateRegion(
+                        center: cluster.coordinate,
+                        span: MKCoordinateSpan(
+                            latitudeDelta: currentSpan * 0.4,
+                            longitudeDelta: mapView.region.span.longitudeDelta * 0.4))
+                    mapView.setRegion(region, animated: true)
+                } else {
+                    // Already as zoomed-in as MKMapView gets. More zooming
+                    // won't separate the pins (same address / strip mall).
+                    // Hand the cluster's members back to the parent so it
+                    // can show a list picker — Apple Maps does the same.
+                    let restaurants = cluster.memberAnnotations.compactMap {
+                        ($0 as? RestaurantAnnotation)?.restaurant
+                    }
+                    if !restaurants.isEmpty {
+                        parent.onClusterAtMaxZoom(restaurants)
+                    }
+                }
                 mapView.deselectAnnotation(cluster, animated: false)
             }
         }

@@ -17,6 +17,33 @@ final class TierListStore {
         load()
     }
 
+    /// Hydrate the local cache from CloudKit. Fired once at app launch from
+    /// ContentView.task, AFTER the local `load()` runs in init.
+    ///
+    /// The bug this prevents: deleting and reinstalling the app (or
+    /// restoring to a new device, or just upgrading via TestFlight after
+    /// the local file got wiped) leaves the user with an empty "My Tiers"
+    /// view even though their placements are still in CloudKit feeding
+    /// the community board. Pre-build-36 behavior was local-cache-only,
+    /// so any reinstall looked like total data loss to the user.
+    ///
+    /// Guard: only restores when local is empty. If the user has been
+    /// ranking on this device already, we don't overwrite their in-progress
+    /// work with stale CloudKit data. (Cross-device live sync is a v1.2+
+    /// feature — would need CloudKit subscriptions for that.)
+    @MainActor
+    func restoreFromCloud(via cloudKit: CloudKitService) async {
+        guard placements.isEmpty else { return }
+        let remote = await cloudKit.fetchMyPlacements()
+        guard !remote.isEmpty else { return }
+        var restored: [UUID: Tier] = [:]
+        for (rid, tier) in remote {
+            restored[rid] = tier
+        }
+        placements = restored
+        save()
+    }
+
     func tier(for id: UUID) -> Tier? { placements[id] }
 
     func isRanked(_ id: UUID) -> Bool { placements[id] != nil }

@@ -87,7 +87,11 @@ struct CommunityTiersView: View {
 
     /// Restaurants whose consensus tier matches `tier`, most-ranked first.
     private func entries(for tier: Tier) -> [CommunityEntry] {
-        let byID = Dictionary(uniqueKeysWithValues: store.restaurants.map { ($0.id, $0) })
+        // `uniquingKeysWith` defensive form (see ClusteringMapView for why):
+        // the seed can contain duplicate UUIDs from imperfect dedup, and
+        // `uniqueKeysWithValues` traps on those.
+        let byID = Dictionary(store.restaurants.map { ($0.id, $0) },
+                              uniquingKeysWith: { _, latest in latest })
         return tiers.compactMap { rid, info -> CommunityEntry? in
             guard info.tier == tier, let restaurant = byID[rid] else { return nil }
             return CommunityEntry(restaurant: restaurant, info: info)

@@ -212,6 +212,103 @@ DENY_PATTERNS = [
     (r"\bveterinar", "veterinary"),
     (r"\banimal hospital\b", "veterinary"),
     (r"\bpet hospital\b", "veterinary"),
+    # ─── Medical / health (rigorous pass — added after user spotted
+    #     "Woodlands Functional Family Medicine" and "Alternative Health
+    #     Center of the Woodlands" slipping through the original patterns)
+    (r"\bfamily (medicine|practice)\b", "medical"),
+    (r"\binternal medicine\b", "medical"),
+    (r"\bfunctional (medicine|health)\b", "medical"),
+    (r"\bintegrative (medicine|health)\b", "medical"),
+    (r"\balternative (health|medicine|wellness)\b", "medical"),
+    (r"\bholistic\b", "medical"),
+    (r"\bnaturopath", "medical"),
+    (r"\bhomeopath", "medical"),
+    (r"\bacupuncture\b", "medical"),
+    (r"\bayurved", "medical"),
+    (r"\bprimary care\b", "medical"),
+    (r"\bimmediate care\b", "medical"),
+    (r"\bhealth center\b", "medical"),
+    (r"\bhealthcare\b", "medical"),
+    (r"\bhealth services?\b", "medical"),
+    (r"\bhealth (institute|group|partners?|associates?)\b", "medical"),
+    (r"\bphysicians?\b", "medical"),
+    (r"\bpediatric", "medical"),
+    (r"\bcardiology\b", "medical"),
+    (r"\boncology\b", "medical"),
+    (r"\bsurgery\b", "medical"),
+    (r"\bsurgical\b", "medical"),
+    (r"\bplastic surgery\b", "medical"),
+    (r"\bcosmetic surgery\b", "medical"),
+    (r"\bpsychiatr", "medical"),
+    (r"\bpsycholog", "medical"),
+    (r"\bbehavioral health\b", "medical"),
+    (r"\bobgyn\b", "medical"),
+    (r"\bgynecolog", "medical"),
+    (r"\bnephrolog", "medical"),
+    (r"\bneurolog", "medical"),
+    (r"\bradiolog", "medical"),
+    (r"\bpathology\b", "medical"),
+    (r"\boptical\b", "medical"),
+    (r"\bvision (center|clinic|care)\b", "medical"),
+    (r"\bskin (care|center|clinic|institute)\b", "medical"),
+    (r"\bbotox\b", "medical"),
+    (r"\binjectables?\b", "medical"),
+    (r"\biv (drip|therapy|infusion|lounge|bar)\b", "medical"),
+    (r"\binfusion (center|clinic|lounge|bar|services?)\b", "medical"),
+    (r"\brecovery (center|clinic)\b", "medical"),
+    (r"\brehabilitation\b", "medical"),
+    (r"\binstitute (of|for) (health|medicine|wellness)\b", "medical"),
+    (r"\bweight loss\b", "medical"),
+    (r"\bweight management\b", "medical"),
+    (r"\bvein (clinic|center|institute)\b", "medical"),
+    (r"\bdialysis\b", "medical"),
+    (r"\bpain (clinic|center|management|institute)\b", "medical"),
+    (r"\bbariatric\b", "medical"),
+    (r"\bgastroenterolog", "medical"),
+    (r"\borthopedic\b", "medical"),
+    (r"\bhospice\b", "medical"),
+    (r"\bfertility\b", "medical"),
+    (r"\bnutrition (center|clinic|services?|counseling)\b", "medical"),
+    (r"\bIVF\b", "medical"),
+    (r"\bMRI\b", "medical"),
+    (r"\bdiagnostic imaging\b", "medical"),
+    (r"\bimaging center\b", "medical"),
+    (r"\bblood (donation|center|drive|donor)\b", "medical"),
+    (r"\bplasma\b", "medical"),
+    (r"\b(dermatology|aesthetics?) (center|clinic|institute|group)\b", "medical"),
+    (r"\borthodontist\b", "medical"),
+    (r"\bdentistry\b", "medical"),
+    (r"\bmedical group\b", "medical"),
+    (r"\bmedical associates\b", "medical"),
+    (r"\bmedical partners\b", "medical"),
+    (r"\bmedical plaza\b", "medical"),
+    (r"\bcounseling (center|services?)\b", "medical"),
+    (r"\bmental health\b", "medical"),
+    (r"\baddiction (treatment|recovery|center)\b", "medical"),
+    (r"\baudiolog", "medical"),
+    (r"\bhearing (aid|center|clinic)\b", "medical"),
+    # Wellness/well-being centers and women's care (caught after Anthony
+    # spotted "The Women's Centre for Well Being"). The earlier pattern
+    # required `health` after "women's"; this catches the broader naming.
+    (r"\bwell[\s-]?being\b", "medical"),               # well being, well-being, wellbeing
+    (r"\bwomen'?s? (centre|center)\b", "medical"),     # women's/womens center/centre
+    # ─── Second cleanup pass — Anthony spotted more health entries
+    #     that the first pattern set didn't catch (Axiom Medical,
+    #     Kindful Health, Woodlands Nutrition, etc.)
+    (r"\bfamily care\b", "medical"),               # "Family Care" (no medicine/practice)
+    (r"\bwomen'?s health\b", "medical"),
+    (r"\bsports medicine\b", "medical"),
+    (r"\bnatural health\b", "medical"),
+    (r"\bnutrition\b", "medical"),                  # supplement stores + nutrition counseling
+    (r"\bsupplements?\b", "medical"),
+    (r"\bhealth (market|store|food store)\b", "medical"),
+    # Broad — RESTAURANT_WORDS exception (kitchen / cafe / grill / etc) saves
+    # legit food spots that happen to contain these words. Without the broad
+    # form, names with trailing city suffixes like "Kindful Health, Spring,
+    # TX" or "Navita Health | The Woodlands" slip past anchored patterns.
+    (r"\bhealth\b", "medical"),
+    (r"\bmedical\b", "medical"),
+    (r"\bmedicine\b", "medical"),
     # ─── Shopping centers and venues (not the restaurants within) ────
     (r"\bvillage center\b", "venue"),
     (r"\bshopping center\b", "venue"),
@@ -232,7 +329,12 @@ RESTAURANT_WORDS = re.compile(
     r"creamery|ice cream|frozen yogurt|donut|donuts|kolache|"
     r"pho|banh mi|sandwich|burger|burgers|wings|tacos|tortas|"
     r"crawfish|seafood|oyster|sushi|dim sum|chicken|hibachi|tap house|"
-    r"food (trucks?|halls?|parks?))",
+    r"food (trucks?|halls?|parks?)|"
+    # Healthy / modern food terms — added so the broad medical denylist
+    # (health/medical/medicine/nutrition) doesn't accidentally drop poke
+    # bowls, juice bars, vegan eateries, etc.
+    r"bowls?|eatery|eats|juice|smoothie|salads?|wraps?|poke|acai|"
+    r"vegan|vegetarian|shakes?|kombucha|crepe|gelato|froyo)",
     re.IGNORECASE,
 )
 

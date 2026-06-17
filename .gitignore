@@ -1,5 +1,13 @@
-# XcodeGen output — regenerated from project.yml, never committed
-*.xcodeproj/
+# XcodeGen output — regenerated from project.yml, never committed.
+# EXCEPTION: shared scheme files must be committed so Xcode Cloud can
+# discover them at workflow-validation time (the UI checks the repo for
+# the scheme BEFORE ci_post_clone.sh runs xcodegen on the worker).
+# The scheme is deterministic from project.yml so future xcodegen
+# regenerations produce identical bytes — no merge churn.
+*.xcodeproj/*
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/xcshareddata/xcschemes/
+!*.xcodeproj/xcshareddata/xcschemes/*.xcscheme
 WoodlandsEats/Info.plist
 WoodlandsEats/WoodlandsEats.entitlements
 
