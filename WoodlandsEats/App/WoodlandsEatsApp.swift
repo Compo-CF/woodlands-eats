@@ -22,6 +22,18 @@ struct WoodlandsEatsApp: App {
     private var hasCompletedOnboarding = false
 
     init() {
+        // v1.3 migration: existing pre-v1.3 users who already saw the
+        // old tier-guide first-launch sheet shouldn't get the new
+        // OnboardingView on upgrade. Do this in init via direct
+        // UserDefaults access (NOT @AppStorage in ContentView.onAppear)
+        // so the migration completes BEFORE the .fullScreenCover binding
+        // reads hasCompletedOnboarding — otherwise upgraders see a
+        // brief flash of OnboardingView that then auto-dismisses.
+        let defaults = UserDefaults.standard
+        if defaults.bool(forKey: "WoodlandsEats.hasSeenTierGuide")
+            && !defaults.bool(forKey: "WoodlandsEats.hasCompletedOnboarding") {
+            defaults.set(true, forKey: "WoodlandsEats.hasCompletedOnboarding")
+        }
         // v1.1: boot AdMob early so the first banner load on the Browse
         // tab is warm. Safe to call repeatedly; the SDK no-ops if already
         // initialized.
