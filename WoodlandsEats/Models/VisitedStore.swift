@@ -1,18 +1,17 @@
 import Foundation
 import Observation
 
-/// v1.2: per-restaurant "I've been here" tracking. Local-only — stored
-/// as a Set<UUID> in UserDefaults under `WoodlandsEats.visitedRestaurantIDs`.
+/// v1.2: per-restaurant "I've been here" tracking. Local cache in
+/// UserDefaults under `WoodlandsEats.visitedRestaurantIDs`, synced to
+/// CloudKit (single VisitedList record per user) for cross-device and
+/// reinstall recovery.
 ///
-/// Why local-only and not CloudKit: "visited" is a personal record, not a
-/// community signal. There's no aggregation across users (unlike Tier
-/// placements which feed the consensus board), so it doesn't need to live
-/// in the public DB. If cross-device sync becomes important later, the
-/// upgrade path is similar to TierListStore.restoreFromCloud — add a
-/// CloudKit record type and a hydrate-on-launch call. Defer until needed.
-///
-/// Resets on uninstall (UserDefaults is wiped). That's acceptable: visited
-/// status is a personal convenience, not data the user would tier-rank.
+/// Sync model (v1.3): the store stays unaware of CloudKit — view-layer
+/// callers fire `cloudKit.saveVisitedList(visitedStore.visited)` in a
+/// Task after each local mutation, matching the TierListStore pattern.
+/// `restoreFromCloud(via:)` runs once at launch from ContentView.task
+/// to hydrate after reinstall. No subscriptions / push — cross-device
+/// updates land on next launch.
 @Observable
 final class VisitedStore {
     private let defaultsKey = "WoodlandsEats.visitedRestaurantIDs"
@@ -24,6 +23,21 @@ final class VisitedStore {
         } else {
             visited = []
         }
+    }
+
+    /// Hydrate the local visited set from CloudKit. Fired once at app
+    /// launch from ContentView.task. Mirrors TierListStore.restoreFromCloud.
+    ///
+    /// Guard: only restores when local is empty. If the user has been
+    /// marking visits on this device already (possibly offline), we don't
+    /// overwrite their in-progress work with stale CloudKit data.
+    @MainActor
+    func restoreFromCloud(via cloudKit: CloudKitService) async {
+        guard visited.isEmpty else { return }
+        let remote = await cloudKit.fetchVisitedList()
+        guard !remote.isEmpty else { return }
+        visited = remote
+        persist()
     }
 
     func isVisited(_ id: UUID) -> Bool {

@@ -4,6 +4,7 @@ struct ContentView: View {
     @Environment(CloudKitService.self) private var cloudKit
     @Environment(RestaurantStore.self) private var store
     @Environment(TierListStore.self) private var tierStore
+    @Environment(VisitedStore.self) private var visitedStore
     /// First-launch tier guide. Once the user dismisses it, this flag flips
     /// and the sheet never auto-shows again. Profile -> Tier guide still
     /// reaches it manually any time. Resets on uninstall along with EULA.
@@ -31,6 +32,10 @@ struct ContentView: View {
             // ranking data. Only fires when local cache is empty — see
             // TierListStore.restoreFromCloud for the guard rationale.
             await tierStore.restoreFromCloud(via: cloudKit)
+            // v1.3: same idea for the personal visited list. Recovers
+            // visited badges after reinstall and pulls in updates from
+            // other devices (toggled on iPhone, restored next iPad launch).
+            await visitedStore.restoreFromCloud(via: cloudKit)
         }
         .onAppear {
             // Defer one runloop tick so the tab bar finishes its initial

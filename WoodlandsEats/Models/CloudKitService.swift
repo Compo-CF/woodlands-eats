@@ -75,6 +75,12 @@ final class CloudKitService {
     private let dismissalType = "SuggestionDismissed"
     private let photoType = "DishPhoto"
     private let photoReportType = "PhotoReport"
+    /// v1.3: per-user "I've been here" list. Single record per user with
+    /// the whole restaurant-id set as an array — chosen over per-restaurant
+    /// records because the data is purely personal (no community
+    /// aggregation), small (a few hundred UUIDs max), and last-write-wins
+    /// is fine for the rare cross-device conflict.
+    private let visitedType = "VisitedList"
     /// Admin-owned per-photo decision marker. recordName: `photoMod_<photoID>`.
     /// Field `decision` is "hidden" or "approved" — hidden photos are filtered
     /// out of `fetchDishPhotos` for everyone; approved photos drop out of the
@@ -181,6 +187,46 @@ final class CloudKitService {
             // caller falls through to local cache.
         }
         return out
+    }
+
+    // MARK: - Visited list (v1.3 — personal "I've been here" sync)
+
+    private func visitedRecordID(user: String) -> CKRecord.ID {
+        CKRecord.ID(recordName: "visited_\(user)")
+    }
+
+    /// Save the user's entire visited-restaurant set to CloudKit.
+    /// Single record per user, overwritten on every change — small payload
+    /// (a few hundred UUIDs max) and last-write-wins is acceptable for
+    /// a personal flag with no community aggregation.
+    /// Fired from RestaurantDetailView after each local toggle.
+    func saveVisitedList(_ ids: Set<UUID>) async {
+        guard isAvailable, let user = await userRecordName() else { return }
+        let record = CKRecord(recordType: visitedType,
+                              recordID: visitedRecordID(user: user))
+        record["restaurantIDs"] = ids.map { $0.uuidString } as CKRecordValue
+        record["count"] = ids.count as CKRecordValue
+        _ = try? await publicDB.modifyRecords(
+            saving: [record], deleting: [], savePolicy: .allKeys)
+    }
+
+    /// Fetch the user's visited-restaurant set from CloudKit. Used by
+    /// VisitedStore.restoreFromCloud at launch to hydrate after a fresh
+    /// install / device restore — otherwise the user's visited badges
+    /// would silently disappear on reinstall even though the data is
+    /// still in CloudKit.
+    ///
+    /// Returns [] gracefully on any failure (no iCloud account, no
+    /// record yet, network error). Direct record(for:) — no index needed.
+    func fetchVisitedList() async -> Set<UUID> {
+        guard isAvailable, let user = await userRecordName() else { return [] }
+        do {
+            let rec = try await publicDB.record(for: visitedRecordID(user: user))
+            guard let ids = rec["restaurantIDs"] as? [String] else { return [] }
+            return Set(ids.compactMap { UUID(uuidString: $0) })
+        } catch {
+            return []
+        }
     }
 
     /// Average everyone's placements for a restaurant into a consensus tier.

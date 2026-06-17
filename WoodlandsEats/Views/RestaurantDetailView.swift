@@ -241,6 +241,10 @@ struct RestaurantDetailView: View {
             Divider()
             Button {
                 visitedStore.toggle(restaurant.id)
+                // v1.3: mirror to CloudKit so visits survive reinstall and
+                // sync across devices on next launch. Fire-and-forget; local
+                // state has already updated for instant UI feedback.
+                Task { await cloudKit.saveVisitedList(visitedStore.visited) }
             } label: {
                 HStack {
                     Image(systemName: visitedStore.isVisited(restaurant.id)
