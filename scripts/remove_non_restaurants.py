@@ -314,7 +314,44 @@ DENY_PATTERNS = [
     (r"\bshopping center\b", "venue"),
     (r"\btown center\b", "venue"),
     (r"\bplaza\b", "venue"),
+    # ─── Third cleanup pass — Anthony asked for a final non-restaurant
+    #     sweep after the polygon expansion re-seed. Caught vitamin
+    #     stores, cigar stores, temples, shopping plazas, wedding
+    #     halls, grocery / meat markets, farm stands, bowling alleys,
+    #     billiards halls (RESTAURANT_WORDS saves food-mart variants).
+    (r"\btemple\b(?!\s+(restaurant|kitchen|cafe|grill|bbq|food))", "religious"),
+    (r"\bcigars?\s+(international|superstore|emporium|store|shop|outlet)\b", "smoke"),
+    (r"\bvitamin\s+(shoppe?|world|cottage|store|outlet)\b", "retail"),
+    (r"\bnatural\s+living\b", "wellness"),
+    (r"\bmarket(\s+|-)?place\b", "venue"),
+    (r"\bsupermarket\b", "grocery"),
+    (r"\binternational\s+market\b", "grocery"),
+    (r"\basian\s+market\b", "grocery"),
+    (r"\blatin\s+market\b", "grocery"),
+    (r"\b(halal|kosher)\s+(meat|grocery|market)\b", "grocery"),
+    (r"\bcarniceria\b", "grocery"),
+    (r"\bfarms?\s+market\b", "grocery"),
+    (r"\bfarmers'?\s+market\b", "venue"),
+    (r"\bwedding\b", "event"),
+    (r"\bhochzeit\b", "event"),
+    (r"\bbowling\b", "entertainment"),
+    (r"\bbilliards\b", "entertainment"),
 ]
+
+# Exact-name denylist for one-off specific entries that don't match a
+# generalizable pattern (named shopping plazas, private country clubs
+# without "country club" in the name, named farms that are produce
+# stands, etc). Matched case-insensitively against the FULL name after
+# normalization.
+EXACT_NAME_DENY = {
+    "indian springs center",
+    "northland center",
+    "pinecroft center",
+    "the club at carlton woods",
+    "the club at carlton woods creekside",
+    "atkinson farms",
+    "theiss farms market",
+}
 
 # Exception: legitimate restaurants whose names happen to contain a denylist
 # brand. If an entry name matches RESTAURANT_WORDS in addition to a deny
@@ -353,6 +390,11 @@ def should_drop(name):
     """Return (drop, category) for an entry name."""
     normalized = normalize(name)
     name_lower = normalized.lower()
+    # Exact-name denylist runs first. These are unambiguous — no
+    # RESTAURANT_WORDS exception (the names already don't contain food
+    # words; that's why we have to list them out).
+    if name_lower.strip() in EXACT_NAME_DENY:
+        return (True, "exact-name")
     for pat, category in DENY_PATTERNS:
         if re.search(pat, name_lower):
             # Allow exception: legitimate restaurant inside a hotel/etc keeps
