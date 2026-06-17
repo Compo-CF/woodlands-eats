@@ -426,36 +426,54 @@ confirm VisitedList in the diff → Deploy.
 
 ## "What's New in This Version" copy
 
+Live users are on v1.1 (build 36). v1.3 bundles everything since:
+catalog cleanups (builds 37/41), map style picker + cluster-list at
+max zoom (build 38), polygon expansion + tier sort + visited toggle
+(builds 39-41), CloudKit visited sync + My Stats + onboarding refresh
+(build 42). The release-notes copy is sectioned by user benefit, not
+by build number, so the user can scan it in one breath.
+
 ```
-v1.3 — bigger map, sharper personal tracking
+v1.3 — a big update with everything we've been working on.
 
-• Expanded coverage northwest: Montgomery TX, downtown Magnolia,
-  Pinehurst, and the Lake Conroe State Park area are now in.
-  2,300+ restaurants across 10 areas.
+BIGGER MAP
+• Coverage expanded northwest to include Montgomery TX, downtown
+  Magnolia, Pinehurst, and the Lake Conroe State Park area.
+  2,300+ restaurants now span ten areas.
+• Map style picker — switch between Standard, Hybrid, and Satellite
+  views from the toolbar.
+• Pin clusters at max zoom now expand into a tappable list — no
+  more clusters you can't drill into.
 
-• Tier sort on the Browse tab — put your S-tier spots at the top
-  of the list, alongside Nearby and A-Z.
+SMARTER BROWSE
+• New Tier sort on the Browse tab — see your S-tier picks at the
+  top of the list, alongside the existing Nearby and A-Z sorts.
 
-• Mark restaurants as visited. A small green check appears next
-  to their name on the Browse list so you can see where you've
-  been at a glance.
-
-• Visited list now syncs via iCloud — survives reinstall and
+PERSONAL TRACKING
+• Mark restaurants you've visited. A small green check appears
+  next to their name on the Browse list so you can see where
+  you've been at a glance.
+• Your visited list syncs via iCloud — survives reinstall and
   carries across your iPhone and iPad.
-
-• New My Stats screen in Profile. See your visited count, tier
+• New My Stats screen in Profile: visited count, S/A/B/C/F tier
   distribution, top cuisines, and areas explored.
 
-• Refreshed three-screen onboarding for new users with a clear
-  explanation before the location prompt. Existing users can
-  replay the tour from Profile → Show app tour.
+BETTER FIRST LAUNCH
+• Refreshed three-screen onboarding for new users — the location
+  prompt now has an in-app explanation first instead of a cold
+  iOS dialog.
+• Replay the app tour any time from Profile → Show app tour.
 
-• Catalog cleanup — removed non-restaurants that Google's data
-  had lumped in (vape shops, supplement stores, shopping plazas,
-  private clubs).
+CATALOG QUALITY
+• Multiple cleanup passes removed non-restaurants that Google's
+  data had been lumping in: vape shops, supplement stores,
+  shopping plazas, wedding venues, private golf clubs, and more.
+
+Thanks to everyone who's been ranking. Bug reports and restaurant
+suggestions always welcome.
 ```
 
-(992 chars ✓)
+(1,620 chars ✓ — well under the 4,000 cap)
 
 ## App Review notes (append to existing v1.0 notes)
 
