@@ -5,11 +5,11 @@ struct ContentView: View {
     @Environment(RestaurantStore.self) private var store
     @Environment(TierListStore.self) private var tierStore
     @Environment(VisitedStore.self) private var visitedStore
-    /// First-launch tier guide. Once the user dismisses it, this flag flips
-    /// and the sheet never auto-shows again. Profile -> Tier guide still
-    /// reaches it manually any time. Resets on uninstall along with EULA.
+    /// Pre-v1.3 flag — kept for migration so users who already saw the
+    /// old tier-guide sheet don't get the new onboarding flow either.
+    /// New users go through OnboardingView in WoodlandsEatsApp instead.
     @AppStorage("WoodlandsEats.hasSeenTierGuide") private var hasSeenTierGuide = false
-    @State private var showTierGuide = false
+    @AppStorage("WoodlandsEats.hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
     var body: some View {
         TabView {
@@ -38,17 +38,13 @@ struct ContentView: View {
             await visitedStore.restoreFromCloud(via: cloudKit)
         }
         .onAppear {
-            // Defer one runloop tick so the tab bar finishes its initial
-            // layout before the sheet animation kicks in — otherwise the
-            // sheet's first frame can clip the tab bar transition.
-            if !hasSeenTierGuide {
-                DispatchQueue.main.async { showTierGuide = true }
+            // v1.3 migration: users who already completed the old tier-guide
+            // first-launch flow (pre-v1.3) shouldn't be re-onboarded. Mark
+            // them as completed so the new OnboardingView fullScreenCover
+            // never fires for upgraders.
+            if hasSeenTierGuide && !hasCompletedOnboarding {
+                hasCompletedOnboarding = true
             }
-        }
-        .sheet(isPresented: $showTierGuide, onDismiss: {
-            hasSeenTierGuide = true
-        }) {
-            TierGuideView()
         }
     }
 }

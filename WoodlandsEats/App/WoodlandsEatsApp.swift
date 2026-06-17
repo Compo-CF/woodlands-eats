@@ -14,6 +14,12 @@ struct WoodlandsEatsApp: App {
     /// install presents the EULA again. Until the flag flips, the EULAView
     /// fully replaces ContentView.
     @AppStorage("WoodlandsEats.hasAcceptedEULA") private var hasAcceptedEULA = false
+    /// v1.3: three-screen onboarding flow gate. False on fresh install →
+    /// OnboardingView covers ContentView until completed. Migration logic
+    /// for users coming from v1.2 (who saw the old tier-guide sheet) lives
+    /// in ContentView's onAppear — they get auto-marked as onboarded.
+    @AppStorage("WoodlandsEats.hasCompletedOnboarding")
+    private var hasCompletedOnboarding = false
 
     init() {
         // v1.1: boot AdMob early so the first banner load on the Browse
@@ -34,6 +40,13 @@ struct WoodlandsEatsApp: App {
                     .environment(visitedStore)
                     .onChange(of: locationManager.location) { _, newValue in
                         store.userLocation = newValue
+                    }
+                    .fullScreenCover(isPresented: Binding(
+                        get: { !hasCompletedOnboarding },
+                        set: { if !$0 { hasCompletedOnboarding = true } }
+                    )) {
+                        OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
+                            .environment(locationManager)
                     }
             } else {
                 EULAView(hasAccepted: $hasAcceptedEULA)
