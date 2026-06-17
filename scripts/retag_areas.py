@@ -41,6 +41,8 @@ CENTROIDS = [
     ("conroe",         30.310, -95.460),
     ("magnolia",       30.160, -95.660),
     ("atascocita",     30.115, -95.370),
+    # v1.2 (build 39+) addition for the expanded NW polygon:
+    ("montgomery",     30.390, -95.690),   # downtown Montgomery TX
 ]
 
 
@@ -53,8 +55,11 @@ def haversine_mi(lat1, lon1, lat2, lon2):
 
 
 # Only retag restaurants whose nearest centroid is one of these new areas.
-# Existing assignments to the original six are preserved.
-NEW_AREAS = {"conroe", "magnolia", "atascocita"}
+# Existing assignments to the original six are preserved. (Conroe / Magnolia /
+# Atascocita already had a retag pass in build 33; rerunning is idempotent.
+# Montgomery is the v1.2 new area — its centroid is far enough from the
+# others that adding it here won't re-disturb the previous re-tag pass.)
+NEW_AREAS = {"conroe", "magnolia", "atascocita", "montgomery"}
 
 
 def nearest_area(lat, lon):

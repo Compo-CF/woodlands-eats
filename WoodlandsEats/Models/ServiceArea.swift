@@ -23,16 +23,22 @@ import CoreLocation
 enum ServiceArea {
     /// (latitude, longitude) pairs in draw order. The polygon implicitly
     /// closes from the last point back to the first.
+    ///
+    /// v1.2 expansion: pushed the western and northern edges out to cover
+    /// Montgomery TX, full Magnolia (downtown + west), Pinehurst, and
+    /// Lake Conroe State Park area. Roughly 2x the v1.1 polygon area.
     static let polygon: [(lat: Double, lon: Double)] = [
-        (30.3980518, -95.685776),     // NW — west of Magnolia toward Lake Conroe
-        (30.1454267, -95.6596835),    // W mid
-        (30.0842485, -95.6356509),    // W south, Tomball/Klein border
-        (30.0230324, -95.55806),      // S middle-west
-        (30.0069793, -95.385712),     // SE corner, FM 1960 / Champions
-        (30.0949426, -95.4083713),    // east notch — concavity excludes a slice
-        (30.1240483, -95.3678592),    // E — Atascocita / Kingwood edge
-        (30.3198431, -95.3932651),    // NE
-        (30.3056167, -95.4584964),    // N mid-east
+        (30.4181863, -95.8203585),   // NW — far west of Magnolia, NW of Montgomery
+        (30.1892862, -95.7824814),   // W — covers Magnolia downtown
+        (30.1252361, -95.6967624),   // W south — Pinehurst area
+        (30.0783069, -95.6507571),   // W mid-south — Tomball edge
+        (30.0230324, -95.55806),     // S middle-west (unchanged)
+        (30.026005, -95.3596195),    // SE — slight smoothing vs v1.1
+        (30.0806836, -95.3712924),   // E south
+        (30.1240483, -95.3678592),   // E — Atascocita / Kingwood edge
+        (30.3198431, -95.3932651),   // NE
+        (30.4418687, -95.4420169),   // N mid — over Lake Conroe / NW Conroe
+        (30.443753, -95.5940047),    // N — top of Montgomery county reach
     ]
 
     /// True if (lat, lon) is inside the service-area polygon.

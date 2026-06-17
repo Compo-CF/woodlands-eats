@@ -48,6 +48,9 @@ CENTROIDS = {
     "woodlands": (30.170, -95.490), "shenandoah": (30.178, -95.453),
     "oakRidgeNorth": (30.150, -95.447), "oldTownSpring": (30.061, -95.416),
     "klein": (30.020, -95.520), "spring": (30.085, -95.400),
+    # v1.1 / v1.2 expansion areas:
+    "conroe": (30.310, -95.460), "magnolia": (30.160, -95.660),
+    "atascocita": (30.115, -95.370), "montgomery": (30.390, -95.690),
 }
 
 TEXT_QUERIES = [
@@ -55,8 +58,14 @@ TEXT_QUERIES = [
     "restaurants in The Woodlands TX", "restaurants in Spring TX",
     "restaurants in Old Town Spring TX", "restaurants in Shenandoah TX",
     "restaurants in Oak Ridge North TX", "restaurants in Klein TX",
+    "restaurants in Conroe TX", "restaurants in Magnolia TX",
+    "restaurants in Atascocita TX", "restaurants in Montgomery TX",
+    "restaurants in Pinehurst TX",
     "places to eat The Woodlands TX", "places to eat Spring TX",
+    "places to eat Conroe TX", "places to eat Magnolia TX",
+    "places to eat Montgomery TX",
     "dining The Woodlands TX", "dining Spring TX",
+    "dining Conroe TX", "dining Magnolia TX", "dining Montgomery TX",
 
     # ─── shopping centers / districts / villages ───────────────────────
     "restaurants Market Street The Woodlands", "restaurants Hughes Landing The Woodlands",
