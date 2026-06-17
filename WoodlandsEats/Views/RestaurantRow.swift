@@ -5,14 +5,26 @@ struct RestaurantRow: View {
     @Environment(RestaurantStore.self) private var store
     @Environment(TierListStore.self) private var tierStore
     @Environment(CloudKitService.self) private var cloudKit
+    @Environment(VisitedStore.self) private var visitedStore
     let restaurant: Restaurant
 
     var body: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 3) {
-                Text(restaurant.name)
-                    .font(.headline)
-                    .strikethrough(isClosed, color: .red)
+                HStack(spacing: 6) {
+                    Text(restaurant.name)
+                        .font(.headline)
+                        .strikethrough(isClosed, color: .red)
+                    if visitedStore.isVisited(restaurant.id) {
+                        // v1.2: subtle "you've been here" marker. Small,
+                        // muted green check so it doesn't compete with
+                        // the tier badge for attention.
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
+                            .font(.caption)
+                            .accessibilityLabel("Visited")
+                    }
+                }
                 if isClosed {
                     Text("Reported closed")
                         .font(.caption2.weight(.semibold))

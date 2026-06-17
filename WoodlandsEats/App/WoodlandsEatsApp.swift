@@ -7,6 +7,7 @@ struct WoodlandsEatsApp: App {
     @State private var locationManager = LocationManager()
     @State private var cloudKit = CloudKitService()
     @State private var blockList = BlockListStore()
+    @State private var visitedStore = VisitedStore()
     /// App Review Guideline 1.2 (UGC) requires an EULA gate that the user must
     /// accept before using the app. Persisted in @AppStorage so it survives
     /// launches but resets on uninstall — the latter is intentional so a fresh
@@ -30,6 +31,7 @@ struct WoodlandsEatsApp: App {
                     .environment(locationManager)
                     .environment(cloudKit)
                     .environment(blockList)
+                    .environment(visitedStore)
                     .onChange(of: locationManager.location) { _, newValue in
                         store.userLocation = newValue
                     }

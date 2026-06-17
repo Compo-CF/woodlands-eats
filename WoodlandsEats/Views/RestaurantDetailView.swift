@@ -7,6 +7,7 @@ struct RestaurantDetailView: View {
     @Environment(TierListStore.self) private var tierStore
     @Environment(CloudKitService.self) private var cloudKit
     @Environment(BlockListStore.self) private var blockList
+    @Environment(VisitedStore.self) private var visitedStore
     let restaurant: Restaurant
     @State private var community: CommunityTier?
     @State private var dishPhotos: [DishPhoto] = []
@@ -231,6 +232,34 @@ struct RestaurantDetailView: View {
                 onSelect: { place($0) },
                 onClear: { clearPlacement() }
             )
+
+            // v1.2: Visited toggle. Personal "I've been here" flag, local
+            // only. Sits inside the tier card because it's the same
+            // category of input (your personal take on this restaurant)
+            // even though it's independent of the tier choice — you can
+            // have visited but not ranked, or ranked but not visited.
+            Divider()
+            Button {
+                visitedStore.toggle(restaurant.id)
+            } label: {
+                HStack {
+                    Image(systemName: visitedStore.isVisited(restaurant.id)
+                          ? "checkmark.circle.fill"
+                          : "circle")
+                        .foregroundStyle(visitedStore.isVisited(restaurant.id)
+                                         ? .green
+                                         : .secondary)
+                        .imageScale(.large)
+                    Text(visitedStore.isVisited(restaurant.id)
+                         ? "You've been here"
+                         : "Mark as visited")
+                        .foregroundStyle(.primary)
+                        .fontWeight(.medium)
+                    Spacer()
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
         }
         .padding()
         .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16))

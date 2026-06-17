@@ -1,9 +1,26 @@
 import SwiftUI
 
+/// v1.2: Browse list sort modes. Persisted via @AppStorage so the user's
+/// pick survives launches. Tier sort orders restaurants by the user's
+/// personal tier (S/A/B/C/F, then unranked at the bottom), tie-broken by
+/// name within each tier.
+enum BrowseSortMode: String, CaseIterable, Identifiable {
+    case nearby = "Nearby"
+    case alphabetical = "A–Z"
+    case tier = "Tier"
+
+    var id: String { rawValue }
+}
+
 struct ListTabView: View {
     @Environment(RestaurantStore.self) private var store
     @Environment(TierListStore.self) private var tierStore
-    @State private var sortByDistance = true
+
+    /// v1.2: persisted three-way sort. Default Nearby for first launch.
+    @AppStorage("WoodlandsEats.browseSortMode") private var rawSortMode: String = BrowseSortMode.nearby.rawValue
+    private var sortMode: BrowseSortMode {
+        BrowseSortMode(rawValue: rawSortMode) ?? .nearby
+    }
 
     var body: some View {
         @Bindable var store = store
@@ -27,9 +44,13 @@ struct ListTabView: View {
             .safeAreaInset(edge: .top) {
                 VStack(spacing: 0) {
                     FilterBar(filter: $store.filter)
-                    Picker("Sort", selection: $sortByDistance) {
-                        Text("Nearby").tag(true)
-                        Text("A–Z").tag(false)
+                    Picker("Sort", selection: Binding(
+                        get: { sortMode },
+                        set: { rawSortMode = $0.rawValue }
+                    )) {
+                        ForEach(BrowseSortMode.allCases) { mode in
+                            Text(mode.rawValue).tag(mode)
+                        }
                     }
                     .pickerStyle(.segmented)
                     .padding(.horizontal, 12)
@@ -60,7 +81,24 @@ struct ListTabView: View {
     }
 
     private var sorted: [Restaurant] {
-        let base = sortByDistance ? store.restaurantsSortedByDistance : store.restaurantsSortedByName
+        let base: [Restaurant]
+        switch sortMode {
+        case .nearby:
+            base = store.restaurantsSortedByDistance
+        case .alphabetical:
+            base = store.restaurantsSortedByName
+        case .tier:
+            // S=5, A=4, B=3, C=2, F=1, unranked=0. Higher tier first,
+            // then alphabetical within each tier. Unranked restaurants
+            // settle at the bottom in name order — useful so you can
+            // still scroll to find spots you haven't placed yet.
+            base = store.filteredRestaurants.sorted { a, b in
+                let aScore = tierStore.tier(for: a.id)?.score ?? 0
+                let bScore = tierStore.tier(for: b.id)?.score ?? 0
+                if aScore != bScore { return aScore > bScore }
+                return a.name.localizedCompare(b.name) == .orderedAscending
+            }
+        }
         guard store.filter.rankedOnly else { return base }
         return base.filter { tierStore.tier(for: $0.id) != nil }
     }
