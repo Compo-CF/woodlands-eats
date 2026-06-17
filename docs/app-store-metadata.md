@@ -37,7 +37,7 @@ WHY A TIER LIST
 Five-star ratings smear everything into a featureless 3.9-to-4.4 blob. A tier list forces you to pick: is this place ELITE, or just GREAT, or just FINE? Your tier list becomes a memory of your favorites — and the community average becomes a genuinely useful "is this worth going to" answer.
 
 WHAT'S INSIDE
-• 2,300+ restaurants curated across nine areas: The Woodlands, Spring, Shenandoah, Oak Ridge North, Old Town Spring, Klein, Conroe, Magnolia, and Atascocita
+• 2,300+ restaurants curated across ten areas: The Woodlands, Spring, Shenandoah, Oak Ridge North, Old Town Spring, Klein, Conroe, Magnolia, Atascocita, and Montgomery
 • Live map with every spot color-coded by your tier (and the unranked ones a neutral gray, so the map becomes a snapshot of your taste over time)
 • Distance-sorted list with one-tap Apple Maps directions
 • Filters for area, cuisine, price tier, and a fast-food toggle (off by default)
@@ -348,3 +348,179 @@ What's new in 1.1:
 - **Reviewers occasionally bounce builds that add ad SDKs without an App Privacy update.** This checklist prevents that. Double-check the four new categories are present before submitting.
 - **The privacy policy's effective date is now June 4, 2026.** Make sure GitHub Pages has redeployed before submission — visit the URL in a private browser tab and confirm you see "Effective date: June 4, 2026" at the top.
 - **If the reviewer asks where the ATT prompt is**, the answer is: there isn't one. AdMob runs in NPA (non-personalized) mode, which by definition doesn't use the IDFA, so no ATT prompt is required. You can preempt this in the reviewer notes (§7 above).
+
+---
+
+# v1.3 Submission Supplement (build 42)
+
+Skips v1.2 from a public-release standpoint — v1.2 (builds 40/41) was
+TestFlight-only and is rolled into the v1.3 submission. Existing live
+users move from v1.1 → v1.3 in one update.
+
+## What's new in v1.3 (vs v1.1 live)
+
+From the v1.2 work-train:
+- Polygon expansion northwest: Montgomery TX, downtown Magnolia,
+  Pinehurst, and the Lake Conroe State Park area
+- Catalog grew to 2,335 restaurants across ten areas
+- Tier-order sort on Browse list (alongside Nearby and A-Z)
+- "Mark as visited" toggle with green check on Browse rows
+- Catalog cleanup pass (vape, supplements, plazas, private clubs)
+- Map style picker (Standard / Hybrid / Satellite) + cluster-list
+  fallback at max zoom
+- Build 36 hot-fix: My Tiers now restores from CloudKit on launch
+
+From v1.3 proper:
+- CloudKit sync for the Visited list (survives reinstall + syncs
+  across the user's devices on next launch)
+- My Stats screen in Profile (visited count, S/A/B/C/F distribution,
+  top cuisines, areas explored)
+- 3-screen onboarding flow with in-app location explanation before
+  the iOS permission prompt
+- "Show app tour" replay in Profile → About
+
+## Required ASC changes BEFORE submitting build 42
+
+### 1. Description — already updated in this doc
+
+The "nine areas" line now reads "ten areas" with Montgomery added.
+Inline edit done (search the doc for `ten areas`).
+
+### 2. App Privacy declaration — NO change
+
+The new CloudKit `VisitedList` record type falls under the existing
+"Other User Content" declaration (§3 of the v1.0 declaration). No new
+data categories collected. No SDK changes since v1.1.
+
+### 3. Promotional text — optional refresh
+
+Current text still accurate. Optional v1.3 refresh:
+
+> 2,300+ restaurants across ten areas — now reaching Montgomery and
+> downtown Magnolia. Rank by tier, sync visits across your devices,
+> and see your Stats in Profile.
+
+(167 chars ✓)
+
+### 4. Keywords — no change
+
+Keep `restaurants,woodlands,spring,texas,tier,list,food,dining,bbq,tex-mex,sushi,map,local,eats`.
+
+### 5. Screenshots — no change for v1.3 ship
+
+Existing 5 screenshots cover the core surface. Tier sort + visited
+check + My Stats are visible additions but not material to the
+discovery story. Update opportunistically in a v1.3.1 patch.
+
+### 6. CloudKit production schema — must be deployed BEFORE App Store
+release
+
+`VisitedList` record type (fields: `restaurantIDs` LIST<STRING>,
+`count` INT<64>) must be deployed to the Production environment of
+the iCloud.com.compofelice.WoodlandsEats container BEFORE v1.3 hits
+public users. Otherwise visited toggles will silently fail to sync
+and badges won't survive reinstall.
+
+CloudKit Console → S-Tier Eats container → Deploy Schema Changes →
+confirm VisitedList in the diff → Deploy.
+
+## "What's New in This Version" copy
+
+Live users are on v1.1 (build 36). v1.3 bundles everything since:
+catalog cleanups (builds 37/41), map style picker + cluster-list at
+max zoom (build 38), polygon expansion + tier sort + visited toggle
+(builds 39-41), CloudKit visited sync + My Stats + onboarding refresh
+(build 42). The release-notes copy is sectioned by user benefit, not
+by build number, so the user can scan it in one breath.
+
+```
+v1.3 — a big update with everything we've been working on.
+
+BIGGER MAP
+• Coverage expanded northwest to include Montgomery TX, downtown
+  Magnolia, Pinehurst, and the Lake Conroe State Park area.
+  2,300+ restaurants now span ten areas.
+• Map style picker — switch between Standard, Hybrid, and Satellite
+  views from the toolbar.
+• Pin clusters at max zoom now expand into a tappable list — no
+  more clusters you can't drill into.
+
+SMARTER BROWSE
+• New Tier sort on the Browse tab — see your S-tier picks at the
+  top of the list, alongside the existing Nearby and A-Z sorts.
+
+PERSONAL TRACKING
+• Mark restaurants you've visited. A small green check appears
+  next to their name on the Browse list so you can see where
+  you've been at a glance.
+• Your visited list syncs via iCloud — survives reinstall and
+  carries across your iPhone and iPad.
+• New My Stats screen in Profile: visited count, S/A/B/C/F tier
+  distribution, top cuisines, and areas explored.
+
+BETTER FIRST LAUNCH
+• Refreshed three-screen onboarding for new users — the location
+  prompt now has an in-app explanation first instead of a cold
+  iOS dialog.
+• Replay the app tour any time from Profile → Show app tour.
+
+CATALOG QUALITY
+• Multiple cleanup passes removed non-restaurants that Google's
+  data had been lumping in: vape shops, supplement stores,
+  shopping plazas, wedding venues, private golf clubs, and more.
+
+Thanks to everyone who's been ranking. Bug reports and restaurant
+suggestions always welcome.
+```
+
+(1,620 chars ✓ — well under the 4,000 cap)
+
+## App Review notes (append to existing v1.0 notes)
+
+```
+v1.3 supplement:
+
+• Geographic expansion — service polygon now reaches Montgomery TX
+  and downtown Magnolia. ~2,335 restaurants total across 10 areas.
+• New "Visited" personal flag on restaurant detail pages. The flag
+  is local-first (UserDefaults) and mirrored to a private CloudKit
+  record type (`VisitedList`) so it survives reinstall and syncs
+  across the user's own devices. Not exposed to other users; no
+  community aggregation.
+• "My Stats" screen aggregates the user's tier placements + visited
+  list into a read-only dashboard. No new data collection.
+• Onboarding now explains location need in-app before iOS prompts.
+
+No new SDKs since v1.1. No new permissions requested. No new
+external content. App Privacy declaration unchanged from v1.1.
+```
+
+## ASC submission steps (run in order)
+
+1. **App Store Connect → My Apps → S-Tier Eats → + Version**
+   - Version string: **1.3**
+   - Click Create
+2. **What's New in This Version** — paste the v1.3 copy above.
+3. **Description** — paste the updated text (the "ten areas" change is
+   already inline above; copy the full v1.0 description block with
+   that one line replaced).
+4. **Build** — click **+**, select **build 42**.
+5. **App Privacy** — verify the existing v1.1 categories are still
+   accurate. No additions needed for v1.3.
+6. **Promotional text** — optional refresh from §3.
+7. **App Review Information** — append the v1.3 supplement to the
+   existing reviewer notes.
+8. **Save** → top-right.
+9. **Add for Review** → **Submit for Review**.
+10. Wait ~24-48 hours for Apple's response.
+
+## Things that could trip the review
+
+- **Reviewers may ask why the app uses CloudKit when there's no
+  visible account.** The implicit-iCloud-identity precedent is
+  already in the v1.0 reviewer notes. No change needed unless asked.
+- **Make sure CloudKit production schema was deployed BEFORE you
+  submit.** If a reviewer marks a restaurant as visited on their
+  test device and the badge doesn't survive a relaunch, they may
+  flag it as broken. The v1.3 supplement reviewer notes don't
+  prevent this — only the schema deploy does.

@@ -5,11 +5,6 @@ struct ContentView: View {
     @Environment(RestaurantStore.self) private var store
     @Environment(TierListStore.self) private var tierStore
     @Environment(VisitedStore.self) private var visitedStore
-    /// Pre-v1.3 flag — kept for migration so users who already saw the
-    /// old tier-guide sheet don't get the new onboarding flow either.
-    /// New users go through OnboardingView in WoodlandsEatsApp instead.
-    @AppStorage("WoodlandsEats.hasSeenTierGuide") private var hasSeenTierGuide = false
-    @AppStorage("WoodlandsEats.hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
     var body: some View {
         TabView {
@@ -36,15 +31,6 @@ struct ContentView: View {
             // visited badges after reinstall and pulls in updates from
             // other devices (toggled on iPhone, restored next iPad launch).
             await visitedStore.restoreFromCloud(via: cloudKit)
-        }
-        .onAppear {
-            // v1.3 migration: users who already completed the old tier-guide
-            // first-launch flow (pre-v1.3) shouldn't be re-onboarded. Mark
-            // them as completed so the new OnboardingView fullScreenCover
-            // never fires for upgraders.
-            if hasSeenTierGuide && !hasCompletedOnboarding {
-                hasCompletedOnboarding = true
-            }
         }
     }
 }
