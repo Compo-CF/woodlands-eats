@@ -25,3 +25,4 @@ xcuserdata/
 # CocoaPods / Carthage (unused, but ignored for safety)
 Pods/
 Carthage/Build/
+__pycache__/
