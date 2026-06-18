@@ -63,6 +63,9 @@ struct MyStatsView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
+                if let rank = FoodieRank.from(placementCount: rankedCount) {
+                    rankCard(rank: rank)
+                }
                 visitedCard
                 tiersCard
                 if !topCuisines.isEmpty { cuisinesCard }
@@ -74,6 +77,65 @@ struct MyStatsView: View {
         .background(Color(.systemGroupedBackground))
         .navigationTitle("My Stats")
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    /// v1.4: prominent rank card at the top of My Stats. Shows the
+    /// current FoodieRank with icon, blurb, current placement count,
+    /// and a progress bar toward the next tier (or 'Top tier reached'
+    /// at Tastemaker).
+    private func rankCard(rank: FoodieRank) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 14) {
+                ZStack {
+                    Circle()
+                        .fill(rank.tintColor)
+                        .frame(width: 56, height: 56)
+                    Image(systemName: rank.symbolName)
+                        .font(.system(size: 28, weight: .semibold))
+                        .foregroundStyle(rank.color)
+                        .symbolRenderingMode(.hierarchical)
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Your rank")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(rank.displayName)
+                        .font(.title2.weight(.bold))
+                        .foregroundStyle(rank.color)
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 0) {
+                    Text("\(rankedCount)")
+                        .font(.title2.weight(.bold))
+                        .monospacedDigit()
+                    Text("ranked")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            ProgressView(value: rank.progress(currentCount: rankedCount))
+                .tint(rank.color)
+            HStack {
+                if let togo = rank.placementsToNext(currentCount: rankedCount), togo > 0,
+                   let next = rank.next {
+                    Text("\(togo) more to reach ")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    + Text(next.displayName)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.primary)
+                } else {
+                    Text("Top tier reached.")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(rank.color)
+                }
+                Spacer()
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(Color(.secondarySystemBackground),
+                    in: RoundedRectangle(cornerRadius: 16))
     }
 
     // MARK: - Cards

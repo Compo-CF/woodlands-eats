@@ -7,6 +7,7 @@ import CoreLocation
 /// user's FoodieProfile in the public DB), so approving is admin-gated.
 struct ProfileView: View {
     @Environment(CloudKitService.self) private var cloudKit
+    @Environment(TierListStore.self) private var tierStore
     @State private var displayName = ""
     @State private var status = ""        // "" | "requested" | "approved"
     @State private var userID = ""
@@ -99,6 +100,35 @@ struct ProfileView: View {
                             Label("Request Foodie Pro", systemImage: "star")
                         }
                         .disabled(saving)
+                    }
+                }
+
+                if let rank = FoodieRank.from(placementCount: tierStore.placements.count) {
+                    Section(
+                        header: Text("Your rank"),
+                        footer: Text(rank == .tastemaker
+                                     ? "Top tier reached. Keep ranking to maintain it."
+                                     : "Earned by placing restaurants in tiers. Rank more spots to level up.")
+                    ) {
+                        HStack(spacing: 12) {
+                            ZStack {
+                                Circle()
+                                    .fill(rank.tintColor)
+                                    .frame(width: 38, height: 38)
+                                Image(systemName: rank.symbolName)
+                                    .font(.system(size: 18, weight: .semibold))
+                                    .foregroundStyle(rank.color)
+                                    .symbolRenderingMode(.hierarchical)
+                            }
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(rank.displayName)
+                                    .font(.headline)
+                                    .foregroundStyle(rank.color)
+                                Text("\(tierStore.placements.count) restaurants ranked")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                     }
                 }
 
