@@ -611,27 +611,63 @@ will never trigger for users.
 
 ## "What's New in This Version" copy
 
+v1.3 never publicly shipped — v1.3.1 was queued during v1.3's review,
+then v1.3 was pulled in favor of shipping v1.3.1 directly. So v1.3.1's
+release notes must cover EVERYTHING since v1.1 (last live), not just
+the v1.3.1 deltas. Combined copy below, organized by user benefit.
+
 ```
-v1.3.1 — fixes and polish
+v1.3.1 — a big update with everything we've been working on.
 
-• Add multiple dish photos at once — the photo picker now accepts
-  up to 5 in a single tap, with progress on the Add button.
+BIGGER MAP
+• Coverage expanded northwest: Montgomery TX, downtown Magnolia,
+  Pinehurst, and the Lake Conroe State Park area are now in.
+  2,600+ restaurants across ten areas.
+• Map style picker — switch between Standard, Hybrid, and Satellite
+  views from the toolbar.
+• Pin clusters at max zoom now expand into a tappable list — no
+  more clusters you can't drill into.
 
+SMARTER BROWSE
+• New Tier sort on the Browse tab — see your S-tier picks at the
+  top of the list, alongside the existing Nearby and A-Z sorts.
+
+PERSONAL TRACKING
+• Mark restaurants you've visited. A small green check appears
+  next to their name on the Browse list so you can see where
+  you've been at a glance.
+• Your visited list syncs via iCloud — survives reinstall and
+  carries across your iPhone and iPad.
+• New My Stats screen in Profile: visited count, S/A/B/C/F tier
+  distribution, top cuisines, and areas explored.
+
+FASTER + SMOOTHER
 • Community tab loads instantly. Your previous view of the rankings
-  appears immediately; fresh data fills in behind the scenes.
-
+  appears immediately while fresh data fills in behind the scenes.
+• Add up to 5 dish photos at once with a single tap.
+• Photo grids no longer flash empty for a moment when opening a
+  restaurant.
 • Undo a "permanently closed" report you made by mistake — the
-  button now toggles cleanly between Report and Undo.
+  button now toggles between Report and Undo as expected.
 
-• Foodie Pro requests now require your full name (first and last)
-  so the admin can verify your identity before approval.
+BETTER FIRST LAUNCH
+• Refreshed four-screen onboarding for new users with a clear
+  explanation before the iOS location prompt.
+• Replay the tour any time from Profile → Show app tour.
 
-• Closure reports are now reviewed by the admin before they affect
-  the Browse list. False reports no longer surface as strikethroughs
-  on restaurants that are still open.
+CATALOG QUALITY
+• Multiple cleanup passes removed non-restaurants that Google's
+  data had been lumping in: vape shops, supplement stores,
+  shopping plazas, wedding venues, private golf clubs, and more.
+• "Permanently closed" reports are now reviewed before they
+  affect the Browse list — false reports no longer surface as
+  strikethroughs on restaurants that are still open.
+
+Thanks to everyone who's been ranking. Bug reports and restaurant
+suggestions always welcome.
 ```
 
-(719 chars ✓)
+(~2,050 chars ✓ well under the 4,000 cap)
 
 ## App Review notes (append to existing v1.3 notes)
 
