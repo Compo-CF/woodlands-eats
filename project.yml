@@ -45,8 +45,8 @@ targets:
       path: WoodlandsEats/Info.plist
       properties:
         CFBundleDisplayName: S-Tier Eats
-        CFBundleShortVersionString: "1.3"
-        CFBundleVersion: "45"
+        CFBundleShortVersionString: "1.4"
+        CFBundleVersion: "46"
         CFBundleIconName: AppIcon
         UILaunchScreen:
           UIColorName: ""
