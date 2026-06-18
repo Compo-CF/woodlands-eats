@@ -524,3 +524,147 @@ external content. App Privacy declaration unchanged from v1.1.
   test device and the badge doesn't survive a relaunch, they may
   flag it as broken. The v1.3 supplement reviewer notes don't
   prevent this — only the schema deploy does.
+
+---
+
+# v1.3.1 Submission Supplement (build 44)
+
+Small fixes-and-polish patch shipped immediately after v1.3 to address
+bugs surfaced in the v1.3 TestFlight cycle. No new SDKs, no new
+permissions, no metadata-affecting changes beyond What's New.
+
+## What's new in v1.3.1
+
+User-visible:
+- **Multi-photo upload** — add up to 5 dish photos in one go. Picker
+  switched from single-select to multi-select; uploads run
+  sequentially with an X/Y progress indicator on the Add button.
+- **Photo-loading polish** — skeleton placeholder while the initial
+  CloudKit photo fetch is in flight, so the "No photos yet"
+  message no longer flashes for 500ms on every detail-view open.
+- **Community tab loads instantly** — stale-while-revalidate cache
+  in UserDefaults. First render uses cached data (no spinner);
+  fresh data fills in behind. ~2-5s wait → <100ms perceived.
+- **Undo "permanently closed" report** — the toggle button has
+  always existed in the UI; the underlying ownership check was
+  broken (Apple's CloudKit returns `__defaultOwner__` from
+  creatorUserRecordID for the user's own records). Fix: parse
+  ownership from recordName prefix, same as placements.
+- **Foodie Pro requires a full name** — admin can now actually
+  verify identity before approval. Validation: ≥2 whitespace-
+  separated parts, each ≥2 chars. Section footer warns up front.
+- **Closure reports gated by admin review** — user reports
+  generate a soft "X reports of possible closure — pending
+  review" notice on detail pages, but the red "Permanently
+  closed" banner and Browse-list strikethrough only appear after
+  admin verification. Drastically reduces false closures.
+
+Admin-only:
+- **New Profile section: Pending closure reports** — restaurants
+  with user closure reports awaiting admin decision, sorted by
+  report count. Confirm / Reject buttons; rejecting silences
+  further admin attention without removing the user reports.
+
+## Required ASC changes BEFORE submitting build 44
+
+### 1. Description — no change
+
+`ten areas` already in place from v1.3. Catalog count still 2,617.
+
+### 2. App Privacy — no change
+
+`ClosureDecision` is admin-owned per-restaurant metadata, not user
+data. No new collection categories.
+
+### 3. Promotional text — no change required
+
+The v1.3 promo text still applies. Optional refresh:
+
+> 2,300+ restaurants across ten areas. Rank by tier, sync visits,
+> add multiple dish photos, see your stats. Now with faster
+> community rankings.
+
+(166 chars ✓)
+
+### 4. Screenshots — no change
+
+Same surface as v1.3.
+
+### 5. CloudKit production schema — must deploy `ClosureDecision`
+BEFORE submission
+
+New record type for v1.3.1:
+  `ClosureDecision`
+    fields:
+      restaurantID  (String)
+      decision      (String — "closed" | "open")
+
+Same deploy flow as `VisitedList` in v1.3:
+  Xcode debug build → trigger one Confirm/Reject from admin Profile
+  section → confirm Development schema has ClosureDecision → CloudKit
+  Console → Deploy Schema Changes → Production.
+
+If schema isn't deployed before the App Store release, admin
+Confirm/Reject actions will silently no-op (the existing `try?`
+swallows the error) and Browse strikethroughs / closure banners
+will never trigger for users.
+
+## "What's New in This Version" copy
+
+```
+v1.3.1 — fixes and polish
+
+• Add multiple dish photos at once — the photo picker now accepts
+  up to 5 in a single tap, with progress on the Add button.
+
+• Community tab loads instantly. Your previous view of the rankings
+  appears immediately; fresh data fills in behind the scenes.
+
+• Undo a "permanently closed" report you made by mistake — the
+  button now toggles cleanly between Report and Undo.
+
+• Foodie Pro requests now require your full name (first and last)
+  so the admin can verify your identity before approval.
+
+• Closure reports are now reviewed by the admin before they affect
+  the Browse list. False reports no longer surface as strikethroughs
+  on restaurants that are still open.
+```
+
+(719 chars ✓)
+
+## App Review notes (append to existing v1.3 notes)
+
+```
+v1.3.1 supplement:
+
+• Multi-photo dish upload (UI-only change; no new permissions).
+• Community-tab cache layer (UserDefaults; no new SDKs).
+• Closure-report admin moderation: user reports now generate a
+  soft "pending review" notice; the red "Permanently closed"
+  banner and strikethrough only appear after admin verification
+  via a new in-app Profile admin section. New ClosureDecision
+  CloudKit record type (admin-owned, like PhotoModerated).
+• Bug fix: closure-report ownership check used creatorUserRecordID
+  which returns __defaultOwner__ for the user's own records on
+  Apple's CloudKit — switched to recordName-prefix ownership
+  check (same pattern as placements).
+• Foodie Pro request now requires display name to contain ≥2
+  whitespace-separated parts so the admin can verify identity.
+
+No new SDKs. No new permissions. No new external content.
+App Privacy declaration unchanged from v1.3.
+```
+
+## ASC submission steps
+
+1. **App Store Connect → My Apps → S-Tier Eats → + Version**
+   - Version string: **1.3.1**
+   - Click Create
+2. **What's New in This Version** — paste the v1.3.1 copy above.
+3. **Description** — no change from v1.3.
+4. **Build** — click **+**, select **build 44**.
+5. **App Review Information** — append the v1.3.1 supplement.
+6. **Save** → top-right.
+7. **Add for Review** → **Submit for Review**.
+8. Wait ~24-48 hours.

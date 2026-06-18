@@ -81,6 +81,12 @@ final class CloudKitService {
     /// aggregation), small (a few hundred UUIDs max), and last-write-wins
     /// is fine for the rare cross-device conflict.
     private let visitedType = "VisitedList"
+    /// v1.3.1: admin's verdict on a restaurant's closure status. One
+    /// record per restaurant, admin-owned (like PhotoModerated). Field
+    /// `decision` is "closed" or "open". Browse strikethrough + detail-
+    /// view closure banner gate on decision=="closed" — raw user reports
+    /// no longer surface across the app until admin verifies.
+    private let closureDecisionType = "ClosureDecision"
     /// Admin-owned per-photo decision marker. recordName: `photoMod_<photoID>`.
     /// Field `decision` is "hidden" or "approved" — hidden photos are filtered
     /// out of `fetchDishPhotos` for everyone; approved photos drop out of the
@@ -92,6 +98,11 @@ final class CloudKitService {
     /// Per-restaurant count of "permanently closed" reports; refreshed on launch
     /// and after a report toggle. Read by the list + map to flag closed spots.
     private(set) var closureCounts: [UUID: Int] = [:]
+    /// v1.3.1: admin-confirmed-closed restaurant IDs. Browse strikethrough
+    /// and the detail-view closure banner gate on this set rather than on
+    /// raw closureCounts, so user reports stay informational until the
+    /// admin actively verifies. Refreshed alongside closureCounts.
+    private(set) var confirmedClosedIDs: Set<UUID> = []
 
     init() {
         Task { await refreshAvailability() }
@@ -548,14 +559,16 @@ final class CloudKitService {
         }
     }
 
-    /// Refresh the per-restaurant closed-report counts cache (pages all reports).
-    /// Requires a Queryable index on ClosureReport.recordName.
+    /// Refresh the per-restaurant closed-report counts cache (pages all reports),
+    /// AND the admin-confirmed-closed set. Requires Queryable indexes on
+    /// ClosureReport.recordName and ClosureDecision.recordName.
     func refreshClosureCounts() async {
         await refreshAvailability()
         guard isAvailable else { return }
-        var counts: [UUID: Int] = [:]
 
-        func accumulate(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+        // 1. Raw report counts (every ClosureReport record).
+        var counts: [UUID: Int] = [:]
+        func accumulateCounts(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
             for (_, result) in matches {
                 if case .success(let rec) = result,
                    let s = rec["restaurantID"] as? String,
@@ -564,21 +577,141 @@ final class CloudKitService {
                 }
             }
         }
-
         do {
             let query = CKQuery(recordType: closureType, predicate: NSPredicate(value: true))
             var (matches, cursor) = try await publicDB.records(
                 matching: query, desiredKeys: ["restaurantID"], resultsLimit: 200)
+            accumulateCounts(matches)
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(
+                    continuingMatchFrom: c, desiredKeys: ["restaurantID"], resultsLimit: 200)
+                accumulateCounts(matches)
+            }
+            closureCounts = counts
+        } catch {
+            // leave the existing cache as-is on failure
+        }
+
+        // 2. Admin-confirmed-closed set (ClosureDecision records with
+        //    decision == "closed"). Rejected/open decisions exist as
+        //    silent markers — they don't affect display, just remove the
+        //    restaurant from the admin pending queue.
+        var confirmed: Set<UUID> = []
+        func accumulateConfirmed(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+            for (_, result) in matches {
+                if case .success(let rec) = result,
+                   (rec["decision"] as? String) == "closed",
+                   let s = rec["restaurantID"] as? String,
+                   let id = UUID(uuidString: s) {
+                    confirmed.insert(id)
+                }
+            }
+        }
+        do {
+            let query = CKQuery(recordType: closureDecisionType, predicate: NSPredicate(value: true))
+            var (matches, cursor) = try await publicDB.records(
+                matching: query, desiredKeys: ["restaurantID", "decision"], resultsLimit: 200)
+            accumulateConfirmed(matches)
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(
+                    continuingMatchFrom: c, desiredKeys: ["restaurantID", "decision"], resultsLimit: 200)
+                accumulateConfirmed(matches)
+            }
+            confirmedClosedIDs = confirmed
+        } catch {
+            // leave the existing set as-is on failure
+        }
+    }
+
+    // MARK: - Closure decisions (v1.3.1 — admin moderation)
+
+    private func closureDecisionRecordID(restaurant: UUID) -> CKRecord.ID {
+        CKRecord.ID(recordName: "closureDecision_\(restaurant.uuidString)")
+    }
+
+    /// Admin: confirm a restaurant is permanently closed. Adds the
+    /// restaurant to confirmedClosedIDs and triggers strikethrough +
+    /// closure banner everywhere in the app.
+    func confirmClosed(restaurantID: UUID) async -> Bool {
+        await setClosureDecision(restaurantID: restaurantID, decision: "closed")
+    }
+
+    /// Admin: explicitly mark a restaurant as still open (false-report
+    /// rejection). Doesn't delete user reports — just stamps an admin
+    /// "open" marker so the restaurant drops out of the pending-review
+    /// queue without surfacing as closed to users.
+    func markOpen(restaurantID: UUID) async -> Bool {
+        await setClosureDecision(restaurantID: restaurantID, decision: "open")
+    }
+
+    /// Admin: revert a previous closure decision (rare — used if admin
+    /// confirmed-closed by mistake and wants to unsay it).
+    func clearClosureDecision(restaurantID: UUID) async -> Bool {
+        guard isAvailable else { return false }
+        do {
+            _ = try await publicDB.modifyRecords(
+                saving: [],
+                deleting: [closureDecisionRecordID(restaurant: restaurantID)],
+                savePolicy: .allKeys)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    private func setClosureDecision(restaurantID: UUID, decision: String) async -> Bool {
+        guard isAvailable else { return false }
+        let recID = closureDecisionRecordID(restaurant: restaurantID)
+        let rec = CKRecord(recordType: closureDecisionType, recordID: recID)
+        rec["restaurantID"] = restaurantID.uuidString as CKRecordValue
+        rec["decision"] = decision as CKRecordValue
+        do {
+            _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    /// Admin: pending closure reports — restaurants with ≥1 ClosureReport
+    /// records that DO NOT yet have a ClosureDecision (either "closed" or
+    /// "open"). Returns array of (restaurantID, reportCount) sorted by
+    /// count desc so the admin can triage by signal strength.
+    func fetchPendingClosureReports() async -> [(restaurantID: UUID, count: Int)] {
+        await refreshClosureCounts()   // make sure counts + decisions are current
+        guard isAvailable else { return [] }
+
+        // Set of restaurants that already have ANY decision (closed or open).
+        // We want the admin queue to drop both — closed ones are already
+        // handled, open ones were already rejected.
+        var decided: Set<UUID> = []
+        do {
+            let q = CKQuery(recordType: closureDecisionType, predicate: NSPredicate(value: true))
+            var (matches, cursor) = try await publicDB.records(
+                matching: q, desiredKeys: ["restaurantID"], resultsLimit: 200)
+            func accumulate(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+                for (_, result) in matches {
+                    if case .success(let rec) = result,
+                       let s = rec["restaurantID"] as? String,
+                       let id = UUID(uuidString: s) {
+                        decided.insert(id)
+                    }
+                }
+            }
             accumulate(matches)
             while let c = cursor {
                 (matches, cursor) = try await publicDB.records(
                     continuingMatchFrom: c, desiredKeys: ["restaurantID"], resultsLimit: 200)
                 accumulate(matches)
             }
-            closureCounts = counts
         } catch {
-            // leave the existing cache as-is on failure
+            // If the decision fetch fails, fall back to "everything is pending"
         }
+
+        return closureCounts
+            .filter { !decided.contains($0.key) && $0.value > 0 }
+            .map { ($0.key, $0.value) }
+            .sorted { $0.1 > $1.1 }
     }
 
     // MARK: - Foodie Pro profiles

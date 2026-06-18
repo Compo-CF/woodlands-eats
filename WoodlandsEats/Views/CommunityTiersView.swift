@@ -77,12 +77,72 @@ struct CommunityTiersView: View {
 
     private var rankedCount: Int { tiers.count }
 
+    /// v1.3.1: stale-while-revalidate cache. Hits a UserDefaults-backed
+    /// cache first to render instantly, then fetches fresh in the
+    /// background. Without this, every Community-tab open paged through
+    /// all Placement records in CloudKit (TRUEPREDICATE) and aggregated
+    /// client-side — 2-5s at current scale, 8-15s once the community
+    /// grows. Now: cache hit = instant; background fetch updates the UI
+    /// when it lands. Pull-to-refresh + the toolbar refresh button still
+    /// force a fresh fetch via this same path. Empty fetch results
+    /// don't overwrite a populated cache (transient CloudKit errors
+    /// don't blank the screen).
     private func load() async {
-        loading = true
-        tiers = mode == .pros
+        if let cached = Self.loadCache(for: mode) {
+            tiers = cached
+            loading = false   // instant render
+        } else {
+            loading = true
+        }
+        let fresh = mode == .pros
             ? await cloudKit.fetchProCommunityTiers()
             : await cloudKit.fetchAllCommunityTiers()
+        if !fresh.isEmpty {
+            tiers = fresh
+            Self.saveCache(fresh, for: mode)
+        }
         loading = false
+    }
+
+    // MARK: - Cache
+
+    private static let cacheTTLSeconds: TimeInterval = 300  // 5 min — stale but acceptable; the background fetch always runs
+
+    private static func cacheKey(for mode: CommunityMode) -> String {
+        "WoodlandsEats.communityCache.\(mode == .pros ? "pros" : "everyone")"
+    }
+
+    private static func loadCache(for mode: CommunityMode) -> [UUID: CommunityTier]? {
+        guard let data = UserDefaults.standard.data(forKey: cacheKey(for: mode)),
+              let cached = try? JSONDecoder().decode(CachedCommunityTiers.self, from: data) else {
+            return nil
+        }
+        // Honor the TTL by ignoring really-stale caches — the user would
+        // still see a spinner once instead of stale data on top of a
+        // background fetch that might take 5+ seconds.
+        if Date().timeIntervalSince(cached.timestamp) > cacheTTLSeconds * 12 {  // 1h hard expiry
+            return nil
+        }
+        return Dictionary(uniqueKeysWithValues: cached.entries.compactMap { entry in
+            guard let id = UUID(uuidString: entry.restaurantID),
+                  let tier = Tier(rawValue: entry.tierRaw) else { return nil }
+            return (id, CommunityTier(tier: tier, count: entry.count, average: entry.average))
+        })
+    }
+
+    private static func saveCache(_ tiers: [UUID: CommunityTier], for mode: CommunityMode) {
+        let entries = tiers.map { id, info in
+            CachedCommunityTiers.Entry(
+                restaurantID: id.uuidString,
+                tierRaw: info.tier.rawValue,
+                count: info.count,
+                average: info.average
+            )
+        }
+        let payload = CachedCommunityTiers(timestamp: Date(), entries: entries)
+        if let data = try? JSONEncoder().encode(payload) {
+            UserDefaults.standard.set(data, forKey: cacheKey(for: mode))
+        }
     }
 
     /// Restaurants whose consensus tier matches `tier`, most-ranked first.
@@ -117,6 +177,20 @@ struct CommunityTiersView: View {
 
 enum CommunityMode {
     case everyone, pros
+}
+
+/// Codable shape of the community-tier cache. CommunityTier itself isn't
+/// Codable (Tier color/blurb pull from SwiftUI, awkward to serialize),
+/// so the cache flattens it to plain types and reconstructs on load.
+private struct CachedCommunityTiers: Codable {
+    let timestamp: Date
+    let entries: [Entry]
+    struct Entry: Codable {
+        let restaurantID: String
+        let tierRaw: String
+        let count: Int
+        let average: Double
+    }
 }
 
 private struct CommunityEntry: Identifiable {

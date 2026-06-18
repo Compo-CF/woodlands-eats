@@ -55,7 +55,11 @@ struct RestaurantRow: View {
     }
 
     private var isClosed: Bool {
-        (cloudKit.closureCounts[restaurant.id] ?? 0) > 0
+        // v1.3.1: gate on admin-confirmed closures, not raw report counts.
+        // User reports surface in the detail view as informational, but
+        // the official "permanently closed" strikethrough requires an
+        // admin to verify the report first.
+        cloudKit.confirmedClosedIDs.contains(restaurant.id)
     }
 
     private var distanceText: String? {

@@ -11,18 +11,35 @@ struct RestaurantDetailView: View {
     let restaurant: Restaurant
     @State private var community: CommunityTier?
     @State private var dishPhotos: [DishPhoto] = []
-    @State private var pickerItem: PhotosPickerItem?
-    @State private var isUploading = false
+    /// v1.3.1: multi-select photo upload. Max 5 per session to keep
+    /// individual upload latency bounded; users can add more after.
+    @State private var pickerItems: [PhotosPickerItem] = []
+    @State private var uploadingCount = 0          // 0 when idle
+    @State private var uploadProgressTotal = 0     // for "Uploading X of Y"
+    /// v1.3.1: track whether the initial photo fetch has completed, so
+    /// the UI can show a skeleton placeholder instead of "No photos yet"
+    /// during the loading window.
+    @State private var photosLoaded = false
     @State private var closureCount = 0
     @State private var reportedByMe = false
     @State private var reportingPhotoID: String?
     @State private var reportConfirmation: String?
     @State private var showDeliveryPicker = false
 
+    private var isUploading: Bool { uploadingCount > 0 }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                if closureCount > 0 { closedBanner }
+                // v1.3.1: split closure indicator into two states.
+                // Red "Permanently closed" banner only after admin
+                // confirmation. Softer "X reports pending review"
+                // hint when there are user reports but no admin verdict.
+                if cloudKit.confirmedClosedIDs.contains(restaurant.id) {
+                    closedBanner
+                } else if closureCount > 0 {
+                    pendingClosureNotice
+                }
                 header
                 rateSection
                 communitySection
@@ -41,12 +58,14 @@ struct RestaurantDetailView: View {
             dishPhotos = await cloudKit.fetchDishPhotos(
                 restaurantID: restaurant.id,
                 blockedUploaderIDs: blockList.blocked)
+            photosLoaded = true
             let closure = await cloudKit.fetchClosureInfo(restaurantID: restaurant.id)
             closureCount = closure.count
             reportedByMe = closure.reportedByMe
         }
-        .onChange(of: pickerItem) { _, item in
-            Task { await handlePick(item) }
+        .onChange(of: pickerItems) { _, items in
+            guard !items.isEmpty else { return }
+            Task { await handlePicks(items) }
         }
         .alert("Thanks for the report",
                isPresented: Binding(
@@ -73,16 +92,43 @@ struct RestaurantDetailView: View {
             HStack {
                 Text("Dish photos").font(.headline)
                 Spacer()
-                PhotosPicker(selection: $pickerItem, matching: .images, photoLibrary: .shared()) {
+                PhotosPicker(
+                    selection: $pickerItems,
+                    maxSelectionCount: 5,
+                    matching: .images,
+                    photoLibrary: .shared()
+                ) {
                     if isUploading {
-                        ProgressView()
+                        HStack(spacing: 4) {
+                            ProgressView()
+                            if uploadProgressTotal > 1 {
+                                Text("\(uploadProgressTotal - uploadingCount + 1)/\(uploadProgressTotal)")
+                                    .font(.caption.monospacedDigit())
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                     } else {
                         Label("Add", systemImage: "camera.fill").font(.subheadline)
                     }
                 }
                 .disabled(isUploading)
             }
-            if dishPhotos.isEmpty {
+            if !photosLoaded {
+                // Skeleton row while the initial CloudKit fetch is in flight.
+                // Prevents the "No photos yet" message flashing for ~500ms
+                // on every detail-view open, which read as 'wonky'.
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(0..<3, id: \.self) { _ in
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color(.tertiarySystemBackground))
+                                .frame(width: 130, height: 130)
+                                .overlay(ProgressView().tint(.secondary))
+                        }
+                    }
+                }
+                .allowsHitTesting(false)
+            } else if dishPhotos.isEmpty {
                 Text("No photos yet — add the first one.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -155,21 +201,35 @@ struct RestaurantDetailView: View {
         }
     }
 
-    private func handlePick(_ item: PhotosPickerItem?) async {
-        guard let item else { return }
-        isUploading = true
-        defer { isUploading = false; pickerItem = nil }
-        guard let raw = try? await item.loadTransferable(type: Data.self),
-              let jpeg = Self.downscaledJPEG(from: raw) else { return }
-        if await cloudKit.uploadDishPhoto(restaurantID: restaurant.id, jpegData: jpeg, caption: nil) {
-            // Show it immediately; replace with the server list once it's queryable.
-            dishPhotos.insert(DishPhoto(id: UUID().uuidString, caption: nil,
-                                        imageData: jpeg, submitterUserID: nil), at: 0)
-            let fresh = await cloudKit.fetchDishPhotos(
-                restaurantID: restaurant.id,
-                blockedUploaderIDs: blockList.blocked)
-            if !fresh.isEmpty { dishPhotos = fresh }
+    /// v1.3.1: upload N selected photos in sequence, with a running
+    /// progress count so the PhotosPicker label can show "2/5" while
+    /// uploads are in flight. Sequential (not parallel) so we don't
+    /// hammer CloudKit + keep the optimistic-insert ordering stable.
+    private func handlePicks(_ items: [PhotosPickerItem]) async {
+        uploadProgressTotal = items.count
+        uploadingCount = items.count
+        defer {
+            uploadingCount = 0
+            uploadProgressTotal = 0
+            pickerItems = []
         }
+        for item in items {
+            guard let raw = try? await item.loadTransferable(type: Data.self),
+                  let jpeg = Self.downscaledJPEG(from: raw) else {
+                uploadingCount -= 1
+                continue
+            }
+            if await cloudKit.uploadDishPhoto(restaurantID: restaurant.id, jpegData: jpeg, caption: nil) {
+                // Optimistic insert; server-side IDs reconcile on next refetch.
+                dishPhotos.insert(DishPhoto(id: UUID().uuidString, caption: nil,
+                                            imageData: jpeg, submitterUserID: nil), at: 0)
+            }
+            uploadingCount -= 1
+        }
+        let fresh = await cloudKit.fetchDishPhotos(
+            restaurantID: restaurant.id,
+            blockedUploaderIDs: blockList.blocked)
+        if !fresh.isEmpty { dishPhotos = fresh }
     }
 
     private static func downscaledJPEG(from data: Data, maxDimension: CGFloat = 1200,
@@ -431,12 +491,31 @@ struct RestaurantDetailView: View {
         return digits.isEmpty ? nil : URL(string: "tel://\(digits)")
     }
 
+    /// Soft notice when users have reported the spot closed but admin
+    /// hasn't yet verified. Doesn't strike anything through; just lets
+    /// the visitor know there's a question about the place's status.
+    private var pendingClosureNotice: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "clock.badge.questionmark")
+                .foregroundStyle(.orange)
+            Text(reportedByMe && closureCount == 1
+                 ? "You reported this as possibly closed — pending review."
+                 : "\(closureCount) \(closureCount == 1 ? "report" : "reports") of possible closure — pending review.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Spacer()
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 10))
+    }
+
     private var closedBanner: some View {
         HStack(spacing: 8) {
             Image(systemName: "exclamationmark.triangle.fill")
             Text(reportedByMe && closureCount == 1
                  ? "You reported this permanently closed."
-                 : "Reported permanently closed by \(closureCount).")
+                 : "Permanently closed.")
                 .font(.subheadline.weight(.semibold))
         }
         .foregroundStyle(.white)

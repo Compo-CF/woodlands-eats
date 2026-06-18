@@ -22,6 +22,10 @@ struct ProfileView: View {
     @State private var suggestionError: String?
     @State private var photoReports: [(report: PhotoReport, photo: DishPhoto?)] = []
     @State private var actingPhotoID: String?
+    /// v1.3.1: admin queue of restaurants with user closure reports
+    /// awaiting a Confirm/Reject decision.
+    @State private var pendingClosures: [(restaurant: Restaurant, count: Int)] = []
+    @State private var actingClosureID: UUID?
     @State private var showAbout = false
     @State private var showTierGuide = false
     @State private var showAppTour = false
@@ -267,6 +271,22 @@ struct ProfileView: View {
                 }
 
                 if isAdmin {
+                    Section(
+                        header: Text("Pending closure reports"),
+                        footer: Text("Restaurants users have reported as permanently closed. Confirm to surface the closure on the Browse list and detail page. Reject if the report is wrong — the restaurant stays visible without a strikethrough.")
+                    ) {
+                        if pendingClosures.isEmpty {
+                            Text("No pending closure reports")
+                                .foregroundStyle(.secondary)
+                        } else {
+                            ForEach(pendingClosures, id: \.restaurant.id) { item in
+                                closureReportRow(item)
+                            }
+                        }
+                    }
+                }
+
+                if isAdmin {
                     Section(header: Text("Photo reports")) {
                         if photoReports.isEmpty {
                             Text("No pending photo reports")
@@ -333,8 +353,73 @@ struct ProfileView: View {
             await reloadAdmin()
             pendingSuggestions = await cloudKit.fetchPendingSuggestions()
             await reloadPhotoReports()
+            await reloadClosureReports()
         }
         loading = false
+    }
+
+    /// v1.3.1: build the admin closure-report queue. fetchPendingClosureReports
+    /// returns (restaurantID, count) — we hydrate each with the actual
+    /// Restaurant from the store so the admin can see name + address.
+    /// Drops any restaurant IDs that no longer exist in the catalog
+    /// (could happen if the restaurant was removed in a future seed pass
+    /// while reports lingered in CloudKit).
+    private func reloadClosureReports() async {
+        let raw = await cloudKit.fetchPendingClosureReports()
+        let byID = Dictionary(store.restaurants.map { ($0.id, $0) },
+                              uniquingKeysWith: { _, latest in latest })
+        pendingClosures = raw.compactMap { item in
+            guard let r = byID[item.restaurantID] else { return nil }
+            return (r, item.count)
+        }
+    }
+
+    @ViewBuilder
+    private func closureReportRow(_ item: (restaurant: Restaurant, count: Int)) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(item.restaurant.name)
+                    .font(.headline)
+                Text(item.restaurant.address)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                Text("\(item.count) \(item.count == 1 ? "report" : "reports")")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+            Spacer()
+            if actingClosureID == item.restaurant.id {
+                ProgressView()
+            } else {
+                HStack(spacing: 6) {
+                    Button("Reject") {
+                        Task { await decideClosure(item.restaurant.id, confirm: false) }
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.gray)
+                    Button("Confirm") {
+                        Task { await decideClosure(item.restaurant.id, confirm: true) }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.red)
+                }
+            }
+        }
+    }
+
+    private func decideClosure(_ restaurantID: UUID, confirm: Bool) async {
+        actingClosureID = restaurantID
+        defer { actingClosureID = nil }
+        let ok = confirm
+            ? await cloudKit.confirmClosed(restaurantID: restaurantID)
+            : await cloudKit.markOpen(restaurantID: restaurantID)
+        if ok {
+            pendingClosures.removeAll { $0.restaurant.id == restaurantID }
+            // Refresh the global closure caches so the strikethrough +
+            // banner update immediately across the app.
+            await cloudKit.refreshClosureCounts()
+        }
     }
 
     private func reloadPhotoReports() async {
