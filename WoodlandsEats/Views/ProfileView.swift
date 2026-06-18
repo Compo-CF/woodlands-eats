@@ -37,6 +37,17 @@ struct ProfileView: View {
         displayName.trimmingCharacters(in: .whitespaces).isEmpty
     }
 
+    /// Foodie Pro requires a full name (first + last) so the admin can
+    /// verify identity before approval. We check for at least two
+    /// whitespace-separated parts, each ≥ 2 chars — catches "John"
+    /// (too short, no last name) and "J Smith" (initial doesn't help
+    /// verification) without being overly strict.
+    private var isFullName: Bool {
+        let trimmed = displayName.trimmingCharacters(in: .whitespaces)
+        let parts = trimmed.split(separator: " ", omittingEmptySubsequences: true)
+        return parts.count >= 2 && parts.allSatisfy { $0.count >= 2 }
+    }
+
     var body: some View {
         NavigationStack {
             Form {
@@ -60,7 +71,7 @@ struct ProfileView: View {
 
                 Section(
                     header: Text("Foodie Pro"),
-                    footer: Text("Foodie Pros' rankings power the \u{201C}Pros\u{201D} leaderboard on the Community tab. Set a display name first, then request.")
+                    footer: Text("Foodie Pros' rankings power the \u{201C}Pros\u{201D} leaderboard on the Community tab. Requesting Foodie Pro requires your full name (first and last) in the Display name field above — the admin uses it to verify your identity before approval.")
                 ) {
                     switch status {
                     case "approved":
@@ -73,6 +84,9 @@ struct ProfileView: View {
                         Button {
                             if nameEmpty {
                                 requirementAlert = "Please set a display name first — it appears next to your rankings on the Foodie Pro leaderboard. Type one in the Display name field above, then tap Request Foodie Pro."
+                                nameFieldFocused = true
+                            } else if !isFullName {
+                                requirementAlert = "Foodie Pro requires your full name (first and last) so the admin can verify your identity before approval. Update your display name above with both names, then tap Request Foodie Pro."
                                 nameFieldFocused = true
                             } else {
                                 Task { await save(requestingPro: true) }

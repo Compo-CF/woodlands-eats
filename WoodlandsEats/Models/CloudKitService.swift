@@ -517,6 +517,14 @@ final class CloudKitService {
     }
 
     /// Count of closed-reports for a restaurant + whether the current user is one.
+    ///
+    /// Ownership check is via recordName prefix, NOT creatorUserRecordID —
+    /// Apple's CloudKit returns "__defaultOwner__" from creatorUserRecordID
+    /// for records the current user created, so direct comparison against
+    /// the user's record name silently fails. The closure recordName is
+    /// "closure_<userID>_<restaurantUUID>" (see closureRecordID above), so
+    /// we parse ownership from the name. Same pattern as fetchMyPlacements
+    /// uses for the placement record type.
     func fetchClosureInfo(restaurantID: UUID) async -> (count: Int, reportedByMe: Bool) {
         guard isAvailable else { return (0, false) }
         let me = await userRecordName()
@@ -526,10 +534,13 @@ final class CloudKitService {
             let (results, _) = try await publicDB.records(matching: query, resultsLimit: 200)
             var count = 0
             var mine = false
-            for (_, result) in results {
-                guard case .success(let rec) = result else { continue }
+            let myPrefix = me.map { "closure_\($0)_" }
+            for (recordID, result) in results {
+                guard case .success = result else { continue }
                 count += 1
-                if let me, rec.creatorUserRecordID?.recordName == me { mine = true }
+                if let myPrefix, recordID.recordName.hasPrefix(myPrefix) {
+                    mine = true
+                }
             }
             return (count, mine)
         } catch {
