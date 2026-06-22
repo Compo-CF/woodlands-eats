@@ -64,6 +64,15 @@ struct ContentView: View {
             // v1.5: mirror CloudKit's confirmed-closed set into the
             // store so Map + Browse drop closed spots from discovery.
             store.confirmedClosedIDs = cloudKit.confirmedClosedIDs
+            // v1.5 (build 48): warm the Community/Pros tier caches in
+            // the background. Fire-and-forget — the user can tap into
+            // Community before this finishes and the existing stale-
+            // while-revalidate cache still handles it; by the time
+            // they DO tap, the cache is fresh and the in-tab refresh
+            // is invisible.
+            Task {
+                await CommunityTiersView.prefetchCache(via: cloudKit)
+            }
             await store.refreshLive(via: cloudKit)
             // Build 36: hydrate the local tier cache from CloudKit on
             // launch so reinstalls / device restores don't appear to lose
