@@ -704,3 +704,160 @@ App Privacy declaration unchanged from v1.3.
 6. **Save** → top-right.
 7. **Add for Review** → **Submit for Review**.
 8. Wait ~24-48 hours.
+
+---
+
+# v1.5 Submission Supplement (build 47)
+
+Skips v1.4 as a public release — that train stays in TestFlight only.
+Live users move 1.3 → 1.5 in one update, getting the v1.4 rank system
+PLUS the v1.5 additions (closure-drop, rank shortcut, milestone
+prompts) in a single shot.
+
+## What's new in v1.5 (vs v1.3 live)
+
+From the v1.4 work-train (rolled into this release):
+- **Foodie rank progression**: 5-tier system (Newcomer → Foodie →
+  Critic → Connoisseur → Tastemaker). Earned by placing restaurants
+  in tiers. Hitting a new tier fires a celebration sheet with the
+  rank icon + tier color + progress to next.
+- **My Stats rank card**: prominent rank display at the top of the
+  My Stats screen with a progress bar to the next tier.
+- **Profile rank chip**: compact rank badge in the Profile tab
+  showing current rank + placement count.
+
+New in v1.5:
+- **Quick rank shortcut**: tap the rank icon in the top-left of the
+  Map or Browse tab to jump straight to Profile. Hidden for users
+  with zero placements (no rank yet to surface).
+- **Closed restaurants drop from discovery**: admin-confirmed-closed
+  spots no longer appear on the Map or in Browse. They stay in My
+  Tiers so personal ranking history is preserved, and remain
+  reachable via deep link or via My Tiers tap-through.
+- **Closure admin queue polish**: a just-decided closure stays
+  cleared from the admin queue even during CloudKit's eventual-
+  consistency window (no more 'I just rejected this, why is it back?').
+- **Milestone prompts**: Apple's native review prompt fires when a
+  user crosses to Critic (15 placements); a Ko-fi support sheet
+  fires at Connoisseur (30 placements). Both one-shot per major
+  version, both fire after the rank-up celebration dismisses.
+
+## Required ASC changes BEFORE submitting build 47
+
+### 1. Description — no change
+
+`ten areas` from v1.3 still accurate. Catalog count still 2,617.
+
+### 2. App Privacy — no change
+
+No new data types collected. The new review prompt uses Apple's
+native API (no developer-visible data); the Ko-fi prompt opens an
+external URL (no in-app data captured).
+
+### 3. Promotional text — optional refresh
+
+> Rank restaurants on a tier list and earn your foodie status —
+> Newcomer to Tastemaker. 2,300+ spots across ten areas in The
+> Woodlands, Spring, Conroe, Magnolia, and more.
+
+(168 chars ✓)
+
+### 4. Screenshots — optional refresh
+
+The Profile + My Stats screens look different with the new rank
+card. Existing screenshots cover the core surface so re-shoot is
+optional. If you want one refresh: the Profile screen with the
+rank chip visible is the best showcase.
+
+### 5. CloudKit production schema — no change
+
+v1.5 adds zero new record types. The `ClosureDecision` type from
+v1.3.1 is the most recent schema work; that's already deployed.
+
+## "What's New in This Version" copy
+
+```
+v1.5 — earn your foodie rank
+
+YOUR FOODIE RANK
+• Five tiers — Newcomer, Foodie, Critic, Connoisseur, Tastemaker —
+  earned by placing restaurants on your tier list. Hit a new tier
+  and a little celebration fires.
+• See your current rank in three places: a tap-target icon on the
+  Map and Browse tabs (top-left, jumps you to Profile), the Profile
+  tab itself, and a progress card on My Stats showing how close you
+  are to the next tier.
+
+CLEANER DISCOVERY
+• Restaurants confirmed permanently closed now drop from the Map
+  and Browse list. They stay in your My Tiers list so your personal
+  ranking history is preserved.
+• Quick tap on the rank icon in the top-left jumps you to the
+  Profile tab without scrolling through the tab bar.
+
+UNDER THE HOOD
+• Smoother admin closure queue — just-decided spots stay gone even
+  during the brief CloudKit sync window.
+• Smarter prompts: we'll occasionally ask if you'd rate the app
+  (Apple's standard prompt, capped to a few times a year) or want
+  to tip the developer — both fired at meaningful milestones, both
+  easy to skip.
+
+Thanks to everyone who's been ranking. The catalog keeps getting
+tighter because of you.
+```
+
+(~1,330 chars ✓)
+
+## App Review notes (append to existing notes)
+
+```
+v1.5 supplement:
+
+• Adds a 5-tier rank progression (Newcomer/Foodie/Critic/
+  Connoisseur/Tastemaker) computed client-side from the user's
+  tier-placement count. Tier-up celebration sheet fires from
+  ContentView when the rank changes.
+• Adds two milestone prompts wired into the celebration dismissal:
+  Apple's native @Environment(\\.requestReview) at Critic tier (15
+  placements), and a custom Ko-fi support sheet at Connoisseur (30
+  placements). Both gated by per-major-version @AppStorage flags
+  so they fire once each. The review prompt uses Apple's standard
+  API only; no custom App Store deep link.
+• Confirmed-closed restaurants (ClosureDecision decision='closed')
+  drop from RestaurantStore.filteredRestaurants so Map + Browse no
+  longer surface them. My Tiers reads restaurants directly to
+  preserve the user's personal history.
+• Adds a top-left ToolbarItem on Map + Browse showing the user's
+  rank icon; tap programmatically switches the TabView selection
+  to .profile via a new EnvironmentValues.tabSelection binding.
+• Includes ALL features from the v1.4 TestFlight train (which was
+  never publicly released): foodie rank progression, celebration
+  sheet, rank card on My Stats, rank chip on Profile.
+
+No new SDKs. No new permissions. No new external content. No new
+CloudKit record types. App Privacy declaration unchanged from v1.3.
+```
+
+## ASC submission steps
+
+1. **App Store Connect → My Apps → S-Tier Eats → + Version**
+   - Version string: **1.5**
+   - Click Create
+2. **What's New** — paste the v1.5 copy above
+3. **Description** — no change from v1.3
+4. **Build** — click **+** → select **build 47**
+5. **App Review Information** — append v1.5 supplement
+6. **Save** → top-right
+7. **Add for Review** → **Submit for Review**
+
+## Things that could trip the review
+
+- **Reviewers occasionally flag review-prompt placement.** Apple's
+  guideline says don't ask for a review at frustration moments or
+  on every launch. Ours fires at a positive milestone (tier-up)
+  with the OS-level 3/year cap behind it. Note this in reviewer
+  notes (already included above).
+- **Ko-fi external link is fine.** Physical-service tip jar opens
+  in Safari, no IAP entitlement needed (covered under Guideline
+  3.1.3(e) like the Amazon Associates precedent).
