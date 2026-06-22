@@ -16,7 +16,7 @@ struct ListTabView: View {
     @Environment(RestaurantStore.self) private var store
     @Environment(TierListStore.self) private var tierStore
     /// v1.5: programmatic tab switching for the rank-icon shortcut.
-    @Environment(\.tabSelection) private var tabSelection
+    @Environment(TabRouter.self) private var tabRouter
 
     /// v1.2: persisted three-way sort. Default Nearby for first launch.
     @AppStorage("WoodlandsEats.browseSortMode") private var rawSortMode: String = BrowseSortMode.nearby.rawValue
@@ -85,7 +85,7 @@ struct ListTabView: View {
                 if let rank = FoodieRank.from(placementCount: tierStore.placements.count) {
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
-                            tabSelection.wrappedValue = .profile
+                            tabRouter.selectedTab = .profile
                         } label: {
                             ZStack {
                                 Circle()

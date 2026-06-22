@@ -5,6 +5,7 @@ struct ContentView: View {
     @Environment(RestaurantStore.self) private var store
     @Environment(TierListStore.self) private var tierStore
     @Environment(VisitedStore.self) private var visitedStore
+    @Environment(TabRouter.self) private var tabRouter
 
     /// v1.4: gates the rank-up celebration. Stores the displayName of
     /// the most-recently-celebrated FoodieRank so we don't show the
@@ -34,13 +35,9 @@ struct ContentView: View {
     /// .task once we've absorbed any restored data and migrated the
     /// lastCelebratedRank baseline.
     @State private var hasFinishedLaunchSync = false
-    /// v1.5: tab selection state. Child views can switch tabs via the
-    /// EnvironmentValues.tabSelection binding (used by the rank-icon
-    /// shortcut in MapTabView/ListTabView to jump to Profile).
-    @State private var selectedTab: AppTab = .map
-
     var body: some View {
-        TabView(selection: $selectedTab) {
+        @Bindable var tabRouter = tabRouter
+        TabView(selection: $tabRouter.selectedTab) {
             MapTabView()
                 .tag(AppTab.map)
                 .tabItem { Label("Map", systemImage: "map") }
@@ -57,7 +54,6 @@ struct ContentView: View {
                 .tag(AppTab.profile)
                 .tabItem { Label("Profile", systemImage: "person.crop.circle") }
         }
-        .environment(\.tabSelection, $selectedTab)
         .task {
             await cloudKit.refreshClosureCounts()
             // v1.5: mirror CloudKit's confirmed-closed set into the

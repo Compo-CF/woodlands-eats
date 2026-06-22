@@ -8,6 +8,10 @@ struct WoodlandsEatsApp: App {
     @State private var cloudKit = CloudKitService()
     @State private var blockList = BlockListStore()
     @State private var visitedStore = VisitedStore()
+    /// v1.5: routes programmatic tab switches (e.g., the rank-icon
+    /// shortcut on Map/Browse → Profile). Injected via .environment
+    /// so any child view can change `selectedTab`.
+    @State private var tabRouter = TabRouter()
     /// App Review Guideline 1.2 (UGC) requires an EULA gate that the user must
     /// accept before using the app. Persisted in @AppStorage so it survives
     /// launches but resets on uninstall — the latter is intentional so a fresh
@@ -50,6 +54,7 @@ struct WoodlandsEatsApp: App {
                     .environment(cloudKit)
                     .environment(blockList)
                     .environment(visitedStore)
+                    .environment(tabRouter)
                     .onChange(of: locationManager.location) { _, newValue in
                         store.userLocation = newValue
                     }

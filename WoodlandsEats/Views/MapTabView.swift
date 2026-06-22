@@ -34,7 +34,7 @@ struct MapTabView: View {
     @Environment(TierListStore.self) private var tierStore
     @Environment(LocationManager.self) private var locationManager
     /// v1.5: programmatic tab switching for the rank-icon shortcut.
-    @Environment(\.tabSelection) private var tabSelection
+    @Environment(TabRouter.self) private var tabRouter
     @State private var selected: Restaurant?
 
     /// Build 38: persisted map style across launches.
@@ -134,7 +134,7 @@ struct MapTabView: View {
                 if let rank = FoodieRank.from(placementCount: tierStore.placements.count) {
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
-                            tabSelection.wrappedValue = .profile
+                            tabRouter.selectedTab = .profile
                         } label: {
                             ZStack {
                                 Circle()
