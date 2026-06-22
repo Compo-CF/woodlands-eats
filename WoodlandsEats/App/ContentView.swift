@@ -1,4 +1,9 @@
 import SwiftUI
+// StoreKit provides the EnvironmentValues.requestReview extension —
+// without this import, `\.requestReview` can't be resolved as an
+// EnvironmentValues key path and the compiler emits 'Cannot infer
+// key path type from context'.
+import StoreKit
 
 struct ContentView: View {
     @Environment(CloudKitService.self) private var cloudKit
