@@ -27,6 +27,14 @@ struct ProfileView: View {
     /// awaiting a Confirm/Reject decision.
     @State private var pendingClosures: [(restaurant: Restaurant, count: Int)] = []
     @State private var actingClosureID: UUID?
+    /// v1.5: session-local set of restaurants the admin has just
+    /// decided this session. CloudKit's TRUEPREDICATE queries can
+    /// take 10-30s to surface freshly-written ClosureDecision records,
+    /// so without this guard the just-decided restaurant briefly
+    /// reappears in the pending queue on the next reload. Filtering
+    /// here masks the propagation lag completely. Resets on view
+    /// dismissal (in-memory @State, not persisted).
+    @State private var recentlyDecidedClosureIDs: Set<UUID> = []
     @State private var showAbout = false
     @State private var showTierGuide = false
     @State private var showAppTour = false
@@ -399,6 +407,11 @@ struct ProfileView: View {
         let byID = Dictionary(store.restaurants.map { ($0.id, $0) },
                               uniquingKeysWith: { _, latest in latest })
         pendingClosures = raw.compactMap { item in
+            // v1.5: drop anything the admin decided earlier in this
+            // session — masks CloudKit's eventual-consistency window
+            // (ClosureDecision records can take ~30s to appear in
+            // TRUEPREDICATE queries even after a successful write).
+            guard !recentlyDecidedClosureIDs.contains(item.restaurantID) else { return nil }
             guard let r = byID[item.restaurantID] else { return nil }
             return (r, item.count)
         }
@@ -446,9 +459,13 @@ struct ProfileView: View {
             : await cloudKit.markOpen(restaurantID: restaurantID)
         if ok {
             pendingClosures.removeAll { $0.restaurant.id == restaurantID }
+            recentlyDecidedClosureIDs.insert(restaurantID)
             // Refresh the global closure caches so the strikethrough +
-            // banner update immediately across the app.
+            // banner update immediately across the app, and mirror the
+            // confirmed set into the store so Map + Browse drop the
+            // restaurant from discovery in this same render pass.
             await cloudKit.refreshClosureCounts()
+            store.confirmedClosedIDs = cloudKit.confirmedClosedIDs
         }
     }
 

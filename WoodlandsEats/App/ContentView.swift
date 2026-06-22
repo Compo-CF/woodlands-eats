@@ -13,29 +13,56 @@ struct ContentView: View {
     /// upgraders with 30+ placements don't get spammed for tiers they
     /// already earned).
     @AppStorage("WoodlandsEats.lastCelebratedRank") private var lastCelebratedRank = ""
+    /// v1.5: one-shot flags for the milestone prompts. Keys suffix-
+    /// versioned so a future major release can re-ask (bump to .v1.6
+    /// in a later major and users get one more chance to engage).
+    @AppStorage("WoodlandsEats.hasSeenReviewPrompt.v1.5") private var hasSeenReviewPrompt = false
+    @AppStorage("WoodlandsEats.hasSeenKofiPrompt.v1.5") private var hasSeenKofiPrompt = false
+    /// v1.5: Apple's native review-request action. Internally capped
+    /// by Apple to 3 prompts/year regardless of how often we call it,
+    /// so the hasSeenReviewPrompt flag is just to control WHEN we ask.
+    @Environment(\.requestReview) private var requestReview
     @State private var celebratingRank: FoodieRank?
+    /// v1.5: remembers which tier just got celebrated so the onDismiss
+    /// of the celebration sheet can fire the right secondary prompt
+    /// (review at Critic, Ko-fi at Connoisseur). Cleared after handling.
+    @State private var pendingPostCelebrationRank: FoodieRank?
+    @State private var showKofiSheet = false
     /// Guards .onChange against firing celebrations during the launch-
     /// time CloudKit restore (which retroactively sets placements from
     /// 0 to the user's actual count). Flipped to true at the end of
     /// .task once we've absorbed any restored data and migrated the
     /// lastCelebratedRank baseline.
     @State private var hasFinishedLaunchSync = false
+    /// v1.5: tab selection state. Child views can switch tabs via the
+    /// EnvironmentValues.tabSelection binding (used by the rank-icon
+    /// shortcut in MapTabView/ListTabView to jump to Profile).
+    @State private var selectedTab: AppTab = .map
 
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             MapTabView()
+                .tag(AppTab.map)
                 .tabItem { Label("Map", systemImage: "map") }
             ListTabView()
+                .tag(AppTab.browse)
                 .tabItem { Label("Browse", systemImage: "fork.knife") }
             MyTiersView()
+                .tag(AppTab.myTiers)
                 .tabItem { Label("My Tiers", systemImage: "list.number") }
             CommunityTiersView()
+                .tag(AppTab.community)
                 .tabItem { Label("Community", systemImage: "person.3.fill") }
             ProfileView()
+                .tag(AppTab.profile)
                 .tabItem { Label("Profile", systemImage: "person.crop.circle") }
         }
+        .environment(\.tabSelection, $selectedTab)
         .task {
             await cloudKit.refreshClosureCounts()
+            // v1.5: mirror CloudKit's confirmed-closed set into the
+            // store so Map + Browse drop closed spots from discovery.
+            store.confirmedClosedIDs = cloudKit.confirmedClosedIDs
             await store.refreshLive(via: cloudKit)
             // Build 36: hydrate the local tier cache from CloudKit on
             // launch so reinstalls / device restores don't appear to lose
@@ -82,10 +109,36 @@ struct ContentView: View {
                   current != .newcomer,
                   current.displayName != lastCelebratedRank else { return }
             celebratingRank = current
+            pendingPostCelebrationRank = current
             lastCelebratedRank = current.displayName
         }
-        .sheet(item: $celebratingRank) { rank in
+        .sheet(item: $celebratingRank, onDismiss: handlePostCelebration) { rank in
             RankCelebrationView(rank: rank, placementCount: tierStore.placements.count)
+        }
+        .sheet(isPresented: $showKofiSheet) {
+            KofiSupportSheet()
+        }
+    }
+
+    /// v1.5: fires after a rank-up celebration sheet dismisses. Drives
+    /// the milestone-specific secondary prompts — review at Critic, Ko-fi
+    /// at Connoisseur. Other tier-ups (Foodie, Tastemaker) get just the
+    /// celebration and nothing else.
+    private func handlePostCelebration() {
+        guard let rank = pendingPostCelebrationRank else { return }
+        pendingPostCelebrationRank = nil
+
+        switch rank {
+        case .critic where !hasSeenReviewPrompt:
+            // Apple's native review prompt. Cap of 3/year is enforced
+            // by the OS so even if we miscount, users aren't spammed.
+            requestReview()
+            hasSeenReviewPrompt = true
+        case .connoisseur where !hasSeenKofiPrompt:
+            showKofiSheet = true
+            hasSeenKofiPrompt = true
+        default:
+            break
         }
     }
 }
