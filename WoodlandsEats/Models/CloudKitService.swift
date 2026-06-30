@@ -845,6 +845,83 @@ final class CloudKitService {
         return (try? await publicDB.record(for: CKRecord.ID(recordName: "approval_\(userID)"))) != nil
     }
 
+    /// v1.7: admin-only stats. Distinct counts across CloudKit. Pages
+    /// through Placement records once and tallies; pages FoodieProfile
+    /// for the profile count. Single round-trip per record type, no
+    /// extra indexes needed. Returns zeroed stats on any error path —
+    /// caller's UI degrades to "no stats" rather than crashing.
+    struct AdminStats {
+        var activeUsers: Int        // distinct user IDs with at least one placement
+        var totalPlacements: Int
+        var restaurantsRanked: Int  // distinct restaurant IDs appearing in any placement
+        var profileCount: Int       // total FoodieProfile records
+    }
+
+    func fetchAdminStats() async -> AdminStats {
+        guard isAvailable else { return AdminStats(activeUsers: 0, totalPlacements: 0, restaurantsRanked: 0, profileCount: 0) }
+        var users: Set<String> = []
+        var restaurants: Set<String> = []
+        var placementCount = 0
+
+        func accumulate(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+            for (recordID, _) in matches {
+                placementCount += 1
+                if let owner = placementOwnerID(from: recordID.recordName) {
+                    users.insert(owner)
+                }
+                // Recover the restaurant UUID from the trailing 36 chars
+                // of the recordName ("placement_<user>_<restaurantUUID>").
+                let name = recordID.recordName
+                if name.count >= 36 {
+                    let uuid = String(name.suffix(36))
+                    if UUID(uuidString: uuid) != nil {
+                        restaurants.insert(uuid)
+                    }
+                }
+            }
+        }
+
+        do {
+            let placementQuery = CKQuery(recordType: placementType, predicate: NSPredicate(value: true))
+            var (matches, cursor) = try await publicDB.records(
+                matching: placementQuery,
+                desiredKeys: [],
+                resultsLimit: 400)
+            accumulate(matches)
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(
+                    continuingMatchFrom: c, resultsLimit: 400)
+                accumulate(matches)
+            }
+        } catch {
+            // Partial result is fine — return what we tallied so far.
+        }
+
+        var profileCount = 0
+        do {
+            let profileQuery = CKQuery(recordType: profileType, predicate: NSPredicate(value: true))
+            var (matches, cursor) = try await publicDB.records(
+                matching: profileQuery,
+                desiredKeys: [],
+                resultsLimit: 400)
+            profileCount += matches.count
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(
+                    continuingMatchFrom: c, resultsLimit: 400)
+                profileCount += matches.count
+            }
+        } catch {
+            // Same — partial counts are acceptable.
+        }
+
+        return AdminStats(
+            activeUsers: users.count,
+            totalPlacements: placementCount,
+            restaurantsRanked: restaurants.count,
+            profileCount: profileCount
+        )
+    }
+
     /// Extract the owner's userID from a placement recordName,
     /// which is "placement_<userID>_<restaurantUUID>".
     private func placementOwnerID(from recordName: String) -> String? {
