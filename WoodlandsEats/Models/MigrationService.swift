@@ -27,16 +27,32 @@ import SwiftUI
 /// Firestore writes.
 @Observable
 final class MigrationService {
-    /// Overall completion flag — once true, runIfNeeded becomes a no-op.
-    @AppStorage("WoodlandsEats.migration.v1.6.complete")
-    private var migrationComplete = false
-    /// Per-step flags so a partial migration resumes correctly.
-    @AppStorage("WoodlandsEats.migration.v1.6.placements")
-    private var placementsBackfilled = false
-    @AppStorage("WoodlandsEats.migration.v1.6.visited")
-    private var visitedBackfilled = false
-    @AppStorage("WoodlandsEats.migration.v1.6.profile")
-    private var profileBackfilled = false
+    // Persistence flags use UserDefaults directly because @AppStorage
+    // is incompatible with @Observable's synthesized init accessors
+    // (the macro can't see into a property wrapper's storage). Same
+    // keys as before — UserDefaults backs @AppStorage anyway, so any
+    // prior writes are still readable here.
+    private let key_complete    = "WoodlandsEats.migration.v1.6.complete"
+    private let key_placements  = "WoodlandsEats.migration.v1.6.placements"
+    private let key_visited     = "WoodlandsEats.migration.v1.6.visited"
+    private let key_profile     = "WoodlandsEats.migration.v1.6.profile"
+
+    private var migrationComplete: Bool {
+        get { UserDefaults.standard.bool(forKey: key_complete) }
+        set { UserDefaults.standard.set(newValue, forKey: key_complete) }
+    }
+    private var placementsBackfilled: Bool {
+        get { UserDefaults.standard.bool(forKey: key_placements) }
+        set { UserDefaults.standard.set(newValue, forKey: key_placements) }
+    }
+    private var visitedBackfilled: Bool {
+        get { UserDefaults.standard.bool(forKey: key_visited) }
+        set { UserDefaults.standard.set(newValue, forKey: key_visited) }
+    }
+    private var profileBackfilled: Bool {
+        get { UserDefaults.standard.bool(forKey: key_profile) }
+        set { UserDefaults.standard.set(newValue, forKey: key_profile) }
+    }
 
     /// Tracks whether a migration is currently in progress so it isn't
     /// re-entered from a concurrent .task launch.
