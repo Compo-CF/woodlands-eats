@@ -15,6 +15,8 @@ enum BrowseSortMode: String, CaseIterable, Identifiable {
 struct ListTabView: View {
     @Environment(RestaurantStore.self) private var store
     @Environment(TierListStore.self) private var tierStore
+    /// v1.5: programmatic tab switching for the rank-icon shortcut.
+    @Environment(TabRouter.self) private var tabRouter
 
     /// v1.2: persisted three-way sort. Default Nearby for first launch.
     @AppStorage("WoodlandsEats.browseSortMode") private var rawSortMode: String = BrowseSortMode.nearby.rawValue
@@ -77,6 +79,28 @@ struct ListTabView: View {
             }
             .navigationTitle("Browse")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                // v1.5: rank-icon shortcut to Profile. Hidden for
+                // zero-placement users (no rank yet).
+                if let rank = FoodieRank.from(placementCount: tierStore.placements.count) {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            tabRouter.selectedTab = .profile
+                        } label: {
+                            ZStack {
+                                Circle()
+                                    .fill(rank.tintColor)
+                                    .frame(width: 30, height: 30)
+                                Image(systemName: rank.symbolName)
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundStyle(rank.color)
+                                    .symbolRenderingMode(.hierarchical)
+                            }
+                        }
+                        .accessibilityLabel("Your rank: \(rank.displayName). Tap to open Profile.")
+                    }
+                }
+            }
         }
     }
 

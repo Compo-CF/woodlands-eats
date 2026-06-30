@@ -33,6 +33,8 @@ struct MapTabView: View {
     @Environment(RestaurantStore.self) private var store
     @Environment(TierListStore.self) private var tierStore
     @Environment(LocationManager.self) private var locationManager
+    /// v1.5: programmatic tab switching for the rank-icon shortcut.
+    @Environment(TabRouter.self) private var tabRouter
     @State private var selected: Restaurant?
 
     /// Build 38: persisted map style across launches.
@@ -126,6 +128,27 @@ struct MapTabView: View {
             .navigationTitle("S-Tier Eats")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                // v1.5: rank-icon shortcut to Profile. Hidden for
+                // zero-placement users (no rank to show yet — keeps
+                // the toolbar clean while they're still onboarding).
+                if let rank = FoodieRank.from(placementCount: tierStore.placements.count) {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            tabRouter.selectedTab = .profile
+                        } label: {
+                            ZStack {
+                                Circle()
+                                    .fill(rank.tintColor)
+                                    .frame(width: 30, height: 30)
+                                Image(systemName: rank.symbolName)
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundStyle(rank.color)
+                                    .symbolRenderingMode(.hierarchical)
+                            }
+                        }
+                        .accessibilityLabel("Your rank: \(rank.displayName). Tap to open Profile.")
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     // Build 38: map-style picker. Menu shows the current
                     // selection with a checkmark; tap any other option to

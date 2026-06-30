@@ -14,6 +14,15 @@ final class RestaurantStore {
     private(set) var liveRestaurants: [Restaurant] = []
     var filter = RestaurantFilter()
     var userLocation: CLLocation?
+    /// v1.5: restaurants the admin has confirmed as permanently closed.
+    /// `filteredRestaurants` drops these so Map + Browse + sort variants
+    /// hide them from discovery surfaces. Synced from
+    /// `CloudKitService.confirmedClosedIDs` by the view layer after each
+    /// closure-related CloudKit refresh (launch + admin decisions).
+    /// Not used by My Tiers — that surface reads `restaurants` directly
+    /// so the user's personal ranking history stays intact even when a
+    /// place closes.
+    var confirmedClosedIDs: Set<UUID> = []
 
     /// Remote source of truth. Edit `docs/Restaurants.json` in the repo, push to
     /// main, and GitHub Pages serves the update — every app picks it up on next
@@ -89,6 +98,11 @@ final class RestaurantStore {
 
     var filteredRestaurants: [Restaurant] {
         restaurants.filter { r in
+            // v1.5: drop admin-confirmed-closed spots from discovery
+            // surfaces. They stay in `restaurants` so My Tiers + the
+            // Detail page (reachable via deep link or My Tiers) keep
+            // showing them — this is just the public-discovery filter.
+            if confirmedClosedIDs.contains(r.id) { return false }
             if !filter.includeFastFood && r.isFastFood { return false }
             if !filter.selectedAreas.isEmpty && !filter.selectedAreas.contains(r.area) {
                 return false

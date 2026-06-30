@@ -145,6 +145,23 @@ struct CommunityTiersView: View {
         }
     }
 
+    /// v1.5: launch-time prefetch. Warms the Everyone + Pros caches so
+    /// the user's first tap on the Community tab renders fresh data
+    /// instantly instead of showing cached-then-updating. Called fire-
+    /// and-forget from ContentView.task — doesn't block other launch
+    /// work; if it fails (network/CloudKit down) the existing in-tab
+    /// stale-while-revalidate flow still works.
+    static func prefetchCache(via cloudKit: CloudKitService) async {
+        let everyone = await cloudKit.fetchAllCommunityTiers()
+        if !everyone.isEmpty {
+            saveCache(everyone, for: .everyone)
+        }
+        let pros = await cloudKit.fetchProCommunityTiers()
+        if !pros.isEmpty {
+            saveCache(pros, for: .pros)
+        }
+    }
+
     /// Restaurants whose consensus tier matches `tier`, most-ranked first.
     private func entries(for tier: Tier) -> [CommunityEntry] {
         // `uniquingKeysWith` defensive form (see ClusteringMapView for why):
