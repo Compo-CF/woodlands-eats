@@ -47,6 +47,12 @@ final class PurchaseStore {
 
     private let adFreeProductID = "com.compofelice.WoodlandsEats.adfree"
     private let isAdFreeKey = "WoodlandsEats.iap.isAdFree"
+    /// @ObservationIgnored because @Observable's macro-generated tracking
+    /// code accesses property storage from contexts the compiler can't
+    /// prove are MainActor-isolated. We never read this from views (it's
+    /// fire-and-forget cleanup state), so opting out of observation is
+    /// both safe and required under Swift 6 strict concurrency.
+    @ObservationIgnored
     private var updateListenerTask: Task<Void, Never>?
 
     init() {
