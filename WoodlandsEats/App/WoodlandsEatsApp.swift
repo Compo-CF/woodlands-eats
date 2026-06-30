@@ -1,4 +1,8 @@
 import SwiftUI
+// v1.6 (Android migration A2): Firebase Core for SDK initialization.
+// Reads GoogleService-Info.plist from the bundle to wire up the
+// project ID, API key, and Firebase service endpoints.
+import FirebaseCore
 
 @main
 struct WoodlandsEatsApp: App {
@@ -26,6 +30,14 @@ struct WoodlandsEatsApp: App {
     private var hasCompletedOnboarding = false
 
     init() {
+        // v1.6 (Android migration A2): Firebase must be configured
+        // before any Firebase SDK call (Auth, Firestore, Storage).
+        // FirebaseApp.configure() reads GoogleService-Info.plist from
+        // the bundle. Idempotent — safe to call multiple times, but we
+        // only call once here at app boot. Goes FIRST in init() so any
+        // downstream service initializers can safely reference Firebase.
+        FirebaseApp.configure()
+
         // v1.3 migration: existing pre-v1.3 users who already saw the
         // old tier-guide first-launch sheet shouldn't get the new
         // OnboardingView on upgrade. Do this in init via direct

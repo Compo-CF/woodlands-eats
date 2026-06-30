@@ -19,6 +19,16 @@ packages:
   GoogleMobileAds:
     url: https://github.com/googleads/swift-package-manager-google-mobile-ads
     from: "11.0.0"
+  # v1.6 (Android migration A2): Firebase SDK for the cross-platform
+  # data layer. Replaces CloudKit during the migration. Products used:
+  #   FirebaseCore       — required for FirebaseApp.configure()
+  #   FirebaseAuth       — anonymous identity (replaces iCloud user
+  #                        record name as the per-user identifier)
+  #   FirebaseFirestore  — the data store (replaces CloudKit public DB)
+  # FirebaseStorage deferred until Android v1.0 photo reads (A6+).
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    from: "11.0.0"
 
 settings:
   base:
@@ -41,12 +51,19 @@ targets:
       # v1.1: AdMob SDK for banner ads on the Browse tab.
       - package: GoogleMobileAds
         product: GoogleMobileAds
+      # v1.6: Firebase products for the CloudKit → Firestore migration.
+      - package: Firebase
+        product: FirebaseCore
+      - package: Firebase
+        product: FirebaseAuth
+      - package: Firebase
+        product: FirebaseFirestore
     info:
       path: WoodlandsEats/Info.plist
       properties:
         CFBundleDisplayName: S-Tier Eats
-        CFBundleShortVersionString: "1.5"
-        CFBundleVersion: "48"
+        CFBundleShortVersionString: "1.6"
+        CFBundleVersion: "49"
         CFBundleIconName: AppIcon
         UILaunchScreen:
           UIColorName: ""
