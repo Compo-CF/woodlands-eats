@@ -45,8 +45,8 @@ targets:
       path: WoodlandsEats/Info.plist
       properties:
         CFBundleDisplayName: S-Tier Eats
-        CFBundleShortVersionString: "1.5"
-        CFBundleVersion: "48"
+        CFBundleShortVersionString: "1.7"
+        CFBundleVersion: "53"
         CFBundleIconName: AppIcon
         UILaunchScreen:
           UIColorName: ""
@@ -113,6 +113,25 @@ targets:
           - CloudKit
         com.apple.developer.icloud-container-identifiers:
           - iCloud.com.compofelice.WoodlandsEats
+        # v1.7 (Feature B): Sign in with Apple. Layered ON TOP of the
+        # existing iCloud/CloudKit identity — does NOT replace
+        # userRecordID as the primary key for placements/visited/profile.
+        # SIWA pre-fills the user's display name with their Apple-
+        # verified real name (one tap vs typing) and provides a stable
+        # cross-device identifier for future friend-sharing.
+        com.apple.developer.applesignin:
+          - Default
+        # v1.7 (Feature C): Universal Links for friend-tier sharing.
+        # Share URLs: https://compo-cf.github.io/woodlands-eats/tier/<userID>
+        # AASA file (manual setup on Compo-CF.github.io repo) goes at:
+        #   https://compo-cf.github.io/.well-known/apple-app-site-association
+        # Payload:
+        #   { "applinks": { "details": [{
+        #       "appIDs": ["7H5T5AR2X5.com.compofelice.WoodlandsEats"],
+        #       "components": [{ "/" : "/woodlands-eats/tier/*" }]
+        #   }] } }
+        com.apple.developer.associated-domains:
+          - applinks:compo-cf.github.io
     settings:
       base:
         PRODUCT_NAME: WoodlandsEats

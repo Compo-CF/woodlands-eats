@@ -12,6 +12,18 @@ struct WoodlandsEatsApp: App {
     /// shortcut on Map/Browse → Profile). Injected via .environment
     /// so any child view can change `selectedTab`.
     @State private var tabRouter = TabRouter()
+    /// v1.7 Feature B: Sign in with Apple service — layered on top of
+    /// CloudKit identity. Restores persisted user ID + name on init,
+    /// refreshes credential state on launch (handles Apple-side revocation).
+    @State private var appleSignIn = AppleSignInService()
+    /// v1.7 Feature D: In-app purchase store for the $1.99 ad-free
+    /// upgrade. Fetches product + entitlement state on launch; gates
+    /// MaybeBannerAd visibility on isAdFree.
+    @State private var purchaseStore = PurchaseStore()
+    /// v1.7 Feature C: User ID parsed out of an incoming friend-tier
+    /// universal link. When non-nil, FriendTierView is presented as a
+    /// sheet over ContentView. Cleared when the user dismisses.
+    @State private var friendTierUserID: String?
     /// App Review Guideline 1.2 (UGC) requires an EULA gate that the user must
     /// accept before using the app. Persisted in @AppStorage so it survives
     /// launches but resets on uninstall — the latter is intentional so a fresh
@@ -55,6 +67,35 @@ struct WoodlandsEatsApp: App {
                     .environment(blockList)
                     .environment(visitedStore)
                     .environment(tabRouter)
+                    .environment(appleSignIn)
+                    .environment(purchaseStore)
+                    .task {
+                        // v1.7 Feature B: check Apple's view of the
+                        // credential on each cold launch. If they revoked
+                        // server-side (e.g. user removed our app from
+                        // their Apple ID sign-in list), sign the user
+                        // out locally so the UI doesn't lie about being
+                        // authenticated.
+                        await appleSignIn.refreshCredentialState()
+                    }
+                    // v1.7 Feature C: friend-tier deep links. Two flavors
+                    // accepted:
+                    //   - https://compo-cf.github.io/woodlands-eats/tier/<id>
+                    //     (Universal Link — preferred for sharing)
+                    //   - stier://tier/<id> (custom-scheme fallback)
+                    .onOpenURL { url in
+                        if let id = parseFriendTierID(from: url) {
+                            friendTierUserID = id
+                        }
+                    }
+                    .sheet(item: Binding<FriendTierLinkID?>(
+                        get: { friendTierUserID.map(FriendTierLinkID.init) },
+                        set: { friendTierUserID = $0?.value }
+                    )) { link in
+                        FriendTierView(userID: link.value)
+                            .environment(cloudKit)
+                            .environment(store)
+                    }
                     .onChange(of: locationManager.location) { _, newValue in
                         store.userLocation = newValue
                     }
@@ -70,4 +111,31 @@ struct WoodlandsEatsApp: App {
             }
         }
     }
+
+    /// v1.7 Feature C: Pull the userRecordName out of an incoming deep
+    /// link. Tolerant — returns nil for unrelated URLs.
+    /// Accepted shapes:
+    ///   https://compo-cf.github.io/woodlands-eats/tier/<id>
+    ///   stier://tier/<id>
+    private func parseFriendTierID(from url: URL) -> String? {
+        if url.scheme == "stier", url.host == "tier" {
+            let parts = url.pathComponents.filter { $0 != "/" }
+            return parts.first
+        }
+        if url.scheme == "https" || url.scheme == "http" {
+            let parts = url.pathComponents
+            if let idx = parts.firstIndex(of: "tier"), idx + 1 < parts.count {
+                let id = parts[idx + 1]
+                return id.isEmpty ? nil : id
+            }
+        }
+        return nil
+    }
+}
+
+/// Identifiable wrapper so the friend-tier-user-id string can drive a
+/// SwiftUI .sheet(item:) binding. (Plain Strings aren't Identifiable.)
+private struct FriendTierLinkID: Identifiable {
+    let value: String
+    var id: String { value }
 }

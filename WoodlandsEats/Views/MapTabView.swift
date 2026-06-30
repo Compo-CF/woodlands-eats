@@ -88,12 +88,10 @@ struct MapTabView: View {
                     .background(.thinMaterial)
             }
             .safeAreaInset(edge: .bottom) {
-                // v1.1: banner ad mirrors the Browse tab. With
-                // `.ignoresSafeArea(.bottom)` on the map above, the map paints
-                // behind the translucent banner so it doesn't feel boxed-in.
-                BannerAdView()
-                    .frame(height: 50)
-                    .background(.thinMaterial)
+                // v1.1: banner ad mirrors the Browse tab.
+                // v1.7 Feature D: MaybeBannerAd hides itself when the
+                // user owns the ad-free upgrade — reclaims the inset.
+                MaybeBannerAd()
             }
             .sheet(item: $selected) { r in
                 NavigationStack {

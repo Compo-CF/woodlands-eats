@@ -164,6 +164,16 @@ final class CloudKitService {
     /// Returns [] on any failure path so callers can no-op gracefully.
     func fetchMyPlacements() async -> [(restaurantID: UUID, tier: Tier)] {
         guard isAvailable, let user = await userRecordName() else { return [] }
+        return await fetchPlacements(forUserID: user)
+    }
+
+    /// v1.7 (Feature C): fetch any user's placements by their userRecordName.
+    /// Used by the friend-tier-link flow — a user shares a URL containing
+    /// their userRecordName, the recipient's app calls this to render the
+    /// shared tier list read-only. Same client-side prefix-filter pattern
+    /// as `fetchMyPlacements`.
+    func fetchPlacements(forUserID user: String) async -> [(restaurantID: UUID, tier: Tier)] {
+        guard isAvailable, !user.isEmpty else { return [] }
         let prefix = "placement_\(user)_"
         var out: [(restaurantID: UUID, tier: Tier)] = []
 
@@ -727,11 +737,19 @@ final class CloudKitService {
     /// The current user's (displayName, status); status is ""/"requested"/"approved".
     func fetchMyProfile() async -> (displayName: String, status: String) {
         guard isAvailable, let user = await userRecordName() else { return ("", "") }
+        return await fetchProfile(forUserID: user)
+    }
+
+    /// v1.7 (Feature C): fetch any user's profile by their userRecordName.
+    /// Used by the friend-tier-link flow so the friend's tier list header
+    /// can show their display name instead of an opaque ID.
+    func fetchProfile(forUserID user: String) async -> (displayName: String, status: String) {
+        guard isAvailable, !user.isEmpty else { return ("", "") }
         do {
             let rec = try await publicDB.record(for: profileRecordID(user: user))
             return (rec["displayName"] as? String ?? "", rec["status"] as? String ?? "")
         } catch {
-            return ("", "")   // no profile yet
+            return ("", "")
         }
     }
 

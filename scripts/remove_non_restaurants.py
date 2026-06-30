@@ -336,6 +336,90 @@ DENY_PATTERNS = [
     (r"\bhochzeit\b", "event"),
     (r"\bbowling\b", "entertainment"),
     (r"\bbilliards\b", "entertainment"),
+    # ─── Fourth cleanup pass (2026-06-30) — Anthony spotted "North Woods
+    #     Endocrinology" slipping through. The original medical denylist
+    #     covered several -ology specialties (cardiology, oncology, etc.)
+    #     but missed endocrinology + a handful of others. Comprehensive
+    #     -ology / professional-suffix sweep.
+    (r"\bendocrinolog", "medical"),
+    (r"\burolog", "medical"),
+    (r"\bophthalmolog", "medical"),
+    (r"\brheumatolog", "medical"),
+    (r"\bhematolog", "medical"),
+    (r"\bimmunolog", "medical"),
+    (r"\bpulmonolog", "medical"),
+    (r"\botolaryngolog", "medical"),
+    (r"\botorhinolaryngolog", "medical"),
+    (r"\bent\s+(specialists?|associates?|clinic|center|group)\b", "medical"),
+    (r"\bpodiatr", "medical"),
+    (r"\bproctolog", "medical"),
+    (r"\bvascular\s+(center|clinic|specialists?|institute)\b", "medical"),
+    (r"\b(cancer|tumor)\s+(center|institute|clinic|treatment)\b", "medical"),
+    (r"\bdiabetes\s+(center|clinic|specialists?|associates?)\b", "medical"),
+    (r"\bheart\s+(center|clinic|specialists?|institute|hospital)\b", "medical"),
+    (r"\bspine\s+(center|clinic|surgery|institute|specialists?)\b", "medical"),
+    (r"\bsleep\s+(center|clinic|specialists?|lab|institute)\b", "medical"),
+    (r"\ballerg(y|ies)\s+(center|clinic|specialists?|associates?)\b", "medical"),
+    (r"\barthritis\s+(center|clinic|specialists?|associates?)\b", "medical"),
+    (r"\bdiagnostic\s+(center|imaging|lab|services?)\b", "medical"),
+    (r"\bvein\s+(institute|specialists?|center|clinic)\b", "medical"),
+    (r"\bpodiatry\s+(group|associates?|clinic|center)\b", "medical"),
+    (r"\bsurgical\s+(center|clinic|specialists?|group|associates?|institute)\b", "medical"),
+    (r"\bsurgeons?\s+(group|associates?|of)\b", "medical"),
+    # Professional-degree suffixes — strong signal a name is a doctor's
+    # office, dental practice, or law firm rather than a restaurant.
+    (r",\s*m\.?d\.?\b", "medical"),                        # "Ike Eni, MD"
+    (r",\s*d\.?d\.?s\.?\b", "medical"),
+    (r",\s*d\.?o\.?\b", "medical"),
+    (r"\bpllc\b", "professional"),
+    # Catering-only operations. The RESTAURANT_WORDS exception preserves
+    # restaurants whose names include "Catering" alongside Kitchen/BBQ/
+    # Bistro (Papillion's Kitchen and Catering, Trail Boss BBQ and catering).
+    (r"\bcatering\b", "catering"),
+    (r"\bcaterers?\b", "catering"),
+    # Social / family services agencies caught by case (Munoz Family Services).
+    (r"\bfamily\s+services\b", "services"),
+    (r"\bsocial\s+services\b", "services"),
+    # ─── Fifth cleanup pass (2026-06-30) — Anthony's second batch of
+    #     spotted non-restaurants: malls, movie theaters, concert
+    #     venues, apartment complexes, retail brands, medical brands.
+    # Movie theaters (Cinemark, Cinépolis, Reel Luxury Cinemas, Regal,
+    # AMC). RESTAURANT_WORDS exception preserves any rare cinema-cafe.
+    (r"\bcinemark\b", "entertainment"),
+    (r"\bcinemas?\b", "entertainment"),
+    (r"\bcinepolis\b", "entertainment"),
+    (r"\bregal\s+(cinemas?|theatres?)\b", "entertainment"),
+    (r"\bamc\s+(theatres?|theaters?|dine-?in)\b", "entertainment"),
+    (r"\bmovie\s+(theater|theatre)\b", "entertainment"),
+    # Concert / outdoor venues (Cynthia Woods Mitchell Pavilion).
+    (r"\bpavilion\b", "venue"),
+    (r"\bamphitheat(er|re)\b", "venue"),
+    # Alcohol retail (Total Wine & More — beverage warehouse, not a bar).
+    (r"\btotal\s+wine\b", "alcohol retail"),
+    (r"\bspec'?s\s+(liquors?|wines?)\b", "alcohol retail"),
+    (r"\bbeverage\s+(world|warehouse|outlet|center)\b", "alcohol retail"),
+    # Outdoor-grill retailers (Paradise Grills sells grills, doesn't cook).
+    # NOTE: "outdoor kitchens" + name containing "Grills" hits the
+    # RESTAURANT_WORDS exception — pattern alone isn't enough; pair with
+    # an exact-name entry below.
+    (r"\boutdoor\s+kitchens?\b", "grill retail"),
+    (r"\bgrill\s+(showroom|gallery|store|outlet)\b", "grill retail"),
+    # Medical brands not covered by generic -ology / -care patterns.
+    (r"\bkinetix\b", "medical"),              # QC Kinetix
+    (r"\bthrivecare\b", "medical"),           # Everest ThriveCare
+    # Entertainment / activity venues (Activate Games is a gamified-room
+    # chain — not a restaurant; arcades and escape rooms also).
+    (r"\bactivate\s+games\b", "entertainment"),
+    (r"\barcade\b", "entertainment"),
+    (r"\bescape\s+rooms?\b", "entertainment"),
+    (r"\baxe\s+throwing\b", "entertainment"),
+    (r"\btrampoline\s+park\b", "entertainment"),
+    # Retail (Barnes & Noble, jewelers, bookstores, designer brands).
+    (r"\bbarnes\s+(&|and)\s+noble\b", "retail"),
+    (r"\bbookstore\b", "retail"),
+    (r"\bjewelers?\b", "retail"),
+    (r"\bdesigner\s+(outlet|store|boutique)\b", "retail"),
+    (r"\boutlet\s+mall\b", "retail"),
 ]
 
 # Exact-name denylist for one-off specific entries that don't match a
@@ -351,6 +435,39 @@ EXACT_NAME_DENY = {
     "the club at carlton woods creekside",
     "atkinson farms",
     "theiss farms market",
+    # Fourth cleanup pass (2026-06-30) — specific entries flagged by
+    # name inspection: street names, schools, business offices,
+    # corporate groups not consumer-facing, duplicate/malformed names.
+    "rayford harmony",
+    "rayford road",
+    "the woodlands korean school",
+    "paw paw chico bbq - business office",
+    "mb speakeasy - old town spring live music",
+    "seacastle2",
+    "the brew group",
+    # Fifth cleanup pass (2026-06-30) — Anthony's second batch.
+    # Districts, malls, apartment complexes, branded developments.
+    "the woodlands mall",
+    "market street square",
+    "waterway square district",
+    "lake woodlands crossing",
+    "elevate spring crossing",
+    "the woodlands crossing",
+    "cochran's crossing",                          # Regency Centers shopping plaza
+    "hughes landing",                              # Howard Hughes development
+    "one lakes edge",                              # apartments
+    "two lakes edge",                              # apartments
+    "metropark square",                            # development
+    "gentry square",                               # plaza (315 Gentry St)
+    "centry square",                               # same plaza, malformed name
+    # Retail brand storefronts (single-name luxury brand).
+    "coach",
+    # Medical brand storefronts (compound names that escape -care / -health patterns).
+    "enihealthcare",
+    "kathy veath",                                 # therapist/counselor by name
+    # Grill retailer name contains "Grills" → RESTAURANT_WORDS exception
+    # would save it. Exact-name overrides the exception.
+    "paradise grills the woodlands outdoor kitchens",
 }
 
 # Exception: legitimate restaurants whose names happen to contain a denylist

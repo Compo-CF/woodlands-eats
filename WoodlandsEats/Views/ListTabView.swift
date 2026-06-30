@@ -71,11 +71,10 @@ struct ListTabView: View {
             }
             // v1.1: AdMob banner pinned to the bottom of the Browse tab.
             // safeAreaInset reserves space so list rows aren't covered.
-            // 50pt height = standard 320x50 banner; the SDK auto-centers.
+            // v1.7 Feature D: MaybeBannerAd renders nothing (no frame,
+            // no material bar) when the user owns the ad-free upgrade.
             .safeAreaInset(edge: .bottom) {
-                BannerAdView()
-                    .frame(height: 50)
-                    .background(.thinMaterial)
+                MaybeBannerAd()
             }
             .navigationTitle("Browse")
             .navigationBarTitleDisplayMode(.inline)

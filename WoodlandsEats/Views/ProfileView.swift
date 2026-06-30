@@ -1,5 +1,9 @@
 import SwiftUI
 import CoreLocation
+// v1.7 Feature B: Sign in with Apple. AuthenticationServices provides
+// SignInWithAppleButton (the Apple-styled button) and ASAuthorization
+// types used by AppleSignInService.handleSignInResult.
+import AuthenticationServices
 
 /// Profile + Foodie Pro request, and (for admins) in-app approval.
 /// Identity is the implicit iCloud account; the display name is self-entered.
@@ -8,6 +12,17 @@ import CoreLocation
 struct ProfileView: View {
     @Environment(CloudKitService.self) private var cloudKit
     @Environment(TierListStore.self) private var tierStore
+    /// v1.7 Feature B: SIWA service — layered on top of CloudKit identity.
+    /// Provides the user's Apple-verified real name (one tap vs typing).
+    @Environment(AppleSignInService.self) private var appleSignIn
+    /// v1.7 Feature D: IAP store for the $1.99 ad-free upgrade.
+    @Environment(PurchaseStore.self) private var purchases
+    /// v1.6: cached display name read by MyTiersView's share-card
+    /// renderer so the user's name shows up without an async fetch.
+    @AppStorage("WoodlandsEats.cachedDisplayName") private var cachedDisplayName = ""
+    /// v1.7 Feature C: cached CloudKit userRecordName used by MyTiersView
+    /// to construct the friend-share universal link.
+    @AppStorage("WoodlandsEats.cachedUserID") private var cachedUserID = ""
     @State private var displayName = ""
     @State private var status = ""        // "" | "requested" | "approved"
     @State private var userID = ""
@@ -64,6 +79,7 @@ struct ProfileView: View {
     var body: some View {
         NavigationStack {
             Form {
+                appleSignInSection
                 Section(
                     header: Text("Display name"),
                     footer: Text("Shown with your reviews and on the Foodie Pro leaderboard.")
@@ -157,6 +173,7 @@ struct ProfileView: View {
                     }
                 }
 
+                premiumSection
                 Section(
                     header: Text("Support S-Tier Eats"),
                     footer: Text("S-Tier Eats is free. If you've enjoyed using it, a small tip keeps the lights on and funds new features.")
@@ -379,12 +396,121 @@ struct ProfileView: View {
         }
     }
 
+    /// v1.7 Feature B: Sign in with Apple section. Two states:
+    ///   - Not signed in: tall Apple-styled button. On success captures
+    ///     the user's real name (first sign-in only) and auto-fills
+    ///     displayName if empty, then auto-saves.
+    ///   - Signed in: green-check status + "Use Apple name" + sign-out.
+    @ViewBuilder
+    private var appleSignInSection: some View {
+        Section(
+            header: Text("Sign in with Apple"),
+            footer: Text("Optional. Use your Apple-verified name for your profile in one tap instead of typing it. Your CloudKit ranking history stays the same either way.")
+        ) {
+            if appleSignIn.isSignedIn {
+                HStack(spacing: 12) {
+                    Image(systemName: "checkmark.seal.fill")
+                        .foregroundStyle(.green)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Signed in with Apple")
+                            .font(.subheadline.weight(.semibold))
+                        if let name = appleSignIn.fullName, !name.isEmpty {
+                            Text(name)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    Spacer()
+                }
+                if let appleName = appleSignIn.fullName,
+                   !appleName.isEmpty,
+                   appleName != displayName {
+                    Button("Use Apple name (\(appleName))") {
+                        displayName = appleName
+                        Task { await save(requestingPro: false) }
+                    }
+                    .disabled(saving)
+                }
+                Button("Sign out of Apple", role: .destructive) {
+                    appleSignIn.signOut()
+                }
+            } else {
+                SignInWithAppleButton(.signIn) { request in
+                    request.requestedScopes = [.fullName]
+                } onCompletion: { result in
+                    appleSignIn.handleSignInResult(result)
+                    if let appleName = appleSignIn.fullName,
+                       !appleName.isEmpty,
+                       displayName.trimmingCharacters(in: .whitespaces).isEmpty {
+                        displayName = appleName
+                        Task { await save(requestingPro: false) }
+                    }
+                }
+                .signInWithAppleButtonStyle(.black)
+                .frame(height: 44)
+                .listRowInsets(EdgeInsets(top: 6, leading: 6, bottom: 6, trailing: 6))
+            }
+        }
+    }
+
+    /// v1.7 Feature D: Premium / Remove Ads section. Three states:
+    ///   - Already purchased: green checkmark "Ad-free" badge.
+    ///   - Product loaded: "Remove Ads — $1.99" + "Restore Purchases".
+    ///   - Product loading: spinner.
+    @ViewBuilder
+    private var premiumSection: some View {
+        Section(
+            header: Text("Premium"),
+            footer: Text(purchases.isAdFree
+                ? "Thanks for supporting S-Tier Eats — banner ads are turned off on this device and any device signed in with the same Apple ID."
+                : "One-time purchase. Permanently hides the banner ad on the Map and Browse tabs.")
+        ) {
+            if purchases.isAdFree {
+                Label("Ad-free", systemImage: "checkmark.seal.fill")
+                    .foregroundStyle(.green)
+                    .fontWeight(.semibold)
+            } else if let product = purchases.adFreeProduct {
+                Button {
+                    Task { await purchases.purchaseAdFree() }
+                } label: {
+                    HStack {
+                        Label("Remove Ads", systemImage: "rectangle.slash")
+                        Spacer()
+                        Text(product.displayPrice)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .disabled(purchases.isPurchasing)
+                Button("Restore Purchases") {
+                    Task { await purchases.restorePurchases() }
+                }
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            } else {
+                HStack {
+                    Image(systemName: "rectangle.slash")
+                    Text("Remove Ads")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    ProgressView()
+                        .controlSize(.small)
+                }
+            }
+        }
+    }
+
     private func load() async {
         loading = true
         preferredDeliveryApp = DeliveryPreference.current
         userID = await cloudKit.currentUserID() ?? ""
+        // v1.6: mirror userID to AppStorage so MyTiersView's friend-
+        // share URL can read it synchronously.
+        cachedUserID = userID
         let profile = await cloudKit.fetchMyProfile()
         displayName = profile.displayName
+        // v1.6: mirror displayName to AppStorage so MyTiersView's
+        // share-card renderer can read it synchronously.
+        cachedDisplayName = profile.displayName
         status = await cloudKit.amIApproved() ? "approved" : profile.status
         isAdmin = await cloudKit.isAdmin()
         if isAdmin {
@@ -592,6 +718,8 @@ struct ProfileView: View {
         _ = await cloudKit.saveProfile(displayName: displayName, requestingPro: requestingPro)
         let profile = await cloudKit.fetchMyProfile()
         displayName = profile.displayName
+        // v1.6: keep the share-card cache in sync with the saved name.
+        cachedDisplayName = profile.displayName
         status = await cloudKit.amIApproved() ? "approved" : profile.status
         saving = false
     }

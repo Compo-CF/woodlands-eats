@@ -2,6 +2,22 @@ import SwiftUI
 import GoogleMobileAds
 import UIKit
 
+/// v1.7 Feature D: drop-in replacement for `BannerAdView` that hides
+/// the banner — frame, material background, and all — when the user
+/// has bought the ad-free upgrade. Returns EmptyView in that case so
+/// the .safeAreaInset doesn't reserve 50pt of empty thin-material bar
+/// at the bottom of the screen.
+struct MaybeBannerAd: View {
+    @Environment(PurchaseStore.self) private var purchases
+    var body: some View {
+        if !purchases.isAdFree {
+            BannerAdView()
+                .frame(height: 50)
+                .background(.thinMaterial)
+        }
+    }
+}
+
 /// SwiftUI wrapper around `GADBannerView` for the standard 320x50 banner
 /// at the bottom of the Browse and Map tabs. Uses non-personalized ads
 /// (no ATT prompt).

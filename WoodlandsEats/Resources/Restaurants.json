@@ -946,36 +946,6 @@
       "signatureDishes": []
     },
     {
-      "id": "852c6d19-c569-518c-9b21-e4213fbd58d2",
-      "name": "Rayford Harmony",
-      "latitude": 30.10811,
-      "longitude": -95.38455,
-      "area": "atascocita",
-      "address": "3555 Rayford Rd, Spring, TX 77386, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
-      "id": "e732c639-7a05-5265-aa69-9cf2301abcfd",
-      "name": "Rayford Road",
-      "latitude": 30.12297,
-      "longitude": -95.4085,
-      "area": "atascocita",
-      "address": "Rayford Rd, Spring, TX 77386, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
       "id": "27939ba4-8049-5e81-84bc-31c4fb2eabfa",
       "name": "Regal Benders Landing",
       "latitude": 30.12123,
@@ -1663,6 +1633,21 @@
       "website": "https://restaurants.applebees.com/en-us/tx/conroe/2952-i-45-n-80022?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=80022&utm_content=website",
       "phone": "(936) 756-3281",
       "description": "Sourced from Google Places (shenandoah).",
+      "signatureDishes": []
+    },
+    {
+      "id": "0329dbf8-c356-561c-9aea-8b616a6e374c",
+      "name": "Asian BBQ & Grill",
+      "latitude": 30.33731,
+      "longitude": -95.46431,
+      "area": "conroe",
+      "address": "604 TX-336 Loop, Conroe, TX 77301, USA",
+      "cuisines": ["vietnamese", "bbq"],
+      "priceTier": "$",
+      "isFastFood": false,
+      "website": null,
+      "phone": "(936) 539-3995",
+      "description": "Sourced from Google Places (conroe).",
       "signatureDishes": []
     },
     {
@@ -2401,21 +2386,6 @@
       "signatureDishes": []
     },
     {
-      "id": "abb45597-c78b-5d77-99c0-24461474ed9d",
-      "name": "Eat More Menus Catering",
-      "latitude": 30.25985,
-      "longitude": -95.52886,
-      "area": "conroe",
-      "address": "14230 Black Cyn Ln, Conroe, TX 77384, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.eatmoremenus.com/",
-      "phone": "(832) 740-3353",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
       "id": "5e888101-5351-569c-9697-4109ed3f2a44",
       "name": "Eggs Up Grill",
       "latitude": 30.34353,
@@ -2682,6 +2652,21 @@
       "isFastFood": false,
       "website": "https://frydaddystogo.com/",
       "phone": "(936) 777-5063",
+      "description": "Sourced from Google Places (conroe).",
+      "signatureDishes": []
+    },
+    {
+      "id": "ea005acc-0337-50a2-aea6-66848501eac0",
+      "name": "Fuego y Masa",
+      "latitude": 30.31548,
+      "longitude": -95.44334,
+      "area": "conroe",
+      "address": "1200 E Davis St, Conroe, TX 77301, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://linktr.ee/fuegoandmasatx",
+      "phone": "(936) 364-9463",
       "description": "Sourced from Google Places (conroe).",
       "signatureDishes": []
     },
@@ -3388,6 +3373,21 @@
       "website": null,
       "phone": "(936) 756-0255",
       "description": "Sourced from Google Places (shenandoah).",
+      "signatureDishes": []
+    },
+    {
+      "id": "df51e792-7bca-51fb-b16c-ff7e2926dd15",
+      "name": "Michelager",
+      "latitude": 30.31765,
+      "longitude": -95.46808,
+      "area": "conroe",
+      "address": "922 W Dallas St, Conroe, TX 77301, USA",
+      "cuisines": ["mexican"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": "(936) 756-1262",
+      "description": "Sourced from Google Places (conroe).",
       "signatureDishes": []
     },
     {
@@ -4231,6 +4231,21 @@
       "signatureDishes": []
     },
     {
+      "id": "9dcf3eaf-b5dc-54dc-9f82-43dcf6779d3a",
+      "name": "Tacos 105",
+      "latitude": 30.31482,
+      "longitude": -95.444,
+      "area": "conroe",
+      "address": "1155 E Davis St, Conroe, TX 77301, USA",
+      "cuisines": ["mexican"],
+      "priceTier": "$",
+      "isFastFood": false,
+      "website": "https://www.facebook.com/profile.php?id=100079001180541",
+      "phone": "(936) 320-9088",
+      "description": "Sourced from Google Places (conroe).",
+      "signatureDishes": []
+    },
+    {
       "id": "56ffa563-f912-51a5-8486-332c185375a2",
       "name": "Tacos Tijuas",
       "latitude": 30.32891,
@@ -4681,6 +4696,21 @@
       "signatureDishes": []
     },
     {
+      "id": "88172be4-be33-5d63-aee2-73d26ab75a8b",
+      "name": "Timberline Crossing",
+      "latitude": 30.31022,
+      "longitude": -95.45646,
+      "area": "conroe",
+      "address": "109 Metcalf St, Conroe, TX 77301, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://www.timberlinecrossing.com/",
+      "phone": "(936) 213-0147",
+      "description": "Sourced from Google Places (conroe).",
+      "signatureDishes": []
+    },
+    {
       "id": "35e420e7-da34-5e37-bd7e-433e6af3b1cc",
       "name": "TJs Country",
       "latitude": 30.42149,
@@ -4692,6 +4722,21 @@
       "isFastFood": false,
       "website": null,
       "phone": "(936) 856-2190",
+      "description": "Sourced from Google Places (conroe).",
+      "signatureDishes": []
+    },
+    {
+      "id": "c3df0879-1642-5e34-ac57-c6c7438ddd75",
+      "name": "Torchy's Tacos",
+      "latitude": 30.27835,
+      "longitude": -95.4649,
+      "area": "conroe",
+      "address": "351 S Loop 336 W Ste 100, Conroe, TX 77304, USA",
+      "cuisines": ["mexican"],
+      "priceTier": "$",
+      "isFastFood": false,
+      "website": "https://torchystacos.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ",
+      "phone": "(936) 647-2457",
       "description": "Sourced from Google Places (conroe).",
       "signatureDishes": []
     },
@@ -5791,6 +5836,21 @@
       "signatureDishes": []
     },
     {
+      "id": "aa41ef72-5d18-595a-bb1c-3d0296995fd6",
+      "name": "Bodeguita Quisqueya",
+      "latitude": 30.03759,
+      "longitude": -95.4878,
+      "area": "klein",
+      "address": "18379 Kuykendahl Rd, Spring, TX 77379, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://www.facebook.com/profile.php?id=100064013594098&mibextid=ZbWKwL",
+      "phone": "(346) 657-1562",
+      "description": "Sourced from Google Places (klein).",
+      "signatureDishes": []
+    },
+    {
       "id": "1e2811c1-85a1-5536-aac6-e556f0f7a70c",
       "name": "Bojangles",
       "latitude": 30.08824,
@@ -6226,6 +6286,36 @@
       "signatureDishes": []
     },
     {
+      "id": "7c491099-9886-5b86-a0f0-0ec3153354c5",
+      "name": "Chawuarma",
+      "latitude": 30.0247,
+      "longitude": -95.51825,
+      "area": "klein",
+      "address": "6880 Louetta Rd, Spring, TX 77379, USA",
+      "cuisines": ["mediterranean"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Sourced from Google Places (klein).",
+      "signatureDishes": []
+    },
+    {
+      "id": "e99f5a7f-eb77-5fe7-9bea-866e9225ca8e",
+      "name": "Cheapshotz Sports Bar",
+      "latitude": 30.0834,
+      "longitude": -95.50781,
+      "area": "klein",
+      "address": "21943 Gosling Rd #110, Spring, TX 77388, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://cheapshotzsportsbar.com/",
+      "phone": null,
+      "description": "Sourced from Google Places (klein).",
+      "signatureDishes": []
+    },
+    {
       "id": "a1e9937f-fa66-5524-804e-6cca505776ab",
       "name": "Cheaters Creamery",
       "latitude": 30.03842,
@@ -6436,21 +6526,6 @@
       "signatureDishes": []
     },
     {
-      "id": "f28f9108-82c9-5cdf-a9b6-cf0cb37e46a8",
-      "name": "Cinemark Spring-Klein and XD",
-      "latitude": 30.08068,
-      "longitude": -95.51806,
-      "area": "klein",
-      "address": "21440 Kuykendahl Rd, Spring, TX 77379, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.cinemark.com/theatres/tx-spring/cinemark-spring-klein-and-xd?utm_medium=organic&utm_source=gmb&utm_campaign=local_listing_theater&utm_content=GMB_listing&y_source=1_MTc0OTMwNjktNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
-      "phone": "(281) 288-2894",
-      "description": "Sourced from Google Places (klein).",
-      "signatureDishes": []
-    },
-    {
       "id": "cc1a1ef8-d065-505f-93d7-32db38f80ef5",
       "name": "Cinnaholic",
       "latitude": 30.08889,
@@ -6507,6 +6582,21 @@
       "isFastFood": false,
       "website": null,
       "phone": "(713) 779-6388",
+      "description": "Sourced from Google Places (klein).",
+      "signatureDishes": []
+    },
+    {
+      "id": "9c44cbac-6052-5334-bc66-7d5613ceedb0",
+      "name": "Common Bond Bistro & Bakery - Spring",
+      "latitude": 30.0812,
+      "longitude": -95.52017,
+      "area": "klein",
+      "address": "21620 Kuykendahl Rd, Spring, TX 77379, USA",
+      "cuisines": ["cafeBakery"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://www.commonbondcafe.com/",
+      "phone": "(713) 343-2255",
       "description": "Sourced from Google Places (klein).",
       "signatureDishes": []
     },
@@ -6732,6 +6822,21 @@
       "isFastFood": false,
       "website": "http://www.deltejano.com/",
       "phone": "(281) 781-8298",
+      "description": "Sourced from Google Places (klein).",
+      "signatureDishes": []
+    },
+    {
+      "id": "a11332f1-7710-5ece-8429-4cfa94506863",
+      "name": "Deli",
+      "latitude": 30.07699,
+      "longitude": -95.51209,
+      "area": "klein",
+      "address": "Deli, Spring, TX 77388, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
       "description": "Sourced from Google Places (klein).",
       "signatureDishes": []
     },
@@ -7183,6 +7288,21 @@
       "website": "https://locations.dutchbros.com/dutch-bros-coffee-42c9b870c8bd",
       "phone": "+1 877-899-2767",
       "description": "Coffee & bakery cafe in Klein.",
+      "signatureDishes": []
+    },
+    {
+      "id": "105054eb-d167-58d9-aefd-5b110c8f7e8a",
+      "name": "Earl's Live Crawfish",
+      "latitude": 30.08742,
+      "longitude": -95.54185,
+      "area": "klein",
+      "address": "7622 Spring Stuebner Rd, Spring, TX 77379, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "http://earlslivecrawfish.com/",
+      "phone": "(281) 782-1360",
+      "description": "Sourced from Google Places (klein).",
       "signatureDishes": []
     },
     {
@@ -8338,21 +8458,6 @@
       "website": "https://jeremiahsice.com/?utm_medium=yext&utm_source=extnet&y_source=1_MTAwMzAwNTExOC03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D",
       "phone": "+1 281-907-8110",
       "description": "Dessert ice cream shop in Klein.",
-      "signatureDishes": []
-    },
-    {
-      "id": "84a61370-e8ea-551e-bab0-22a978e77ab4",
-      "name": "Jerri\"s Creole Catering Company",
-      "latitude": 30.02418,
-      "longitude": -95.44104,
-      "area": "klein",
-      "address": "1000 Cypress Station Dr, Houston, TX 77090, USA",
-      "cuisines": ["american"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": "(346) 999-8639",
-      "description": "Sourced from Google Places (klein).",
       "signatureDishes": []
     },
     {
@@ -10831,21 +10936,6 @@
       "signatureDishes": []
     },
     {
-      "id": "f64176e4-e63b-5af7-af28-82df5275ad08",
-      "name": "Seacastle2",
-      "latitude": 30.06651,
-      "longitude": -95.54366,
-      "area": "klein",
-      "address": "20842 Sherwood Pass Ln, Spring, TX 77379, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Sourced from Google Places (klein).",
-      "signatureDishes": []
-    },
-    {
       "id": "631b99f2-a985-5464-a5ba-741f1822b91b",
       "name": "Season's Harvest - The Farmer’s Table",
       "latitude": 30.0228,
@@ -11142,6 +11232,21 @@
       "isFastFood": true,
       "website": "https://locations.smoothieking.com/ll/us/tx/spring/20222-champion-forest-drive/?utm_source=google&utm_medium=organic&utm_content=SOCi",
       "phone": "(832) 953-2920",
+      "description": "Sourced from Google Places (klein).",
+      "signatureDishes": []
+    },
+    {
+      "id": "a88c22f4-b928-528e-8806-458713d15f4d",
+      "name": "Smoothie King",
+      "latitude": 30.08182,
+      "longitude": -95.52076,
+      "area": "klein",
+      "address": "21630 Kuykendahl Rd #405, Spring, TX 77388, USA",
+      "cuisines": ["burgers", "breakfastBrunch"],
+      "priceTier": "$$",
+      "isFastFood": true,
+      "website": "https://locations.smoothieking.com/ll/us/tx/spring/21630-kuykendahl-rd/?utm_source=google&utm_medium=organic&utm_content=SOCi",
+      "phone": "(281) 719-0019",
       "description": "Sourced from Google Places (klein).",
       "signatureDishes": []
     },
@@ -11986,6 +12091,21 @@
       "signatureDishes": []
     },
     {
+      "id": "34b39d41-fd7e-5554-a931-66f451717c11",
+      "name": "Taqueria y pupusas griss 3",
+      "latitude": 30.0736,
+      "longitude": -95.49756,
+      "area": "klein",
+      "address": "5035 Farm to Market 2920, Spring, TX 77379, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://www.doordash.com/store/36075443?utm_source=mx_share_android",
+      "phone": "(346) 745-3354",
+      "description": "Sourced from Google Places (klein).",
+      "signatureDishes": []
+    },
+    {
       "id": "ce4afdb6-6a69-5075-a164-8a36de9bbd86",
       "name": "Taqueria y pupuseria keyla # 2 (food truck)",
       "latitude": 30.0161,
@@ -12556,6 +12676,21 @@
       "signatureDishes": []
     },
     {
+      "id": "c41130c1-053b-5ee9-a224-dfbd0d4d1367",
+      "name": "Top Donuts",
+      "latitude": 30.03955,
+      "longitude": -95.48935,
+      "area": "klein",
+      "address": "4923 Louetta Rd, Spring, TX 77379, USA",
+      "cuisines": ["dessert", "cafeBakery"],
+      "priceTier": "$",
+      "isFastFood": false,
+      "website": null,
+      "phone": "(281) 251-9250",
+      "description": "Sourced from Google Places (klein).",
+      "signatureDishes": []
+    },
+    {
       "id": "4b14171a-149f-5d82-8c7b-b8432cc013a5",
       "name": "Top Sushi",
       "latitude": 30.03809,
@@ -12614,6 +12749,21 @@
       "phone": null,
       "description": "Houston smash-burger brand co-founded by Bun B; second brick-and-mortar on Louetta Rd. Opened April 2025.",
       "signatureDishes": ["OG Burger", "Trill fries"]
+    },
+    {
+      "id": "d5bf8109-eae6-5d98-9d96-a1de4e2852bb",
+      "name": "Tropical City Daiquiris To Go",
+      "latitude": 30.06763,
+      "longitude": -95.50591,
+      "area": "klein",
+      "address": "20424 Kuykendahl Rd Unit B, Spring, TX 77379, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "http://www.tropicalcitydaiquiris.com/",
+      "phone": "(832) 660-5306",
+      "description": "Sourced from Google Places (klein).",
+      "signatureDishes": []
     },
     {
       "id": "456b3596-4db4-5636-821f-9e53e93dc052",
@@ -13591,6 +13741,21 @@
       "signatureDishes": []
     },
     {
+      "id": "60d35f9d-9837-5019-a7a6-830a6cd3ef46",
+      "name": "Chili's Grill & Bar",
+      "latitude": 30.08992,
+      "longitude": -95.63768,
+      "area": "magnolia",
+      "address": "14006 Farm to Market 2920, Tomball, TX 77377, USA",
+      "cuisines": ["burgers", "texMex", "mexican"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://www.chilis.com/locations/us/texas/tomball/tomball?utm_source=google&utm_medium=local&utm_campaign=Chilis",
+      "phone": "(281) 290-7459",
+      "description": "Sourced from Google Places (magnolia).",
+      "signatureDishes": []
+    },
+    {
       "id": "778ff247-945a-5dd3-ab66-142106f185f6",
       "name": "Chuchos MTY Roasted Corn",
       "latitude": 30.18263,
@@ -13726,6 +13891,21 @@
       "signatureDishes": []
     },
     {
+      "id": "f583f548-4bf0-5d7c-b6a5-eebf0a0620a9",
+      "name": "Crust Pizza Co. - Tomball",
+      "latitude": 30.08898,
+      "longitude": -95.64186,
+      "area": "magnolia",
+      "address": "14441 Farm to Market 2920, Tomball, TX 77377, USA",
+      "cuisines": ["pizza"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://www.crustpizzaco.com/locations/TX/tomball",
+      "phone": "(281) 547-0673",
+      "description": "Sourced from Google Places (magnolia).",
+      "signatureDishes": []
+    },
+    {
       "id": "3e2d712b-6b21-5ca0-87c3-14e9d212b1cb",
       "name": "Dairy Queen",
       "latitude": 30.1909,
@@ -13741,6 +13921,21 @@
       "signatureDishes": []
     },
     {
+      "id": "7ef2797a-a858-5bc3-9af6-6a64840e7b64",
+      "name": "DECKER X PRESS",
+      "latitude": 30.12764,
+      "longitude": -95.6494,
+      "area": "magnolia",
+      "address": "31718 TX-249, Pinehurst, TX 77362, USA",
+      "cuisines": ["cafeBakery"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": "(281) 259-7790",
+      "description": "Sourced from Google Places (magnolia).",
+      "signatureDishes": []
+    },
+    {
       "id": "01833f50-c9cf-5ecb-98bf-e0905f4cd000",
       "name": "Deli",
       "latitude": 30.19014,
@@ -13753,6 +13948,21 @@
       "website": null,
       "phone": null,
       "description": "Sourced from Google Places (woodlands).",
+      "signatureDishes": []
+    },
+    {
+      "id": "e59d08fd-9924-57e9-834a-e94f3a5bbe9e",
+      "name": "Denny's Restaurant",
+      "latitude": 30.08991,
+      "longitude": -95.63817,
+      "area": "magnolia",
+      "address": "14010 Farm to Market 2920, Tomball, TX 77375, USA",
+      "cuisines": ["breakfastBrunch", "american"],
+      "priceTier": "$",
+      "isFastFood": false,
+      "website": "https://locations.dennys.com/TX/TOMBALL/247634?utm_source=G&utm_medium=organic&utm_campaign=DAC",
+      "phone": "(281) 290-7035",
+      "description": "Sourced from Google Places (magnolia).",
       "signatureDishes": []
     },
     {
@@ -14187,6 +14397,21 @@
       "isFastFood": false,
       "website": null,
       "phone": "(346) 796-8682",
+      "description": "Sourced from Google Places (magnolia).",
+      "signatureDishes": []
+    },
+    {
+      "id": "d659fb38-dcaf-5c6d-a70b-7b79d082c56f",
+      "name": "Halal Tacos & Grill",
+      "latitude": 30.19157,
+      "longitude": -95.71971,
+      "area": "magnolia",
+      "address": "38019 FM 1774, Magnolia, TX 77355, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": "(832) 557-0827",
       "description": "Sourced from Google Places (magnolia).",
       "signatureDishes": []
     },
@@ -14911,21 +15136,6 @@
       "signatureDishes": []
     },
     {
-      "id": "2f6a5147-5f02-5d7f-abdb-6ff537d240d3",
-      "name": "Master Chef Catering",
-      "latitude": 30.09304,
-      "longitude": -95.65441,
-      "area": "magnolia",
-      "address": "22818 Park Rd, Tomball, TX 77377, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.masterchefcatering.net/",
-      "phone": "(713) 823-6921",
-      "description": "Sourced from Google Places (magnolia).",
-      "signatureDishes": []
-    },
-    {
       "id": "933c5d63-b5cb-5068-ac75-254586c18648",
       "name": "McDonald's",
       "latitude": 30.09913,
@@ -15001,6 +15211,21 @@
       "signatureDishes": []
     },
     {
+      "id": "2f91b4e8-323e-59d5-896e-4166e59b448c",
+      "name": "Meat Empire BBQ",
+      "latitude": 30.19923,
+      "longitude": -95.73158,
+      "area": "magnolia",
+      "address": "38925 FM 1774, Magnolia, TX 77355, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "http://meatempirebbq.com/",
+      "phone": "(832) 349-1381",
+      "description": "Sourced from Google Places (magnolia).",
+      "signatureDishes": []
+    },
+    {
       "id": "dd722383-69ae-58d5-999c-84c8a0375a64",
       "name": "Mei Wei",
       "latitude": 30.19018,
@@ -15058,6 +15283,21 @@
       "website": "https://locations.modpizza.com/usa/tx/magnolia/13650-fm-1489?utm_source=google&utm_medium=yext",
       "phone": "(346) 336-4005",
       "description": "Sourced from Google Places (woodlands).",
+      "signatureDishes": []
+    },
+    {
+      "id": "2a956366-8cd5-5647-8334-19d8295a91a5",
+      "name": "Molly's Pub",
+      "latitude": 30.08258,
+      "longitude": -95.63131,
+      "area": "magnolia",
+      "address": "28107 TX-249, Tomball, TX 77375, USA",
+      "cuisines": ["other"],
+      "priceTier": "$",
+      "isFastFood": false,
+      "website": "https://www.instagram.com/mollyspubtomball/",
+      "phone": "(832) 559-7385",
+      "description": "Sourced from Google Places (magnolia).",
       "signatureDishes": []
     },
     {
@@ -16036,6 +16276,21 @@
       "signatureDishes": []
     },
     {
+      "id": "da039874-6211-5c92-9a0c-7985d0c0c505",
+      "name": "Taqueria El Pichon",
+      "latitude": 30.13141,
+      "longitude": -95.65434,
+      "area": "magnolia",
+      "address": "32010 Industrial Park Dr, Pinehurst, TX 77362, USA",
+      "cuisines": ["mexican"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": "(346) 218-9476",
+      "description": "Sourced from Google Places (magnolia).",
+      "signatureDishes": []
+    },
+    {
       "id": "65676c40-b19d-57a4-99dd-f40bf8b5a654",
       "name": "Taqueria El Pichon #1",
       "latitude": 30.15533,
@@ -16062,6 +16317,21 @@
       "isFastFood": true,
       "website": "http://taqueriaselpichon.com/index.php#ubic",
       "phone": "(281) 891-0092",
+      "description": "Sourced from Google Places (magnolia).",
+      "signatureDishes": []
+    },
+    {
+      "id": "898f8d4c-c403-508e-aa3e-bf98a779fed3",
+      "name": "TAQUERIA FUSION MG.",
+      "latitude": 30.19039,
+      "longitude": -95.75326,
+      "area": "magnolia",
+      "address": "30619 Nichols Sawmill Rd, Magnolia, TX 77355, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": "(346) 367-4574",
       "description": "Sourced from Google Places (magnolia).",
       "signatureDishes": []
     },
@@ -16137,6 +16407,36 @@
       "isFastFood": false,
       "website": null,
       "phone": "(281) 838-5702",
+      "description": "Sourced from Google Places (magnolia).",
+      "signatureDishes": []
+    },
+    {
+      "id": "74434eae-e6d2-58a4-bad7-b4e59e1dc5fe",
+      "name": "Taqueria morez",
+      "latitude": 30.1276,
+      "longitude": -95.6492,
+      "area": "magnolia",
+      "address": "31718 TX-249, Pinehurst, TX 77362, USA",
+      "cuisines": ["mexican"],
+      "priceTier": "$",
+      "isFastFood": false,
+      "website": null,
+      "phone": "(281) 410-4917",
+      "description": "Sourced from Google Places (magnolia).",
+      "signatureDishes": []
+    },
+    {
+      "id": "491a725f-fd77-582f-ad47-3328fd3fe19c",
+      "name": "Taqueria Oscar",
+      "latitude": 30.12764,
+      "longitude": -95.6492,
+      "area": "magnolia",
+      "address": "31718 TX-249, Pinehurst, TX 77362, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": "(281) 410-4917",
       "description": "Sourced from Google Places (magnolia).",
       "signatureDishes": []
     },
@@ -16696,6 +16996,21 @@
       "signatureDishes": []
     },
     {
+      "id": "bb11c0ee-3362-559f-9c30-482876fa3f78",
+      "name": "Yankee Smoothie and More",
+      "latitude": 30.17076,
+      "longitude": -95.68353,
+      "area": "magnolia",
+      "address": "35423 TX-249, Pinehurst, TX 77362, USA",
+      "cuisines": ["dessert", "breakfastBrunch", "cafeBakery"],
+      "priceTier": "$",
+      "isFastFood": false,
+      "website": "http://yankee-doodle-donuts-pinehurst.paqe.io/",
+      "phone": "(832) 978-4930",
+      "description": "Sourced from Google Places (magnolia).",
+      "signatureDishes": []
+    },
+    {
       "id": "f58a5844-5b7a-56dc-b166-c233d4789d23",
       "name": "Yokohamaya Japanese Restaurant",
       "latitude": 30.08752,
@@ -16813,6 +17128,21 @@
       "website": "https://bahamabucks.com/shop/mont-belvieu/",
       "phone": "(936) 449-1355",
       "description": "Sourced from Google Places (woodlands).",
+      "signatureDishes": []
+    },
+    {
+      "id": "80eb5fc0-2a5e-5af2-9c53-b042b32e55e0",
+      "name": "Bamburger",
+      "latitude": 30.35831,
+      "longitude": -95.59312,
+      "area": "montgomery",
+      "address": "15320 Hwy 105 W, Montgomery, TX 77356, USA",
+      "cuisines": ["burgers", "american"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://bamburger.online/",
+      "phone": "(936) 267-0115",
+      "description": "Sourced from Google Places (montgomery).",
       "signatureDishes": []
     },
     {
@@ -17292,6 +17622,21 @@
       "isFastFood": false,
       "website": "https://www.hprosearch.com/",
       "phone": "(281) 960-7984",
+      "description": "Sourced from Google Places (montgomery).",
+      "signatureDishes": []
+    },
+    {
+      "id": "9d894602-1bf6-50ed-b581-ebec94cefc78",
+      "name": "Ijeoma BBQ",
+      "latitude": 30.38892,
+      "longitude": -95.7022,
+      "area": "montgomery",
+      "address": "21358 Eva St, Montgomery, TX 77356, USA",
+      "cuisines": ["bbq"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://www.ijeomabbq.com/",
+      "phone": "(956) 523-9133",
       "description": "Sourced from Google Places (montgomery).",
       "signatureDishes": []
     },
@@ -17851,6 +18196,21 @@
       "signatureDishes": []
     },
     {
+      "id": "c38909d0-287c-525e-9b32-e7ff5c1499e0",
+      "name": "Playin' A Round Café",
+      "latitude": 30.39698,
+      "longitude": -95.63651,
+      "area": "montgomery",
+      "address": "600 Margaritaville, Park Way, Montgomery, TX 77356, USA",
+      "cuisines": ["cafeBakery"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://www.margaritavilleresorts.com/margaritaville-lake-resort-lake-conroe/eat-drink/playin-a-round-caf",
+      "phone": "(936) 448-3260",
+      "description": "Sourced from Google Places (montgomery).",
+      "signatureDishes": []
+    },
+    {
       "id": "7c730012-58fa-54d8-a0c7-cf23bad1a80d",
       "name": "Porky's Belly BBQ",
       "latitude": 30.31926,
@@ -18106,6 +18466,51 @@
       "signatureDishes": []
     },
     {
+      "id": "90e9d34d-74e0-5ce2-a40b-047b0299428c",
+      "name": "Taqueria Guerrero",
+      "latitude": 30.39578,
+      "longitude": -95.65338,
+      "area": "montgomery",
+      "address": "16050 Walden Rd, Montgomery, TX 77356, USA",
+      "cuisines": ["mexican"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "http://www.facebook.com/MarielsMeatMarketTX",
+      "phone": "(936) 582-4601",
+      "description": "Sourced from Google Places (montgomery).",
+      "signatureDishes": []
+    },
+    {
+      "id": "37fe6d29-594a-59ba-80d8-1b676fffd88a",
+      "name": "Taste Of China",
+      "latitude": 30.38996,
+      "longitude": -95.67914,
+      "area": "montgomery",
+      "address": "20212 Eva St #140, Montgomery, TX 77356, USA",
+      "cuisines": ["chinese"],
+      "priceTier": "$",
+      "isFastFood": false,
+      "website": "http://www.tasteofchina.menu/",
+      "phone": "(936) 597-7777",
+      "description": "Sourced from Google Places (montgomery).",
+      "signatureDishes": []
+    },
+    {
+      "id": "4c843fc4-eeef-5a31-82e8-5ff49b74cb85",
+      "name": "Thai Wok In",
+      "latitude": 30.36059,
+      "longitude": -95.6046,
+      "area": "montgomery",
+      "address": "15917 Hwy 105 W, Ste. F, Montgomery, TX 77356, USA",
+      "cuisines": ["thai"],
+      "priceTier": "$",
+      "isFastFood": false,
+      "website": "http://www.thaiwokin.com/",
+      "phone": "(936) 588-3411",
+      "description": "Sourced from Google Places (montgomery).",
+      "signatureDishes": []
+    },
+    {
       "id": "6f98fbe4-69ba-5a78-9090-cf6a2bee83dc",
       "name": "The Big Sombrero",
       "latitude": 30.38499,
@@ -18346,6 +18751,21 @@
       "signatureDishes": []
     },
     {
+      "id": "e82196b1-a984-59b2-8e21-5c1c5f0be3d7",
+      "name": "Wave on Lake Conroe",
+      "latitude": 30.40099,
+      "longitude": -95.57,
+      "area": "montgomery",
+      "address": "7041 Kingston Cove Ln, Willis, TX 77318, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "http://www.waveonlakeconroe.com/",
+      "phone": "(936) 701-2021",
+      "description": "Sourced from Google Places (montgomery).",
+      "signatureDishes": []
+    },
+    {
       "id": "4bf6c429-4a44-5070-8c05-b8ff31353c08",
       "name": "Welcome to the Oscar’s Bistro & Catering",
       "latitude": 30.37823,
@@ -18387,6 +18807,21 @@
       "isFastFood": false,
       "website": "https://locations.whataburger.com/tx/montgomery/18950-highway-105-w.html/?utm_source=yextpages&utm_medium=locallistings&utm_campaign=yextpages",
       "phone": "(936) 582-1144",
+      "description": "Sourced from Google Places (montgomery).",
+      "signatureDishes": []
+    },
+    {
+      "id": "d15bff6b-c4b6-58fd-b102-70c0d49404b3",
+      "name": "Wilderlove Coffee",
+      "latitude": 30.3597,
+      "longitude": -95.66649,
+      "area": "montgomery",
+      "address": "20823 FM 2854 Rd, Montgomery, TX 77316, USA",
+      "cuisines": ["cafeBakery"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "http://www.wilderlovecoffee.com/",
+      "phone": null,
       "description": "Sourced from Google Places (montgomery).",
       "signatureDishes": []
     },
@@ -18478,21 +18913,6 @@
       "website": "https://www.marriott.com/en-us/hotels/houmw-the-woodlands-waterway-marriott-hotel-and-convention-center/dining/",
       "phone": "+1 281-367-9797",
       "description": "Restaurant in Oak Ridge North.",
-      "signatureDishes": []
-    },
-    {
-      "id": "b5b0bf16-2479-5108-b0f6-9b1337132e1f",
-      "name": "Activate Games",
-      "latitude": 30.12816,
-      "longitude": -95.44997,
-      "area": "oakRidgeNorth",
-      "address": "536 Sawdust Rd Suite C, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://playactivate.com/woodlands?utm_source=google&utm_medium=organic&utm_campaign=gmb-woodlands",
-      "phone": "(281) 475-4433",
-      "description": "Sourced from Google Places (oakRidgeNorth).",
       "signatureDishes": []
     },
     {
@@ -18631,6 +19051,21 @@
       "signatureDishes": []
     },
     {
+      "id": "f4b0ba8e-753c-5ce1-84fe-24a5335e0d8b",
+      "name": "Bar Bludorn Woodlands",
+      "latitude": 30.16103,
+      "longitude": -95.45934,
+      "area": "oakRidgeNorth",
+      "address": "25 Waterway Ave, The Woodlands, TX 77380, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://barbludornwoodlands.com/",
+      "phone": null,
+      "description": "Sourced from Google Places (oakRidgeNorth).",
+      "signatureDishes": []
+    },
+    {
       "id": "2374e084-0398-5b9d-905d-565751fd4211",
       "name": "Bar Louie - The Woodlands",
       "latitude": 30.16061,
@@ -18657,6 +19092,21 @@
       "isFastFood": false,
       "website": "http://www.bariristorante.com/",
       "phone": null,
+      "description": "Sourced from Google Places (oakRidgeNorth).",
+      "signatureDishes": []
+    },
+    {
+      "id": "b8c2e385-643b-5157-a3f6-c76e9d93b109",
+      "name": "Barney's",
+      "latitude": 30.1252,
+      "longitude": -95.44704,
+      "area": "oakRidgeNorth",
+      "address": "345 Sawdust Rd, Spring, TX 77380, USA",
+      "cuisines": ["other"],
+      "priceTier": "$",
+      "isFastFood": false,
+      "website": null,
+      "phone": "(281) 362-8900",
       "description": "Sourced from Google Places (oakRidgeNorth).",
       "signatureDishes": []
     },
@@ -18931,6 +19381,21 @@
       "signatureDishes": []
     },
     {
+      "id": "4ab91f2b-5c01-5113-b79f-2adfcfa2b504",
+      "name": "Chipotle Mexican Grill",
+      "latitude": 30.12646,
+      "longitude": -95.45504,
+      "area": "oakRidgeNorth",
+      "address": "760 Sawdust Rd, Spring, TX 77380, USA",
+      "cuisines": ["burgers", "mexican"],
+      "priceTier": "$",
+      "isFastFood": false,
+      "website": "https://locations.chipotle.com/tx/spring/760-sawdust-rd?utm_source=google&utm_medium=yext&utm_campaign=yext_listings?restaurant=3646",
+      "phone": "(832) 948-1041",
+      "description": "Sourced from Google Places (oakRidgeNorth).",
+      "signatureDishes": []
+    },
+    {
       "id": "587e4712-eb2e-5087-83b8-c4a1d64888f4",
       "name": "Churrascos SteakHouse The Woodlands",
       "latitude": 30.16016,
@@ -18976,21 +19441,6 @@
       "signatureDishes": []
     },
     {
-      "id": "0e89656b-ff67-595c-bed4-54aca8a305b4",
-      "name": "Cinemark The Woodlands and XD",
-      "latitude": 30.16205,
-      "longitude": -95.45864,
-      "area": "oakRidgeNorth",
-      "address": "1600 Lake Robbins Dr, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.cinemark.com/theatres/tx-the-woodlands/cinemark-the-woodlands-and-xd?utm_medium=organic&utm_source=gmb&utm_campaign=local_listing_theater&utm_content=GMB_listing&y_source=1_MTc0OTI5MjYtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
-      "phone": "(281) 362-4340",
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
-    },
-    {
       "id": "e34b4f2e-d176-5e1c-b341-2b5366b6d1c3",
       "name": "Clark's Confectionary",
       "latitude": 30.14529,
@@ -19002,6 +19452,36 @@
       "isFastFood": false,
       "website": null,
       "phone": "(281) 939-4227",
+      "description": "Sourced from Google Places (oakRidgeNorth).",
+      "signatureDishes": []
+    },
+    {
+      "id": "f1c4f965-06a3-563b-ad4d-89447776cbd2",
+      "name": "Clinica Hispana Gloria de America-Clinica Hispana en Spring TX",
+      "latitude": 30.12743,
+      "longitude": -95.44135,
+      "area": "oakRidgeNorth",
+      "address": "25188 I-45, Spring, TX 77386, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://gloriadeamerica.com/",
+      "phone": "(832) 299-6144",
+      "description": "Sourced from Google Places (oakRidgeNorth).",
+      "signatureDishes": []
+    },
+    {
+      "id": "8d9f1160-9965-50f0-a861-c34516171e2d",
+      "name": "Coffee & Christ Cafe",
+      "latitude": 30.15737,
+      "longitude": -95.46762,
+      "area": "oakRidgeNorth",
+      "address": "2001 Timberloch Pl #500, The Woodlands, TX 77380, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://coffeeandchristcafe.com/",
+      "phone": "(936) 978-0722",
       "description": "Sourced from Google Places (oakRidgeNorth).",
       "signatureDishes": []
     },
@@ -19047,6 +19527,36 @@
       "isFastFood": false,
       "website": "http://www.thecookinggirls.com/",
       "phone": null,
+      "description": "Sourced from Google Places (oakRidgeNorth).",
+      "signatureDishes": []
+    },
+    {
+      "id": "6b16d54d-f61f-56a8-8453-9a016597c373",
+      "name": "Cool Like Dat Eatz & Treatz",
+      "latitude": 30.12401,
+      "longitude": -95.41498,
+      "area": "oakRidgeNorth",
+      "address": "1810 Rayford Rd, Spring, TX 77386, USA",
+      "cuisines": ["dessert"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": "(832) 933-8866",
+      "description": "Sourced from Google Places (oakRidgeNorth).",
+      "signatureDishes": []
+    },
+    {
+      "id": "6f4e1758-367f-53d5-b3fb-b3068df3488a",
+      "name": "Cooper's Cocktails & Concessions",
+      "latitude": 30.11405,
+      "longitude": -95.45823,
+      "area": "oakRidgeNorth",
+      "address": "1245 Pruitt Rd, Spring, TX 77380, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://www.cooperscocktails.com/contact",
+      "phone": "(281) 557-6745",
       "description": "Sourced from Google Places (oakRidgeNorth).",
       "signatureDishes": []
     },
@@ -19122,6 +19632,21 @@
       "isFastFood": true,
       "website": "https://www.dairyqueen.com/en-us/locations/tx/the-woodlands/2300-buckthorne-pl/42772/?y_source=1_MjkzMzkyMTItNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
       "phone": "(281) 298-1200",
+      "description": "Sourced from Google Places (oakRidgeNorth).",
+      "signatureDishes": []
+    },
+    {
+      "id": "5542e6bc-142d-5e73-b7c7-f2d96afbfd24",
+      "name": "Desi Adda Indian Grill",
+      "latitude": 30.1536,
+      "longitude": -95.44727,
+      "area": "oakRidgeNorth",
+      "address": "26840 I-45, Oak Ridge North, TX 77386, USA",
+      "cuisines": ["indian"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
       "description": "Sourced from Google Places (oakRidgeNorth).",
       "signatureDishes": []
     },
@@ -19362,6 +19887,21 @@
       "isFastFood": false,
       "website": null,
       "phone": "(346) 288-0122",
+      "description": "Sourced from Google Places (oakRidgeNorth).",
+      "signatureDishes": []
+    },
+    {
+      "id": "36823d41-ba1d-5b8a-bfdb-0fe811d55b49",
+      "name": "Elite Cigars",
+      "latitude": 30.12029,
+      "longitude": -95.44282,
+      "area": "oakRidgeNorth",
+      "address": "24627 I-45, Spring, TX 77380, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
       "description": "Sourced from Google Places (oakRidgeNorth).",
       "signatureDishes": []
     },
@@ -20011,6 +20551,21 @@
       "signatureDishes": []
     },
     {
+      "id": "b5799e81-17b0-5501-ba9a-46aee4981bf4",
+      "name": "JoVi Coffee Roaster",
+      "latitude": 30.12699,
+      "longitude": -95.433,
+      "area": "oakRidgeNorth",
+      "address": "602 Rayford Rd Ste B, Spring, TX 77386, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "http://www.joviroasters.com/",
+      "phone": "(346) 382-8213",
+      "description": "Sourced from Google Places (oakRidgeNorth).",
+      "signatureDishes": []
+    },
+    {
       "id": "83932ecf-7e41-58fd-8c44-90fc1355f1c1",
       "name": "Julio's Mexican Grill",
       "latitude": 30.12834,
@@ -20037,21 +20592,6 @@
       "isFastFood": false,
       "website": "https://woodlands.kangasplaycenter.com/",
       "phone": "(832) 463-0846",
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
-    },
-    {
-      "id": "542b20e4-9483-5a37-8d60-2d25365c438d",
-      "name": "Kathy Veath",
-      "latitude": 30.15632,
-      "longitude": -95.46968,
-      "area": "oakRidgeNorth",
-      "address": "10210 Grogans Mill Rd Suite 320, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://woodlands-nutrition.com/about",
-      "phone": "(281) 882-3438",
       "description": "Sourced from Google Places (oakRidgeNorth).",
       "signatureDishes": []
     },
@@ -20671,21 +21211,6 @@
       "signatureDishes": []
     },
     {
-      "id": "b7c59b26-e941-578a-982e-f8f8164aec37",
-      "name": "Munoz Family Services",
-      "latitude": 30.16244,
-      "longitude": -95.41588,
-      "area": "oakRidgeNorth",
-      "address": "1512 Briarcliff St, Conroe, TX 77385, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": "(832) 257-3207",
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
-    },
-    {
       "id": "6461751d-7bd6-5a3a-a09f-7a7c493048a8",
       "name": "Natalita's #2",
       "latitude": 30.12428,
@@ -20953,21 +21478,6 @@
       "website": "https://pappasbbq.com/",
       "phone": "+1 281-363-2647",
       "description": "BBQ restaurant in Oak Ridge North.",
-      "signatureDishes": []
-    },
-    {
-      "id": "15964c14-e5c7-59c7-8527-353b5449a07f",
-      "name": "Paw Paw Chico BBQ - Business Office",
-      "latitude": 30.09389,
-      "longitude": -95.47945,
-      "area": "oakRidgeNorth",
-      "address": "4127 Lonesome Pine Rd, Spring, TX 77389, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.pawpawchicobbq.com/",
-      "phone": "(832) 598-1749",
-      "description": "Sourced from Google Places (oakRidgeNorth).",
       "signatureDishes": []
     },
     {
@@ -21391,6 +21901,21 @@
       "signatureDishes": []
     },
     {
+      "id": "4d29a795-bde6-5d4c-b546-76e58a0ca9a2",
+      "name": "Spring/Woodlands PACN (Pregnancy Assistance Center North)",
+      "latitude": 30.14811,
+      "longitude": -95.44637,
+      "area": "oakRidgeNorth",
+      "address": "26464 I-45, Spring, TX 77386, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "http://www.pacn.org/",
+      "phone": "(281) 367-1518",
+      "description": "Sourced from Google Places (oakRidgeNorth).",
+      "signatureDishes": []
+    },
+    {
       "id": "b4f6e0ab-93f6-505b-b18d-7c7e033a1aa9",
       "name": "Starbucks",
       "latitude": 30.12721,
@@ -21631,21 +22156,6 @@
       "signatureDishes": []
     },
     {
-      "id": "53956f57-562c-5e75-8abc-cd6636f1ef7c",
-      "name": "The Brew Group",
-      "latitude": 30.12352,
-      "longitude": -95.43962,
-      "area": "oakRidgeNorth",
-      "address": "25003 Pitkin Rd ste a400, Spring, TX 77386, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.thebrewgrouptx.com/",
-      "phone": "(281) 791-0310",
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
-    },
-    {
       "id": "cda1956d-f44e-514b-9b11-b2ede484917c",
       "name": "The Cheesecake Factory",
       "latitude": 30.1626,
@@ -21661,17 +22171,17 @@
       "signatureDishes": []
     },
     {
-      "id": "5eb7be77-5d73-56eb-aca2-34d809bda989",
-      "name": "The Cynthia Woods Mitchell Pavilion",
-      "latitude": 30.16143,
-      "longitude": -95.46407,
+      "id": "b169e6e6-ac51-55be-be65-dca40fd4deb8",
+      "name": "The Churro King (Food Truck)",
+      "latitude": 30.1276,
+      "longitude": -95.44571,
       "area": "oakRidgeNorth",
-      "address": "2005 Lake Robbins Dr, The Woodlands, TX 77380, USA",
+      "address": "130 Sawdust Rd, Spring, TX 77380, USA",
       "cuisines": ["other"],
       "priceTier": "$$",
       "isFastFood": false,
-      "website": "https://www.woodlandscenter.org/",
-      "phone": "(281) 364-3010",
+      "website": null,
+      "phone": null,
       "description": "Sourced from Google Places (oakRidgeNorth).",
       "signatureDishes": []
     },
@@ -21762,6 +22272,21 @@
       "isFastFood": false,
       "website": "http://www.thirdgencoffee.com/",
       "phone": "(281) 323-4454",
+      "description": "Sourced from Google Places (oakRidgeNorth).",
+      "signatureDishes": []
+    },
+    {
+      "id": "3a7e5ed4-caf9-5883-9968-264227577150",
+      "name": "Tikal Raspas",
+      "latitude": 30.13353,
+      "longitude": -95.44268,
+      "area": "oakRidgeNorth",
+      "address": "25602 I-45 #114B, Spring, TX 77386, USA",
+      "cuisines": ["dessert"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": "(281) 528-3507",
       "description": "Sourced from Google Places (oakRidgeNorth).",
       "signatureDishes": []
     },
@@ -21867,21 +22392,6 @@
       "isFastFood": false,
       "website": null,
       "phone": null,
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
-    },
-    {
-      "id": "027ce4ec-db6f-55fb-ae59-fdad6da58b1d",
-      "name": "Waterway Square District",
-      "latitude": 30.16059,
-      "longitude": -95.45929,
-      "area": "oakRidgeNorth",
-      "address": "1599 Lake Robbins Dr Suite B-150, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.regus.com/en/us/3999?utm_source=google_uberall&utm_medium=places&utm_campaign=uberall&utm_content=uberall",
-      "phone": "+1 281-362-2700",
       "description": "Sourced from Google Places (oakRidgeNorth).",
       "signatureDishes": []
     },
@@ -22171,6 +22681,21 @@
       "signatureDishes": ["Beer Bread", "Sauerkraut Balls", "Onion Rings"]
     },
     {
+      "id": "f121a065-2110-5d31-ba5b-96d47b3fdf9b",
+      "name": "1201 Lake Woodlands Dr near",
+      "latitude": 30.16324,
+      "longitude": -95.45557,
+      "area": "shenandoah",
+      "address": "the food court, 1201 Lake Woodlands Dr near, The Woodlands, TX 77380, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Sourced from Google Places (shenandoah).",
+      "signatureDishes": []
+    },
+    {
       "id": "5a9f004f-766f-580d-90f7-0bbc36b0cbd4",
       "name": "7 Brew Coffee",
       "latitude": 30.20801,
@@ -22227,6 +22752,21 @@
       "isFastFood": false,
       "website": "http://www.adriaticcafe.com/",
       "phone": "(936) 224-5828",
+      "description": "Sourced from Google Places (shenandoah).",
+      "signatureDishes": []
+    },
+    {
+      "id": "e8f7b6dd-567f-5f43-bd7b-34525fb78949",
+      "name": "Alamo Texican Cantina",
+      "latitude": 30.18179,
+      "longitude": -95.45291,
+      "area": "shenandoah",
+      "address": "28777 I-45, Spring, TX 77381, USA",
+      "cuisines": ["mexican"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
       "description": "Sourced from Google Places (shenandoah).",
       "signatureDishes": []
     },
@@ -22411,6 +22951,21 @@
       "signatureDishes": []
     },
     {
+      "id": "3982f47c-1017-5440-9bce-3c4a448887d4",
+      "name": "Bigotes Street Tacos - The Woodlands Mall",
+      "latitude": 30.164,
+      "longitude": -95.4552,
+      "area": "shenandoah",
+      "address": "1201 Lake Woodlands Dr Ste 2150, The Woodlands, TX 77380, USA",
+      "cuisines": ["mexican"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://bigotesstreettacos.com/",
+      "phone": "(281) 651-2681",
+      "description": "Sourced from Google Places (shenandoah).",
+      "signatureDishes": []
+    },
+    {
       "id": "f5d61178-32ab-57da-ad2d-0ed354592253",
       "name": "BJ's",
       "latitude": 30.18534,
@@ -22483,6 +23038,21 @@
       "website": "https://bosscatkitchen.com/woodlands",
       "phone": "+1 281-819-6330",
       "description": "Restaurant in Shenandoah.",
+      "signatureDishes": []
+    },
+    {
+      "id": "de477947-90a6-5947-818f-cd334668b569",
+      "name": "BRKTHROUGH The Woodlands/Shenandoah",
+      "latitude": 30.19514,
+      "longitude": -95.4508,
+      "area": "shenandoah",
+      "address": "8885 Metropark Dr, Shenandoah, TX 77385, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://www.brkthrough.com/shenandoah",
+      "phone": "(936) 247-4007",
+      "description": "Sourced from Google Places (shenandoah).",
       "signatureDishes": []
     },
     {
@@ -22726,6 +23296,21 @@
       "signatureDishes": []
     },
     {
+      "id": "a1960ef8-9d2f-5e5e-a990-d4dece113aa5",
+      "name": "Church's Texas Chicken",
+      "latitude": 30.1779,
+      "longitude": -95.45069,
+      "area": "shenandoah",
+      "address": "19153 I-45, Shenandoah, TX 77385, USA",
+      "cuisines": ["burgers"],
+      "priceTier": "$",
+      "isFastFood": true,
+      "website": "https://locations.churchs.com/tx/shenandoah/19153-i-45-south",
+      "phone": "(281) 419-4019",
+      "description": "Sourced from Google Places (shenandoah).",
+      "signatureDishes": []
+    },
+    {
       "id": "9f1a6e6a-dfdb-5b0f-9558-c91ed282f708",
       "name": "Chuy's",
       "latitude": 30.1945,
@@ -22752,21 +23337,6 @@
       "isFastFood": false,
       "website": "https://locations.cinnabon.com/tx/the-woodlands/1201-lake-woodlands-dr?utm_source=google&utm_medium=organic&utm_campaign=locations_partner",
       "phone": "(832) 283-0887",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
-      "id": "37230501-041b-51ac-a189-17c1e4c69342",
-      "name": "COACH",
-      "latitude": 30.16455,
-      "longitude": -95.45321,
-      "area": "shenandoah",
-      "address": "1201 Lake Woodlands Dr Space 1130, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$$",
-      "isFastFood": false,
-      "website": "https://www.coach.com/stores/tx/thewoodlands/1201-lake-woodland-drive?utm_medium=organic&utm_source=google&utm_campaign=stores",
-      "phone": "(281) 298-2579",
       "description": "Sourced from Google Places (shenandoah).",
       "signatureDishes": []
     },
@@ -23022,36 +23592,6 @@
       "isFastFood": false,
       "website": "https://www.elbosquemexicangrill.com/",
       "phone": "(936) 321-9860",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
-      "id": "523e9dec-03ea-5aa2-80a8-029d06731752",
-      "name": "ENIHEALTHCARE",
-      "latitude": 30.17256,
-      "longitude": -95.45801,
-      "area": "shenandoah",
-      "address": "9319 Pinecroft Dr #120, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://enihealthcare.com/",
-      "phone": "(936) 321-1946",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
-      "id": "df98d0c5-2847-59f6-80e9-c31348225460",
-      "name": "Everest ThriveCare-The Woodlands",
-      "latitude": 30.17217,
-      "longitude": -95.45367,
-      "area": "shenandoah",
-      "address": "1011 Medical Plaza Dr suite #130, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://ethrivecare.org/",
-      "phone": "(281) 600-8553",
       "description": "Sourced from Google Places (shenandoah).",
       "signatureDishes": []
     },
@@ -23416,36 +23956,6 @@
       "signatureDishes": []
     },
     {
-      "id": "58e21326-0941-5b41-97d5-30cc0c688679",
-      "name": "Houston Methodist Endocrinology Associates",
-      "latitude": 30.20636,
-      "longitude": -95.45183,
-      "area": "shenandoah",
-      "address": "17189 I-45 Ste 505, Conroe, TX 77385, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.houstonmethodist.org/spg/endocrinology/the-woodlands/?utm_source=gmb&utm_medium=organic&utm_campaign=all_location_gmb&utm_content=website-click",
-      "phone": "(936) 270-4400",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
-      "id": "03df0fee-6f7c-5449-bf7c-bd0784610eb6",
-      "name": "Ike Eni, MD",
-      "latitude": 30.17263,
-      "longitude": -95.45797,
-      "area": "shenandoah",
-      "address": "9319 Pinecroft Dr #120, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://enihealthcare.com/",
-      "phone": "(936) 321-1946",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
       "id": "000701b2-2fba-509a-ae93-4a1d7bf92823",
       "name": "Insomnia Cookies",
       "latitude": 30.20498,
@@ -23472,6 +23982,21 @@
       "isFastFood": true,
       "website": "https://locations.jackinthebox.com/us/tx/conroe/9300-highway-242?utm_source=google&utm_medium=local&utm_campaign=google-local",
       "phone": "(936) 271-3277",
+      "description": "Sourced from Google Places (shenandoah).",
+      "signatureDishes": []
+    },
+    {
+      "id": "bf3cf0a3-3de3-55cd-8792-67c530bcb289",
+      "name": "Jasper’s The Woodlands - Closed Indefinitely",
+      "latitude": 30.16387,
+      "longitude": -95.46387,
+      "area": "shenandoah",
+      "address": "9595 Six Pines Dr, The Woodlands, TX 77380, USA",
+      "cuisines": ["american"],
+      "priceTier": "$$$",
+      "isFastFood": false,
+      "website": "https://jaspersthewoodlands.com/?y_source=1_MjY0ODYyNTQtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "phone": "(281) 298-6600",
       "description": "Sourced from Google Places (shenandoah).",
       "signatureDishes": []
     },
@@ -23626,6 +24151,21 @@
       "signatureDishes": []
     },
     {
+      "id": "7f1f0570-8ede-52e4-96e6-37b1b93b0a9e",
+      "name": "Kat Daddy's",
+      "latitude": 30.23563,
+      "longitude": -95.46563,
+      "area": "shenandoah",
+      "address": "463 FM 1488, Conroe, TX 77384, USA",
+      "cuisines": ["other"],
+      "priceTier": "$",
+      "isFastFood": false,
+      "website": null,
+      "phone": "(936) 273-9342",
+      "description": "Sourced from Google Places (shenandoah).",
+      "signatureDishes": []
+    },
+    {
       "id": "bd7ea548-6f11-5289-8078-b4ab13db91dd",
       "name": "Katz's Deli Express",
       "latitude": 30.18114,
@@ -23772,21 +24312,6 @@
       "isFastFood": false,
       "website": null,
       "phone": null,
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
-      "id": "cd6a493e-e3e1-5ed4-9ca9-039b5fb80100",
-      "name": "Lake Woodlands Crossing",
-      "latitude": 30.16602,
-      "longitude": -95.46451,
-      "area": "shenandoah",
-      "address": "1900 Lake Woodlands Dr, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.whitestonereit.com/communities/?propertyId=Lake-Woodlands-Crossing",
-      "phone": "(713) 435-2203",
       "description": "Sourced from Google Places (shenandoah).",
       "signatureDishes": []
     },
@@ -24016,21 +24541,6 @@
       "signatureDishes": []
     },
     {
-      "id": "12be364d-819d-5534-8b82-25db3a1a5a48",
-      "name": "Market Street Square",
-      "latitude": 30.16386,
-      "longitude": -95.46345,
-      "area": "shenandoah",
-      "address": "9595 Six Pines Dr Suite 700, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.marketstreet-thewoodlands.com/",
-      "phone": "(281) 419-4774",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
       "id": "df3e4449-e34e-5b44-8ba3-92f09a68d165",
       "name": "Masala Outlaws",
       "latitude": 30.20795,
@@ -24102,21 +24612,6 @@
       "isFastFood": false,
       "website": "https://mestizosmexicancafe.com/",
       "phone": "(936) 273-1010",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
-      "id": "dc9baf03-ac8e-53b5-98cf-6d80470e294f",
-      "name": "Metropark Square",
-      "latitude": 30.1948,
-      "longitude": -95.45253,
-      "area": "shenandoah",
-      "address": "8888 Metropark Dr, Shenandoah, TX 77385, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.metroparksquare.com/",
-      "phone": "(972) 421-2700",
       "description": "Sourced from Google Places (shenandoah).",
       "signatureDishes": []
     },
@@ -24436,21 +24931,6 @@
       "signatureDishes": []
     },
     {
-      "id": "90cb5262-338e-57c0-ab79-cab81bd2094e",
-      "name": "Paradise Grills The Woodlands Outdoor Kitchens",
-      "latitude": 30.18936,
-      "longitude": -95.45189,
-      "area": "shenandoah",
-      "address": "19053 I-45 Suite H, Shenandoah, TX 77385, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://paradisegrillsdirect.com/showroom/woodlands-outdoor-kitchens/?utm_source=Google&utm_medium=Knowledge_Panel_and_Google_Maps&utm_campaign=The_Woodlands",
-      "phone": "(832) 871-4271",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
       "id": "f78999b1-4996-5715-a058-66ff5f3ca798",
       "name": "Pei Wei Asian Kitchen",
       "latitude": 30.18275,
@@ -24616,6 +25096,21 @@
       "signatureDishes": []
     },
     {
+      "id": "baabb52f-01d6-5162-8994-b52dd4eaf5dd",
+      "name": "Popeyes Louisiana Kitchen",
+      "latitude": 30.16452,
+      "longitude": -95.45383,
+      "area": "shenandoah",
+      "address": "1201 Lake Woodlands Dr, The Woodlands Mall, The Woodlands, TX 77380, USA",
+      "cuisines": ["burgers"],
+      "priceTier": "$$",
+      "isFastFood": true,
+      "website": "https://www.popeyes.com/store-locator/store/restaurant_878551",
+      "phone": "(346) 380-4360",
+      "description": "Sourced from Google Places (shenandoah).",
+      "signatureDishes": []
+    },
+    {
       "id": "37f7329b-c887-5b98-b1cb-8de5b6df3a5b",
       "name": "Potbelly",
       "latitude": 30.166,
@@ -24658,21 +25153,6 @@
       "website": "https://pretzelmaker.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ",
       "phone": "+1 281-362-1452",
       "description": "Quick-service spot in Shenandoah.",
-      "signatureDishes": []
-    },
-    {
-      "id": "b90f9f23-95f5-5417-833c-f32fb69c711c",
-      "name": "QC Kinetix - The Woodlands",
-      "latitude": 30.17229,
-      "longitude": -95.45463,
-      "area": "shenandoah",
-      "address": "1001 Medical Plaza Dr #190, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://qckinetix.com/houston/the-woodlands/?utm_source=google&utm_medium=organic&utm_campaign=gbp-listing",
-      "phone": "(713) 597-8921",
-      "description": "Sourced from Google Places (shenandoah).",
       "signatureDishes": []
     },
     {
@@ -24733,21 +25213,6 @@
       "website": "https://www.redrobin.com/locations/tx/shenandoah/woodlands-509",
       "phone": "+1 281-465-9896",
       "description": "Burger restaurant in Shenandoah.",
-      "signatureDishes": []
-    },
-    {
-      "id": "c1e6bc6d-49f5-5dbd-8440-6bf3ebccd844",
-      "name": "Reel Luxury Cinemas",
-      "latitude": 30.16352,
-      "longitude": -95.46376,
-      "area": "shenandoah",
-      "address": "9595 Six Pines Dr Suite 8200, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.reelluxurycinemas.com/",
-      "phone": "(832) 924-8499",
-      "description": "Sourced from Google Places (shenandoah).",
       "signatureDishes": []
     },
     {
@@ -24838,6 +25303,21 @@
       "website": "https://www.sarkujapan.com/",
       "phone": null,
       "description": "Japanese quick-service spot in Shenandoah.",
+      "signatureDishes": []
+    },
+    {
+      "id": "533d7d18-d8ba-5682-b5f1-9e9e01e7adea",
+      "name": "Sbarro The Woodlands Mall",
+      "latitude": 30.16324,
+      "longitude": -95.45557,
+      "area": "shenandoah",
+      "address": "1201 Lake Woodlands Dr Ste 02154, The Woodlands, TX 77380, USA",
+      "cuisines": ["pizza"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://sbarro.com/locations/tx/the-woodlands/the-woodlands-mall/",
+      "phone": "(346) 372-8456",
+      "description": "Sourced from Google Places (shenandoah).",
       "signatureDishes": []
     },
     {
@@ -25171,6 +25651,21 @@
       "signatureDishes": []
     },
     {
+      "id": "05dbd8c3-1097-579e-9e6a-8ec96b38e2a8",
+      "name": "Tacos nueva italia 2 jr",
+      "latitude": 30.20917,
+      "longitude": -95.43324,
+      "area": "shenandoah",
+      "address": "16983 Gleneagle Dr N, Conroe, TX 77385, USA",
+      "cuisines": ["mexican"],
+      "priceTier": "$",
+      "isFastFood": false,
+      "website": "https://m.facebook.com/tacosnuevaitalia13/",
+      "phone": "(936) 444-8156",
+      "description": "Sourced from Google Places (shenandoah).",
+      "signatureDishes": []
+    },
+    {
       "id": "f4fce329-16d7-5536-9265-8cc79e662f95",
       "name": "Tailgators Pub 242",
       "latitude": 30.20758,
@@ -25306,21 +25801,6 @@
       "signatureDishes": []
     },
     {
-      "id": "e12917c9-92c9-56b9-81c5-099dcd894800",
-      "name": "The Woodlands Mall",
-      "latitude": 30.16436,
-      "longitude": -95.45398,
-      "area": "shenandoah",
-      "address": "1201 Lake Woodlands Dr #700, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.thewoodlandsmall.com/en.html",
-      "phone": "(281) 363-3363",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
       "id": "f58a1a24-4c85-57e2-8a58-b43f3bde4b0c",
       "name": "Thesweetncream",
       "latitude": 30.16577,
@@ -25377,21 +25857,6 @@
       "isFastFood": false,
       "website": "http://topsushibar.com/index.html",
       "phone": "(936) 231-8448",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
-      "id": "30376462-be4a-5a0f-aeef-b9bae47cab12",
-      "name": "Total Wine & More",
-      "latitude": 30.16612,
-      "longitude": -95.46427,
-      "area": "shenandoah",
-      "address": "1900 Lake Woodlands Dr Ste 900, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.totalwine.com/store-info/texas-the-woodlands/524?cid=referral:website_link::momentfeed:524_woodlands_store_details_page:",
-      "phone": "(346) 224-9217",
       "description": "Sourced from Google Places (shenandoah).",
       "signatureDishes": []
     },
@@ -25497,6 +25962,21 @@
       "isFastFood": false,
       "website": "https://order.online/business/happy-lemon-11621213",
       "phone": "(936) 447-9042",
+      "description": "Sourced from Google Places (shenandoah).",
+      "signatureDishes": []
+    },
+    {
+      "id": "60cdd297-c047-5517-82ac-132cae6eb1c7",
+      "name": "Vania Oliver Healthy Skin",
+      "latitude": 30.16447,
+      "longitude": -95.46222,
+      "area": "shenandoah",
+      "address": "9595 Six Pines Dr Ste 4250, The Woodlands, TX 77380, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://vaniaoliverhealthyskin.com/",
+      "phone": "(917) 609-2491",
       "description": "Sourced from Google Places (shenandoah).",
       "signatureDishes": []
     },
@@ -26472,21 +26952,6 @@
       "isFastFood": false,
       "website": "http://centerpiecebakerytx.com/",
       "phone": "(281) 673-8141",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
-      "id": "e52811b2-898d-545e-8ecd-f304eea2d15d",
-      "name": "centry SQUARE",
-      "latitude": 30.07857,
-      "longitude": -95.41977,
-      "area": "spring",
-      "address": "311 Gentry St, Spring, TX 77373, USA",
-      "cuisines": ["cafeBakery"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": "+1 281-799-6882",
       "description": "Sourced from Google Places (spring).",
       "signatureDishes": []
     },
@@ -27736,6 +28201,21 @@
       "signatureDishes": []
     },
     {
+      "id": "bebf0944-598d-518c-b2e5-f5e0c6f63e66",
+      "name": "El Rincon de la Gocha #3",
+      "latitude": 30.07011,
+      "longitude": -95.46877,
+      "area": "spring",
+      "address": "3405 Farm to Market 2920, Spring, TX 77388, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": "(832) 651-9702",
+      "description": "Sourced from Google Places (spring).",
+      "signatureDishes": []
+    },
+    {
       "id": "5f5dcb70-2269-59cf-9106-77fefb8a8513",
       "name": "El Rincon Del Taco",
       "latitude": 30.08235,
@@ -27747,21 +28227,6 @@
       "isFastFood": true,
       "website": null,
       "phone": "(832) 884-4387",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
-      "id": "4ba8ad17-f686-5891-8d78-a3d4543d46bb",
-      "name": "ELEVATE Spring Crossing",
-      "latitude": 30.07935,
-      "longitude": -95.44509,
-      "area": "spring",
-      "address": "21525 Spring Plaza Dr, Spring, TX 77388, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.elevatespringcrossing.com/?utm_medium=social&utm_source=google&utm_term=GBPPost",
-      "phone": "(833) 212-8818",
       "description": "Sourced from Google Places (spring).",
       "signatureDishes": []
     },
@@ -28047,21 +28512,6 @@
       "isFastFood": false,
       "website": "http://fumanchung.com/",
       "phone": "(832) 791-5873",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
-      "id": "f6eb21b8-0798-5c22-9293-3f95fa3c6b84",
-      "name": "Gentry Square",
-      "latitude": 30.07854,
-      "longitude": -95.42003,
-      "area": "spring",
-      "address": "315 Gentry St, Spring, TX 77373, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": "(281) 799-6882",
       "description": "Sourced from Google Places (spring).",
       "signatureDishes": []
     },
@@ -29356,21 +29806,6 @@
       "signatureDishes": []
     },
     {
-      "id": "648e23bc-1188-5064-85ef-bee1fbcc811e",
-      "name": "MB Speakeasy - Old Town Spring Live Music",
-      "latitude": 30.07863,
-      "longitude": -95.42071,
-      "area": "spring",
-      "address": "417A Gentry St, Spring, TX 77373, USA",
-      "cuisines": ["pizza"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://mbspeakeasy.com/?utm_source=google&utm_medium=organic&utm_campaign=gbp",
-      "phone": "(832) 299-1633",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
       "id": "4de54eaf-81e6-58ac-9a31-add22cff7296",
       "name": "McAlister's Deli",
       "latitude": 30.04954,
@@ -29968,6 +30403,21 @@
       "website": null,
       "phone": null,
       "description": "Colombian",
+      "signatureDishes": []
+    },
+    {
+      "id": "405c943c-0334-59e8-b78b-56a75bc47858",
+      "name": "Parenthood Encompassed, LLC",
+      "latitude": 30.07853,
+      "longitude": -95.42069,
+      "area": "spring",
+      "address": "417 Gentry St #L, Spring, TX 77373, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://parenthoodencompassed.com/",
+      "phone": "(936) 265-8256",
+      "description": "Sourced from Google Places (spring).",
       "signatureDishes": []
     },
     {
@@ -32086,6 +32536,21 @@
       "signatureDishes": []
     },
     {
+      "id": "33670e58-5d41-5492-840f-714dfc9002a1",
+      "name": "The Cigar Box Houston Lounge",
+      "latitude": 30.07231,
+      "longitude": -95.42451,
+      "area": "spring",
+      "address": "727 E Louetta Rd Ste 102, Spring, TX 77373, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "http://thecigarboxhouston.net/",
+      "phone": "(346) 873-3966",
+      "description": "Sourced from Google Places (spring).",
+      "signatureDishes": []
+    },
+    {
       "id": "fd28084f-a55e-57d6-8edc-eeb480c92cfa",
       "name": "The Crussh Mobile",
       "latitude": 30.06055,
@@ -33196,6 +33661,21 @@
       "signatureDishes": []
     },
     {
+      "id": "eb995348-05b6-5a58-a088-f3202adfad1a",
+      "name": "Balanced Foods - Magnolia",
+      "latitude": 30.22347,
+      "longitude": -95.55865,
+      "area": "woodlands",
+      "address": "6011 FM 1488 Ste. C, The Woodlands, TX 77354, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "http://www.balancedfoods.com/",
+      "phone": "(832) 426-2044",
+      "description": "Sourced from Google Places (woodlands).",
+      "signatureDishes": []
+    },
+    {
       "id": "9b3ef87d-8e51-5fa5-bdfe-fc78622ed16d",
       "name": "Bamburger",
       "latitude": 30.11184,
@@ -33901,21 +34381,6 @@
       "signatureDishes": []
     },
     {
-      "id": "5a285d9f-7f5b-5255-becf-d25ee4e9b793",
-      "name": "Cinépolis Luxury Cinemas Woodlands",
-      "latitude": 30.14499,
-      "longitude": -95.55176,
-      "area": "woodlands",
-      "address": "26543 Kuykendahl Rd, Tomball, TX 77375, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.cinepolisusa.com/woodlands/theater-details",
-      "phone": "(346) 246-7177",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
       "id": "25046fc0-9f29-5b94-bad0-6c5490727bc5",
       "name": "Citizens Grill",
       "latitude": 30.22607,
@@ -33942,21 +34407,6 @@
       "isFastFood": false,
       "website": "https://classicnybagels.kwickmenu.com/index.php?fbclid=PAZXh0bgNhZW0CMTEAAabubawI6kcI8naKXnvla1PvRey_56Vq9LCWrsbZa67iEYe7-XLKOyjAg3E_aem_dyTuUkm_rqymDg-TnbSU2A",
       "phone": "(832) 521-3332",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
-      "id": "8bce2e3a-0816-5cd8-8caa-b0d14d218715",
-      "name": "Cochran's Crossing",
-      "latitude": 30.18521,
-      "longitude": -95.49048,
-      "area": "woodlands",
-      "address": "4747-4825 Research Forest Dr, The Woodlands, TX 77381, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.regencycenters.com/property/detail/597/Cochrans-Crossing",
-      "phone": "(713) 599-3500",
       "description": "Sourced from Google Places (woodlands).",
       "signatureDishes": []
     },
@@ -34003,6 +34453,21 @@
       "website": "http://twtxconduitcoffee.com/",
       "phone": "+1 281-729-8489",
       "description": "Coffee & bakery cafe in The Woodlands.",
+      "signatureDishes": []
+    },
+    {
+      "id": "c3a462e7-8010-53f0-b62b-7a5660efade4",
+      "name": "Conservatory At Alden Bridge",
+      "latitude": 30.21277,
+      "longitude": -95.52831,
+      "area": "woodlands",
+      "address": "6203 Alden Bridge Dr, The Woodlands, TX 77382, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://conservatoryataldenbridge.com/",
+      "phone": "(281) 681-3102",
+      "description": "Sourced from Google Places (woodlands).",
       "signatureDishes": []
     },
     {
@@ -34441,6 +34906,21 @@
       "signatureDishes": []
     },
     {
+      "id": "5de25dbc-58fb-5b77-960b-ddd666b7d766",
+      "name": "East Shore Place",
+      "latitude": 30.15823,
+      "longitude": -95.47213,
+      "area": "woodlands",
+      "address": "10189 Grogans Mill Rd, The Woodlands, TX 77380, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Sourced from Google Places (woodlands).",
+      "signatureDishes": []
+    },
+    {
       "id": "bae132d0-990c-5cd2-bc3c-adeb17c28b2a",
       "name": "Eden Table - Restaurant + Bar",
       "latitude": 30.22176,
@@ -34497,6 +34977,21 @@
       "isFastFood": false,
       "website": "https://www.elchaparromex.com/",
       "phone": "(346) 831-0671",
+      "description": "Sourced from Google Places (woodlands).",
+      "signatureDishes": []
+    },
+    {
+      "id": "2beaa186-8299-5bb1-b921-da86b5011df3",
+      "name": "El Kiosko Creekside",
+      "latitude": 30.13544,
+      "longitude": -95.55271,
+      "area": "woodlands",
+      "address": "25760 Kuykendahl Rd c, The Woodlands, TX 77375, USA",
+      "cuisines": ["dessert"],
+      "priceTier": "$",
+      "isFastFood": false,
+      "website": null,
+      "phone": "(281) 205-7336",
       "description": "Sourced from Google Places (woodlands).",
       "signatureDishes": []
     },
@@ -34663,21 +35158,6 @@
       "website": "http://www.fangscafe.com/",
       "phone": "+1 281-516-0850",
       "description": "Chinese restaurant in The Woodlands.",
-      "signatureDishes": []
-    },
-    {
-      "id": "bdb736db-1c84-56dd-86b3-e1c14dd91075",
-      "name": "Fielding's Catering",
-      "latitude": 30.14395,
-      "longitude": -95.54801,
-      "area": "woodlands",
-      "address": "26400 Kuykendahl Rd, The Woodlands, TX 77375, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.fieldingscatering.com/",
-      "phone": "(346) 237-7326",
-      "description": "Sourced from Google Places (woodlands).",
       "signatureDishes": []
     },
     {
@@ -35176,21 +35656,6 @@
       "signatureDishes": []
     },
     {
-      "id": "f8026e06-b2b7-5802-a4a8-5bd3b4fcd7cf",
-      "name": "Hughes Landing",
-      "latitude": 30.17109,
-      "longitude": -95.47178,
-      "area": "woodlands",
-      "address": "The Woodlands, TX 77381, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.thewoodlands-commercial.com/hughes-landing.aspx",
-      "phone": null,
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
       "id": "d1efcf34-785d-58a8-bf2f-417d74959b47",
       "name": "Hyderabad House",
       "latitude": 30.12435,
@@ -35233,6 +35698,36 @@
       "website": "https://locations.in-n-out.com/384",
       "phone": "+1 800-786-1000",
       "description": "Burger quick-service spot in The Woodlands.",
+      "signatureDishes": []
+    },
+    {
+      "id": "d88f3991-b863-5869-b956-9fe30f0346e3",
+      "name": "Indian Cottage",
+      "latitude": 30.23535,
+      "longitude": -95.50886,
+      "area": "woodlands",
+      "address": "9164 Sharyn Dr, Conroe, TX 77384, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "http://www.myindiancottage.com/",
+      "phone": "(404) 441-3456",
+      "description": "Sourced from Google Places (woodlands).",
+      "signatureDishes": []
+    },
+    {
+      "id": "32b2c8eb-3471-5a43-937e-2752348f5971",
+      "name": "Interfaith of the Woodlands",
+      "latitude": 30.16657,
+      "longitude": -95.49936,
+      "area": "woodlands",
+      "address": "4242 Interfaith Way, Spring, TX 77381, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://woodlandsinterfaith.org/programs-services/food-pantry/",
+      "phone": "(281) 367-1230",
+      "description": "Sourced from Google Places (woodlands).",
       "signatureDishes": []
     },
     {
@@ -35607,6 +36102,21 @@
       "isFastFood": false,
       "website": "https://www.kroger.com/topic/deli-and-bakery",
       "phone": "(281) 419-1116",
+      "description": "Sourced from Google Places (woodlands).",
+      "signatureDishes": []
+    },
+    {
+      "id": "d2e0210b-e9a1-595b-8c88-bc5e7e759f2a",
+      "name": "Kroger Deli",
+      "latitude": 30.11404,
+      "longitude": -95.55247,
+      "area": "woodlands",
+      "address": "24350 Kuykendahl Rd, Spring, TX 77389, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://www.kroger.com/topic/deli-and-bakery",
+      "phone": "(281) 205-0532",
       "description": "Sourced from Google Places (woodlands).",
       "signatureDishes": []
     },
@@ -36421,21 +36931,6 @@
       "signatureDishes": []
     },
     {
-      "id": "02ab8b7d-89ff-55a6-8bf9-31f3d19c8956",
-      "name": "North Woods Endocrinology",
-      "latitude": 30.18309,
-      "longitude": -95.5337,
-      "area": "woodlands",
-      "address": "10333 Kuykendahl Rd suite b, The Woodlands, TX 77382, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.northwoodsendocrinology.com/",
-      "phone": "(281) 259-9943",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
       "id": "6d826a64-bcc3-5414-a562-9e0ff7056881",
       "name": "Nothing Bundt Cakes",
       "latitude": 30.17629,
@@ -36522,21 +37017,6 @@
       "isFastFood": false,
       "website": "http://onthekirb.com/",
       "phone": "(832) 669-5299",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
-      "id": "acfe16ec-5653-5203-bdcd-73dda017e338",
-      "name": "One Lakes Edge",
-      "latitude": 30.17032,
-      "longitude": -95.47208,
-      "area": "woodlands",
-      "address": "1950 Hughes Landing Blvd, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://onelakesedge.com/?switch_cls[id]=64645",
-      "phone": "(346) 485-8571",
       "description": "Sourced from Google Places (woodlands).",
       "signatureDishes": []
     },
@@ -36657,6 +37137,21 @@
       "isFastFood": false,
       "website": null,
       "phone": "(832) 843-3915",
+      "description": "Sourced from Google Places (woodlands).",
+      "signatureDishes": []
+    },
+    {
+      "id": "68bb29d7-4154-52cc-be17-c8c92c1e3b7b",
+      "name": "Papi’s Halal Woodfire Grill",
+      "latitude": 30.21556,
+      "longitude": -95.56855,
+      "area": "woodlands",
+      "address": "32725 FM2978, Magnolia, TX 77354, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": "https://papiswoodfiregrill.com/",
+      "phone": "(346) 658-5888",
       "description": "Sourced from Google Places (woodlands).",
       "signatureDishes": []
     },
@@ -37666,21 +38161,6 @@
       "signatureDishes": []
     },
     {
-      "id": "92cc54de-abc4-5a5d-bc14-d8abaa7cae3f",
-      "name": "Spec's Wines, Spirits & Finer Foods",
-      "latitude": 30.18168,
-      "longitude": -95.53401,
-      "area": "woodlands",
-      "address": "10491 Kuykendahl Rd, Spring, TX 77382, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://specsonline.com/liquor-stores/the-woodlands/kuykendahl-029/?utm_source=GMBlisting",
-      "phone": "(281) 681-9110",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
       "id": "f7148f8d-093e-5d7e-9eeb-98f896b2e687",
       "name": "Starbucks",
       "latitude": 30.17021,
@@ -38236,6 +38716,21 @@
       "signatureDishes": []
     },
     {
+      "id": "5d13c77d-b6db-5719-8e2e-0adf828d946e",
+      "name": "Taqueria la Guanajuatense",
+      "latitude": 30.13183,
+      "longitude": -95.55321,
+      "area": "woodlands",
+      "address": "25510 Kuykendahl Rd, The Woodlands, TX 77375, USA",
+      "cuisines": ["mexican"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": "(346) 544-7287",
+      "description": "Sourced from Google Places (woodlands).",
+      "signatureDishes": []
+    },
+    {
       "id": "2284e09c-932a-5c46-ac4b-3fbab7ee0cbd",
       "name": "Taqueria La Norteña",
       "latitude": 30.23088,
@@ -38476,6 +38971,21 @@
       "signatureDishes": ["Lamb Chops", "Spanakopita", "Greek Salad"]
     },
     {
+      "id": "cf5c7c1c-76a0-5030-a589-c1fd5a643b7d",
+      "name": "The Plazas at Alden Bridge",
+      "latitude": 30.20773,
+      "longitude": -95.52805,
+      "area": "woodlands",
+      "address": "Research Forest Dr, The Woodlands, TX 77382, USA",
+      "cuisines": ["other"],
+      "priceTier": "$$",
+      "isFastFood": false,
+      "website": null,
+      "phone": null,
+      "description": "Sourced from Google Places (woodlands).",
+      "signatureDishes": []
+    },
+    {
       "id": "75687260-d85b-5cdd-a126-740d7eac843f",
       "name": "The Refuge Steakhouse & Bourbon Bar",
       "latitude": 30.14591,
@@ -38562,36 +39072,6 @@
       "isFastFood": false,
       "website": "http://woodlandschildrensmuseum.org/",
       "phone": "(281) 465-0955",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
-      "id": "c8324a86-6373-5fdf-83b3-aed393a9156f",
-      "name": "The Woodlands Crossing",
-      "latitude": 30.17633,
-      "longitude": -95.53522,
-      "area": "woodlands",
-      "address": "10716 Kuykendahl Rd, The Woodlands, TX 77381, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
-      "id": "f14f6173-d3f8-5117-91a5-7c64672d25cc",
-      "name": "The Woodlands Korean School",
-      "latitude": 30.16823,
-      "longitude": -95.50208,
-      "area": "woodlands",
-      "address": "4881 W Panther Creek Dr, The Woodlands, TX 77381, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": "(832) 661-8870",
       "description": "Sourced from Google Places (woodlands).",
       "signatureDishes": []
     },
@@ -38772,21 +39252,6 @@
       "isFastFood": false,
       "website": "https://order.online/business/twisted-sugar-121912",
       "phone": "(281) 651-2927",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
-      "id": "420961b7-1470-503b-953e-2073533221ff",
-      "name": "Two Lakes Edge",
-      "latitude": 30.16975,
-      "longitude": -95.47302,
-      "area": "woodlands",
-      "address": "2000 Hughes Landing Blvd, The Woodlands, TX 77381, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://twolakesedge.com/?switch_cls[id]=64645",
-      "phone": "(866) 206-1109",
       "description": "Sourced from Google Places (woodlands).",
       "signatureDishes": []
     },

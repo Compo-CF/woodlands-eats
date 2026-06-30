@@ -3,7 +3,19 @@ import SwiftUI
 struct MyTiersView: View {
     @Environment(RestaurantStore.self) private var store
     @Environment(TierListStore.self) private var tierStore
+    @Environment(CloudKitService.self) private var cloudKit
+    @Environment(\.displayScale) private var displayScale
+    /// v1.6: cached display name written by ProfileView when it loads
+    /// or saves the user's FoodieProfile. Lets the share card show the
+    /// user's name without an async CloudKit fetch on every render.
+    @AppStorage("WoodlandsEats.cachedDisplayName") private var cachedDisplayName = ""
+    /// v1.7 Feature C: cached CloudKit userRecordName for constructing
+    /// the friend-share universal link.
+    @AppStorage("WoodlandsEats.cachedUserID") private var cachedUserID = ""
     @State private var selected: Restaurant?
+    /// v1.6: rendered share image, generated when the user has at
+    /// least one placement. Held in state so ShareLink can present it.
+    @State private var shareImage: Image?
 
     var body: some View {
         NavigationStack {
@@ -26,11 +38,59 @@ struct MyTiersView: View {
                 }
             }
             .navigationTitle("My Tiers")
+            .toolbar { shareToolbar }
             .sheet(item: $selected) { r in
                 NavigationStack {
                     RestaurantDetailView(restaurant: r)
                 }
                 .presentationDetents([.medium, .large])
+            }
+            .onAppear { rebuildShareImage() }
+            .onChange(of: tierStore.rankedCount) { _, _ in rebuildShareImage() }
+            .onChange(of: cachedDisplayName) { _, _ in rebuildShareImage() }
+            // v1.7 Feature C: cache CloudKit userRecordName for the
+            // friend-share URL. ProfileView.load() also writes this,
+            // but first-launch users may build their tier list before
+            // ever tapping Profile — so we ensure it's available here.
+            .task {
+                if cachedUserID.isEmpty,
+                   let uid = await cloudKit.currentUserID(), !uid.isEmpty {
+                    cachedUserID = uid
+                }
+            }
+        }
+    }
+
+    /// v1.6/v1.7: Share toolbar — only visible when the user has at
+    /// least one placement. Menu with two options:
+    ///   - Share as image: ShareableTierCard rendered via ImageRenderer
+    ///   - Share friend link: universal link to a read-only friend view
+    @ToolbarContentBuilder
+    private var shareToolbar: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            if tierStore.rankedCount > 0 {
+                Menu {
+                    if let image = shareImage {
+                        ShareLink(
+                            item: image,
+                            preview: SharePreview("My S-Tier Eats Tier List", image: image)
+                        ) {
+                            Label("Share as image", systemImage: "photo")
+                        }
+                    }
+                    if !cachedUserID.isEmpty,
+                       let url = URL(string: "https://compo-cf.github.io/woodlands-eats/tier/\(cachedUserID)") {
+                        ShareLink(
+                            item: url,
+                            subject: Text("My S-Tier Eats Tier List"),
+                            message: Text("Check out my Woodlands restaurant tier list:")
+                        ) {
+                            Label("Share friend link", systemImage: "link")
+                        }
+                    }
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
+                }
             }
         }
     }
@@ -40,6 +100,30 @@ struct MyTiersView: View {
             Label("Build your tier list", systemImage: "list.number")
         } description: {
             Text("Open a restaurant from the Map or Browse tab and drop it into S, A, B, C, or F. Your ranked spots collect here.")
+        }
+    }
+
+    /// Rebuilds the share image whenever ranked-count or display-name
+    /// changes (and once on first appear). Runs on the main actor
+    /// because ImageRenderer needs to walk the view tree.
+    @MainActor
+    private func rebuildShareImage() {
+        guard tierStore.rankedCount > 0 else {
+            shareImage = nil
+            return
+        }
+        var byTier: [Tier: [Restaurant]] = [:]
+        for tier in Tier.allCases {
+            byTier[tier] = tierStore.restaurants(in: tier, from: store.restaurants)
+        }
+        let card = ShareableTierCard(
+            displayName: cachedDisplayName,
+            placementsByTier: byTier
+        )
+        let renderer = ImageRenderer(content: card)
+        renderer.scale = displayScale
+        if let ui = renderer.uiImage {
+            shareImage = Image(uiImage: ui)
         }
     }
 }

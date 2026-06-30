@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<!--
+  v1.7 Feature C: friend-tier-link landing page.
+
+  Where this should live: on compo-cf.github.io, under a folder structure
+  that matches the share URL:
+    https://compo-cf.github.io/woodlands-eats/tier/index.html
+  The /tier/<userID> path components get served by this page (any 404
+  at /tier/<id> falls back to /tier/index.html if we use a wildcard
+  fallback, or copy this same content into a 404.html at the path).
+
+  What it does:
+    1. iOS / iPadOS: tries to open the app via custom URL scheme. If
+       the app isn't installed, the user is bounced to the App Store.
+    2. Other devices: shows a static preview + App Store link.
+
+  Universal Links would skip this page entirely (iOS opens the app
+  directly when the AASA file matches), but the page is the graceful
+  fallback when AASA isn't configured yet OR the user is on a non-iOS
+  device.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S-Tier Eats — Tier List</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 480px;
+      margin: 40px auto;
+      padding: 0 20px;
+      text-align: center;
+      color: #1a1a1a;
+    }
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    p { color: #555; line-height: 1.5; }
+    .button {
+      display: inline-block;
+      padding: 14px 28px;
+      margin: 8px 4px;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .primary { background: #e63946; color: white; }
+    .secondary { background: #f1f1f1; color: #1a1a1a; }
+    .tiers { margin: 32px 0; }
+    .tier-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 8px 0;
+    }
+    .tier-badge {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      color: white;
+      font-weight: 800;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .tier-S { background: #e63946; }
+    .tier-A { background: #f59440; }
+    .tier-B { background: #f3c73d; }
+    .tier-C { background: #67ba6c; }
+    .tier-F { background: #8c5ac6; }
+    .tier-label { text-align: left; color: #888; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h1>S-Tier Eats Tier List</h1>
+  <p>Someone shared their Woodlands restaurant tier list with you.</p>
+
+  <div class="tiers">
+    <div class="tier-row"><div class="tier-badge tier-S">S</div><div class="tier-label">Open the app to see all rankings</div></div>
+    <div class="tier-row"><div class="tier-badge tier-A">A</div><div class="tier-label">Tap a restaurant for details</div></div>
+    <div class="tier-row"><div class="tier-badge tier-B">B</div><div class="tier-label">Build your own list to compare</div></div>
+    <div class="tier-row"><div class="tier-badge tier-C">C</div><div class="tier-label">Community averages alongside</div></div>
+    <div class="tier-row"><div class="tier-badge tier-F">F</div><div class="tier-label">Free, no signups required</div></div>
+  </div>
+
+  <a href="#" id="openApp" class="button primary">Open in S-Tier Eats</a>
+  <a href="https://apps.apple.com/app/id6773501518" class="button secondary">Get the App</a>
+
+  <p style="margin-top: 40px; font-size: 13px; color: #999;">
+    Tier-list restaurant discovery for The Woodlands, Spring, Conroe, and surrounding areas.
+  </p>
+
+  <script>
+    // Extract the userID from the URL path. Pattern: /woodlands-eats/tier/<userID>
+    var parts = window.location.pathname.split('/').filter(function (p) { return p; });
+    var idx = parts.indexOf('tier');
+    var userID = (idx >= 0 && idx + 1 < parts.length) ? parts[idx + 1] : '';
+
+    if (userID) {
+      // Custom URL scheme — opens the app if installed. If not installed,
+      // the browser silently fails and the user can tap "Get the App".
+      var deepLink = 'stier://tier/' + encodeURIComponent(userID);
+      document.getElementById('openApp').href = deepLink;
+
+      // iOS only: try to auto-open the app on page load. If it works
+      // the app takes over; if not the user lands on this page and can
+      // tap the buttons manually.
+      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      if (isIOS) {
+        window.location.href = deepLink;
+      }
+    } else {
+      // No userID in URL — hide the open-app button, just show install.
+      document.getElementById('openApp').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
