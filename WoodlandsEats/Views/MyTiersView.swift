@@ -1,4 +1,23 @@
 import SwiftUI
+import UniformTypeIdentifiers
+
+/// v1.7 Feature A hotfix: Transferable wrapper that explicitly exports
+/// PNG data. Sharing a plain SwiftUI Image works for Messages/AirDrop
+/// but iOS doesn't surface "Save to Photos" in the share sheet for it
+/// — that affordance only appears when the shared item exposes a
+/// UTType.png/jpeg DataRepresentation. Wrapping the rendered UIImage
+/// here adds that representation, so Save to Photos appears alongside
+/// Messages, Mail, Instagram, etc.
+struct ShareableTierImage: Transferable {
+    let uiImage: UIImage
+
+    static var transferRepresentation: some TransferRepresentation {
+        DataRepresentation(exportedContentType: .png) { wrapper in
+            wrapper.uiImage.pngData() ?? Data()
+        }
+        .suggestedFileName("MyTierList.png")
+    }
+}
 
 struct MyTiersView: View {
     @Environment(RestaurantStore.self) private var store
@@ -13,9 +32,10 @@ struct MyTiersView: View {
     /// the friend-share universal link.
     @AppStorage("WoodlandsEats.cachedUserID") private var cachedUserID = ""
     @State private var selected: Restaurant?
-    /// v1.6: rendered share image, generated when the user has at
+    /// v1.6: rendered share image (UIImage so we have access to pngData
+    /// for the Transferable wrapper), generated when the user has at
     /// least one placement. Held in state so ShareLink can present it.
-    @State private var shareImage: Image?
+    @State private var shareImage: UIImage?
 
     var body: some View {
         NavigationStack {
@@ -72,8 +92,11 @@ struct MyTiersView: View {
                 Menu {
                     if let image = shareImage {
                         ShareLink(
-                            item: image,
-                            preview: SharePreview("My S-Tier Eats Tier List", image: image)
+                            item: ShareableTierImage(uiImage: image),
+                            preview: SharePreview(
+                                "My S-Tier Eats Tier List",
+                                image: Image(uiImage: image)
+                            )
                         ) {
                             Label("Share as image", systemImage: "photo")
                         }
@@ -122,9 +145,7 @@ struct MyTiersView: View {
         )
         let renderer = ImageRenderer(content: card)
         renderer.scale = displayScale
-        if let ui = renderer.uiImage {
-            shareImage = Image(uiImage: ui)
-        }
+        shareImage = renderer.uiImage
     }
 }
 
