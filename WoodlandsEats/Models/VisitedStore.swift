@@ -40,6 +40,34 @@ final class VisitedStore {
         persist()
     }
 
+    /// v1.7 Feature G: additive cross-device sync. Called from ContentView
+    /// when the scene becomes active. Picks up visits marked on another
+    /// device (or while offline that synced later). Local-only marks are
+    /// preserved — VisitedStore is a set so the merge is just union.
+    @MainActor
+    func mergeFromCloud(via cloudKit: CloudKitService) async {
+        let remote = await cloudKit.fetchVisitedList()
+        guard !remote.isEmpty else { return }
+        let merged = visited.union(remote)
+        guard merged != visited else { return }
+        visited = merged
+        persist()
+    }
+
+    /// v1.7 Feature I: one-time housekeeping. Drops local visited entries
+    /// for restaurants no longer in the catalog (dedup-merged, removed).
+    /// The VisitedList is a single CloudKit record per user so the next
+    /// `saveVisitedList` write replaces the cloud copy with the cleaned set.
+    @MainActor
+    func cleanupOrphans(via cloudKit: CloudKitService, against restaurants: [Restaurant]) async {
+        let validIDs = Set(restaurants.map(\.id))
+        let cleaned = visited.intersection(validIDs)
+        guard cleaned != visited else { return }
+        visited = cleaned
+        persist()
+        await cloudKit.saveVisitedList(cleaned)
+    }
+
     func isVisited(_ id: UUID) -> Bool {
         visited.contains(id)
     }

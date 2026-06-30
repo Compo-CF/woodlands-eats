@@ -11,6 +11,8 @@ struct ContentView: View {
     @Environment(TierListStore.self) private var tierStore
     @Environment(VisitedStore.self) private var visitedStore
     @Environment(TabRouter.self) private var tabRouter
+    /// v1.7 Feature G: scene-active observer drives cross-device merge.
+    @Environment(\.scenePhase) private var scenePhase
 
     /// v1.4: gates the rank-up celebration. Stores the displayName of
     /// the most-recently-celebrated FoodieRank so we don't show the
@@ -24,6 +26,11 @@ struct ContentView: View {
     /// in a later major and users get one more chance to engage).
     @AppStorage("WoodlandsEats.hasSeenReviewPrompt.v1.5") private var hasSeenReviewPrompt = false
     @AppStorage("WoodlandsEats.hasSeenKofiPrompt.v1.5") private var hasSeenKofiPrompt = false
+    /// v1.7 Feature I: one-time gate for the orphan-placement cleanup.
+    /// Set after first successful run so we don't pay the CloudKit-walk
+    /// cost again — re-seeds in future versions can bump the key suffix
+    /// to re-run.
+    @AppStorage("WoodlandsEats.hasCleanedOrphans.v1.7") private var hasCleanedOrphans = false
     /// v1.5: Apple's native review-request action. Internally capped
     /// by Apple to 3 prompts/year regardless of how often we call it,
     /// so the hasSeenReviewPrompt flag is just to control WHEN we ask.
@@ -106,6 +113,34 @@ struct ContentView: View {
                 lastCelebratedRank = restoredRank.displayName
             }
             hasFinishedLaunchSync = true
+
+            // v1.7 Feature I: one-time orphan cleanup. After the restores
+            // settle, drop any local placements / visits referencing
+            // restaurants no longer in the catalog (dedup-merged or
+            // removed across re-seeds) and delete the corresponding
+            // CloudKit Placement records so they stop polluting the
+            // community aggregates. Gated by hasCleanedOrphans so it
+            // only runs once per device.
+            if !hasCleanedOrphans {
+                await tierStore.cleanupOrphans(via: cloudKit, against: store.restaurants)
+                await visitedStore.cleanupOrphans(via: cloudKit, against: store.restaurants)
+                hasCleanedOrphans = true
+            }
+        }
+        // v1.7 Feature G: cross-device live-ish sync. When the scene
+        // returns to .active from .inactive/.background (app switcher
+        // return, or unlock, or returning from another app), merge any
+        // CloudKit-side updates into local. Picks up placements / visits
+        // made on another device since the last foreground.
+        // Only fires after the initial .task launch sync has settled —
+        // before that we're still hydrating from scratch and the merge
+        // would just duplicate work.
+        .onChange(of: scenePhase) { _, newPhase in
+            guard newPhase == .active, hasFinishedLaunchSync else { return }
+            Task {
+                await tierStore.mergeFromCloud(via: cloudKit)
+                await visitedStore.mergeFromCloud(via: cloudKit)
+            }
         }
         .onChange(of: tierStore.placements.count) { _, newCount in
             // Suppress all celebrations until launch sync settles —

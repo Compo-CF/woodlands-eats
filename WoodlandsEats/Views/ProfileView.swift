@@ -241,7 +241,17 @@ struct ProfileView: View {
                             ForEach(pending) { req in
                                 HStack {
                                     VStack(alignment: .leading, spacing: 2) {
-                                        Text(req.displayName.isEmpty ? "(no name)" : req.displayName)
+                                        HStack(spacing: 4) {
+                                            Text(req.displayName.isEmpty ? "(no name)" : req.displayName)
+                                            // v1.7 Feature B+: identity-
+                                            // verified by Apple. Strong
+                                            // signal for admin approval.
+                                            if req.isAppleVerified {
+                                                Image(systemName: "checkmark.seal.fill")
+                                                    .foregroundStyle(.green)
+                                                    .accessibilityLabel("Apple-verified")
+                                            }
+                                        }
                                         Text(req.userID)
                                             .font(.caption2.monospaced())
                                             .foregroundStyle(.secondary)
@@ -264,6 +274,15 @@ struct ProfileView: View {
                                     Label(req.displayName.isEmpty ? "(no name)" : req.displayName,
                                           systemImage: "star.fill")
                                         .foregroundStyle(.orange)
+                                    // v1.7 Feature B+: Apple-verified tells
+                                    // the admin which Pros have a real-name
+                                    // account vs. anonymous opt-out — fewer
+                                    // identity checks to do manually.
+                                    if req.isAppleVerified {
+                                        Image(systemName: "checkmark.seal.fill")
+                                            .foregroundStyle(.green)
+                                            .accessibilityLabel("Apple-verified")
+                                    }
                                     Spacer()
                                     Button("Revoke") {
                                         Task { _ = await cloudKit.revokePro(userID: req.userID); await refreshAfterChange() }
@@ -433,6 +452,15 @@ struct ProfileView: View {
                 }
                 Button("Sign out of Apple", role: .destructive) {
                     appleSignIn.signOut()
+                    // v1.7 Feature B+: clear the verified badge on the
+                    // community board by re-saving the profile with
+                    // isAppleVerified=false (now that appleSignIn.isSignedIn
+                    // is false). Only fire if there's already a profile;
+                    // a never-saved user shouldn't get an empty profile
+                    // written just from a sign-out.
+                    if !displayName.trimmingCharacters(in: .whitespaces).isEmpty {
+                        Task { await save(requestingPro: false) }
+                    }
                 }
             } else {
                 SignInWithAppleButton(.signIn) { request in
@@ -715,7 +743,15 @@ struct ProfileView: View {
 
     private func save(requestingPro: Bool) async {
         saving = true
-        _ = await cloudKit.saveProfile(displayName: displayName, requestingPro: requestingPro)
+        // v1.7 Feature B+: pass the current SIWA state so the FoodieProfile
+        // record reflects whether the user has Apple-verified their
+        // identity. The Pros / Community leaderboard reads this flag back
+        // to overlay an Apple-verified checkmark next to verified Pros.
+        _ = await cloudKit.saveProfile(
+            displayName: displayName,
+            requestingPro: requestingPro,
+            isAppleVerified: appleSignIn.isSignedIn
+        )
         let profile = await cloudKit.fetchMyProfile()
         displayName = profile.displayName
         // v1.6: keep the share-card cache in sync with the saved name.

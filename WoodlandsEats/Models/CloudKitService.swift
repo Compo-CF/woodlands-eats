@@ -30,10 +30,14 @@ struct PhotoReport: Identifiable {
 }
 
 /// A user's Foodie Pro request (their FoodieProfile), for the admin approval UI.
+/// v1.7 Feature B+: `isAppleVerified` surfaces an Apple-signed-in badge
+/// in the admin's approved Pros list so identity verification is one
+/// fewer thing the admin has to track manually.
 struct ProRequest: Identifiable {
     let id: String          // FoodieProfile recordName
     let displayName: String
     let userID: String
+    let isAppleVerified: Bool
 }
 
 /// A user-submitted "missing restaurant" suggestion awaiting admin approval.
@@ -734,28 +738,43 @@ final class CloudKitService {
         CKRecord.ID(recordName: "profile_\(user)")
     }
 
-    /// The current user's (displayName, status); status is ""/"requested"/"approved".
-    func fetchMyProfile() async -> (displayName: String, status: String) {
-        guard isAvailable, let user = await userRecordName() else { return ("", "") }
+    /// The current user's (displayName, status, isAppleVerified).
+    /// status is ""/"requested"/"approved".
+    /// v1.7 Feature B+: returns the SIWA-verified flag too so the UI can
+    /// reflect it without a second round-trip.
+    func fetchMyProfile() async -> (displayName: String, status: String, isAppleVerified: Bool) {
+        guard isAvailable, let user = await userRecordName() else { return ("", "", false) }
         return await fetchProfile(forUserID: user)
     }
 
-    /// v1.7 (Feature C): fetch any user's profile by their userRecordName.
-    /// Used by the friend-tier-link flow so the friend's tier list header
-    /// can show their display name instead of an opaque ID.
-    func fetchProfile(forUserID user: String) async -> (displayName: String, status: String) {
-        guard isAvailable, !user.isEmpty else { return ("", "") }
+    /// v1.7 (Feature C+B+): fetch any user's profile by their userRecordName,
+    /// including the Apple-verified flag. Used by the friend-tier-link
+    /// flow (FriendTierView shows a checkmark next to a verified friend's
+    /// name).
+    func fetchProfile(forUserID user: String) async -> (displayName: String, status: String, isAppleVerified: Bool) {
+        guard isAvailable, !user.isEmpty else { return ("", "", false) }
         do {
             let rec = try await publicDB.record(for: profileRecordID(user: user))
-            return (rec["displayName"] as? String ?? "", rec["status"] as? String ?? "")
+            let verified = (rec["isAppleVerified"] as? Int64) == 1
+            return (rec["displayName"] as? String ?? "", rec["status"] as? String ?? "", verified)
         } catch {
-            return ("", "")
+            return ("", "", false)
         }
     }
 
     /// Upsert the user's profile. Sets displayName; if requestingPro and not
     /// already approved, marks status "requested". Never downgrades an approved pro.
-    func saveProfile(displayName: String, requestingPro: Bool) async -> Bool {
+    /// v1.7 Feature B+: also persists `isAppleVerified` so the Community /
+    /// Pros leaderboard can show a verified-name badge next to SIWA-signed-
+    /// in users. Apple's name is non-fungible (one app + Apple ID = one
+    /// stable identifier), so the badge is meaningful — it signals "this
+    /// person verified their identity through Apple."
+    /// CloudKit schema NOTE: this field auto-creates in the Development
+    /// environment on first write but MUST be pre-declared in Production
+    /// before TestFlight / App Store builds will see it. Add Int64-typed
+    /// field `isAppleVerified` to the FoodieProfile record type in CK
+    /// Dashboard → Dev → Deploy Schema Changes → Production.
+    func saveProfile(displayName: String, requestingPro: Bool, isAppleVerified: Bool = false) async -> Bool {
         guard isAvailable, let user = await userRecordName() else { return false }
         let id = profileRecordID(user: user)
         let record: CKRecord
@@ -770,12 +789,52 @@ final class CloudKitService {
         record["userID"] = user as CKRecordValue
         if requestingPro && status != "approved" { status = "requested" }
         record["status"] = status as CKRecordValue
+        // Stored as Int64 (0/1) because CKRecord doesn't natively support
+        // Bool — the typical CloudKit convention.
+        record["isAppleVerified"] = (isAppleVerified ? 1 : 0) as CKRecordValue
         do {
             _ = try await publicDB.modifyRecords(saving: [record], deleting: [], savePolicy: .allKeys)
             return true
         } catch {
             return false
         }
+    }
+
+    /// v1.7 Feature B+: fetch the set of userRecordNames currently marked
+    /// `isAppleVerified=true` in their FoodieProfile. Used by the Pros /
+    /// Community leaderboard to overlay an Apple-verified checkmark next
+    /// to each verified Pro's name.
+    /// Implementation: pages FoodieProfile records and filters client-side.
+    /// At early-app scale (sub-thousand profiles) the overhead is fine.
+    func fetchAppleVerifiedUserIDs() async -> Set<String> {
+        guard isAvailable else { return [] }
+        var out: Set<String> = []
+        let query = CKQuery(recordType: profileType, predicate: NSPredicate(value: true))
+        func accumulate(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+            for (_, result) in matches {
+                guard case .success(let rec) = result,
+                      let userID = rec["userID"] as? String,
+                      let verified = rec["isAppleVerified"] as? Int64,
+                      verified == 1 else { continue }
+                out.insert(userID)
+            }
+        }
+        do {
+            var (matches, cursor) = try await publicDB.records(
+                matching: query,
+                desiredKeys: ["userID", "isAppleVerified"],
+                resultsLimit: 200)
+            accumulate(matches)
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(
+                    continuingMatchFrom: c, resultsLimit: 200)
+                accumulate(matches)
+            }
+        } catch {
+            // Schema not yet deployed to Prod, or transient — return what
+            // we have. UI degrades to "no badges shown" gracefully.
+        }
+        return out
     }
 
     /// Whether a specific user is an approved Foodie Pro. Checks their admin-owned
@@ -866,6 +925,9 @@ final class CloudKitService {
     }
 
     /// Admin: everyone who requested, split into pending vs. already-approved.
+    /// v1.7 Feature B+: ProRequest now includes the Apple-verified flag
+    /// read from `isAppleVerified` on the FoodieProfile (Int64 0/1 because
+    /// CKRecord doesn't natively store Bool). Missing field = not verified.
     func fetchProRequests() async -> (pending: [ProRequest], approved: [ProRequest]) {
         guard isAvailable else { return ([], []) }
         let query = CKQuery(recordType: profileType, predicate: NSPredicate(format: "status == %@", "requested"))
@@ -876,9 +938,11 @@ final class CloudKitService {
             for (id, result) in results {
                 guard case .success(let rec) = result else { continue }
                 let uid = rec["userID"] as? String ?? ""
+                let verified = (rec["isAppleVerified"] as? Int64) == 1
                 let req = ProRequest(id: id.recordName,
                                      displayName: rec["displayName"] as? String ?? "",
-                                     userID: uid)
+                                     userID: uid,
+                                     isAppleVerified: verified)
                 if await isApproved(userID: uid) { approved.append(req) } else { pending.append(req) }
             }
             return (pending, approved)

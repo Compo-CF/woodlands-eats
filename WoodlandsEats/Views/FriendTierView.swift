@@ -18,6 +18,10 @@ struct FriendTierView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var displayName: String = ""
+    /// v1.7 Feature B+: whether the shared friend is Apple-signed-in.
+    /// When true, an Apple-verified checkmark renders in the principal
+    /// toolbar position next to their name.
+    @State private var isAppleVerified: Bool = false
     @State private var placements: [(restaurantID: UUID, tier: Tier)] = []
     @State private var loading: Bool = true
     @State private var selected: Restaurant?
@@ -70,6 +74,21 @@ struct FriendTierView: View {
             .navigationTitle(navTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                // v1.7 Feature B+: Apple-verified badge next to the
+                // friend's name. Uses .principal so the checkmark sits
+                // alongside the nav title rather than as a separate
+                // trailing item.
+                if isAppleVerified {
+                    ToolbarItem(placement: .principal) {
+                        HStack(spacing: 4) {
+                            Text(navTitle)
+                                .font(.headline)
+                            Image(systemName: "checkmark.seal.fill")
+                                .foregroundStyle(.green)
+                                .accessibilityLabel("Apple-verified")
+                        }
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
                 }
@@ -95,6 +114,7 @@ struct FriendTierView: View {
         let (p, prof) = await (placementsTask, profileTask)
         placements = p
         displayName = prof.displayName
+        isAppleVerified = prof.isAppleVerified
         loading = false
     }
 }

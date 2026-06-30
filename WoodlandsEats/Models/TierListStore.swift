@@ -44,6 +44,54 @@ final class TierListStore {
         save()
     }
 
+    /// v1.7 Feature G: additive cross-device sync. Called from ContentView
+    /// when the scene becomes active (returning from background or another
+    /// device). Unlike restoreFromCloud which only runs when local is empty,
+    /// this merges CloudKit state on top of local — keeps any local-only
+    /// in-flight changes that haven't synced yet, picks up new tiers /
+    /// changed tiers from other devices.
+    ///
+    /// Conflict policy: CloudKit wins for restaurants both have (assumed
+    /// already-synced). Local-only entries are preserved (in-flight saves
+    /// that may not have reached CloudKit yet). Deletions on another device
+    /// won't propagate via this path — they're rare and the user can clear
+    /// the placement manually on the local device if needed.
+    @MainActor
+    func mergeFromCloud(via cloudKit: CloudKitService) async {
+        let remote = await cloudKit.fetchMyPlacements()
+        guard !remote.isEmpty else { return }
+        var updated = placements
+        for (rid, tier) in remote {
+            updated[rid] = tier
+        }
+        guard updated != placements else { return }
+        placements = updated
+        save()
+    }
+
+    /// v1.7 Feature I: one-time housekeeping pass. Drops local placements
+    /// for restaurants no longer in the catalog (dedup-merged across re-
+    /// seeds, removed as non-restaurants, out-of-area), and deletes the
+    /// corresponding CloudKit Placement records so the orphan doesn't
+    /// leak into community aggregates.
+    ///
+    /// Called once per device via an @AppStorage flag in ContentView.
+    /// Idempotent — re-running is safe; the second run finds nothing to do.
+    @MainActor
+    func cleanupOrphans(via cloudKit: CloudKitService, against restaurants: [Restaurant]) async {
+        let validIDs = Set(restaurants.map(\.id))
+        let orphans = placements.keys.filter { !validIDs.contains($0) }
+        guard !orphans.isEmpty else { return }
+        for rid in orphans {
+            placements[rid] = nil
+            // Fire-and-forget. If CloudKit deletion fails the orphan
+            // stays in the public DB but is invisible to the user
+            // (they have no local reference). Best-effort cleanup.
+            await cloudKit.removePlacement(restaurantID: rid)
+        }
+        save()
+    }
+
     func tier(for id: UUID) -> Tier? { placements[id] }
 
     func isRanked(_ id: UUID) -> Bool { placements[id] != nil }
