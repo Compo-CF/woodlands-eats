@@ -8,6 +8,11 @@ struct RestaurantDetailView: View {
     @Environment(CloudKitService.self) private var cloudKit
     @Environment(BlockListStore.self) private var blockList
     @Environment(VisitedStore.self) private var visitedStore
+    /// v1.6 (Android migration A2): cross-platform dual-write target.
+    /// Every CloudKit save for tier placements also writes to Firestore
+    /// via this service so the data exists in both stores during the
+    /// soak period.
+    @Environment(FirebaseService.self) private var firebase
     let restaurant: Restaurant
     @State private var community: CommunityTier?
     @State private var dishPhotos: [DishPhoto] = []
@@ -250,6 +255,9 @@ struct RestaurantDetailView: View {
             await cloudKit.savePlacement(restaurantID: restaurant.id, tier: tier)
             community = await cloudKit.fetchCommunityTier(restaurantID: restaurant.id)
         }
+        // v1.6: dual-write to Firestore. Independent Task so a Firestore
+        // hiccup never delays the CloudKit-driven community refresh.
+        Task { await firebase.savePlacement(restaurantID: restaurant.id, tier: tier) }
     }
 
     private func clearPlacement() {
@@ -258,6 +266,7 @@ struct RestaurantDetailView: View {
             await cloudKit.removePlacement(restaurantID: restaurant.id)
             community = await cloudKit.fetchCommunityTier(restaurantID: restaurant.id)
         }
+        Task { await firebase.removePlacement(restaurantID: restaurant.id) }
     }
 
     private var header: some View {

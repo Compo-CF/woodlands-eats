@@ -12,6 +12,11 @@ struct WoodlandsEatsApp: App {
     @State private var cloudKit = CloudKitService()
     @State private var blockList = BlockListStore()
     @State private var visitedStore = VisitedStore()
+    /// v1.6 (Android migration A2): cross-platform data layer.
+    /// Currently dual-writes alongside CloudKit; reads cut over to
+    /// Firestore in v1.7. Created after FirebaseApp.configure() so
+    /// it can safely use Firebase SDK in its init.
+    @State private var firebase = FirebaseService()
     /// v1.5: routes programmatic tab switches (e.g., the rank-icon
     /// shortcut on Map/Browse → Profile). Injected via .environment
     /// so any child view can change `selectedTab`.
@@ -67,6 +72,7 @@ struct WoodlandsEatsApp: App {
                     .environment(blockList)
                     .environment(visitedStore)
                     .environment(tabRouter)
+                    .environment(firebase)
                     .onChange(of: locationManager.location) { _, newValue in
                         store.userLocation = newValue
                     }
