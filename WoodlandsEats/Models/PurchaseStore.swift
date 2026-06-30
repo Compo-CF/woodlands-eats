@@ -69,9 +69,12 @@ final class PurchaseStore {
         }
     }
 
-    deinit {
-        updateListenerTask?.cancel()
-    }
+    // No deinit: PurchaseStore is held in @State at the app root and
+    // lives for the entire app lifetime. The updateListenerTask gets
+    // cleaned up by the system at process exit. (Also: @MainActor-
+    // isolated properties can't be read from a nonisolated deinit
+    // under Swift 6 strict concurrency, so even if we wanted to
+    // .cancel() it here, the compiler would reject it.)
 
     /// Convenience accessor — the "Remove Ads" product, or nil if it
     /// hasn't loaded yet (or doesn't exist in App Store Connect).
