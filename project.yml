@@ -47,6 +47,13 @@ targets:
       - path: WoodlandsEats
         excludes:
           - "Info.plist"
+      # v1.6: xcodegen special-cases .plist files and skips them from
+      # build phases. GoogleService-Info.plist MUST be bundled as a
+      # resource or FirebaseApp.configure() crashes at launch with
+      # "Could not locate configuration file". Explicit entry forces
+      # it into the resources build phase.
+      - path: WoodlandsEats/GoogleService-Info.plist
+        buildPhase: resources
     dependencies:
       # v1.1: AdMob SDK for banner ads on the Browse tab.
       - package: GoogleMobileAds
@@ -63,7 +70,7 @@ targets:
       properties:
         CFBundleDisplayName: S-Tier Eats
         CFBundleShortVersionString: "1.6"
-        CFBundleVersion: "49"
+        CFBundleVersion: "50"
         CFBundleIconName: AppIcon
         UILaunchScreen:
           UIColorName: ""
