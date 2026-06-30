@@ -17,6 +17,9 @@ struct WoodlandsEatsApp: App {
     /// Firestore in v1.7. Created after FirebaseApp.configure() so
     /// it can safely use Firebase SDK in its init.
     @State private var firebase = FirebaseService()
+    /// v1.6 (Android migration A3): one-time CloudKit → Firestore
+    /// backfill on first launch after the v1.6 update.
+    @State private var migration = MigrationService()
     /// v1.5: routes programmatic tab switches (e.g., the rank-icon
     /// shortcut on Map/Browse → Profile). Injected via .environment
     /// so any child view can change `selectedTab`.
@@ -73,6 +76,7 @@ struct WoodlandsEatsApp: App {
                     .environment(visitedStore)
                     .environment(tabRouter)
                     .environment(firebase)
+                    .environment(migration)
                     .onChange(of: locationManager.location) { _, newValue in
                         store.userLocation = newValue
                     }

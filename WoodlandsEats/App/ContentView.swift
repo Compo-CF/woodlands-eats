@@ -11,6 +11,10 @@ struct ContentView: View {
     @Environment(TierListStore.self) private var tierStore
     @Environment(VisitedStore.self) private var visitedStore
     @Environment(TabRouter.self) private var tabRouter
+    /// v1.6 (Android migration A2 + A3): Firebase dual-write target +
+    /// one-time CloudKit backfill service. Both injected from app root.
+    @Environment(FirebaseService.self) private var firebase
+    @Environment(MigrationService.self) private var migration
 
     /// v1.4: gates the rank-up celebration. Stores the displayName of
     /// the most-recently-celebrated FoodieRank so we don't show the
@@ -106,6 +110,21 @@ struct ContentView: View {
                 lastCelebratedRank = restoredRank.displayName
             }
             hasFinishedLaunchSync = true
+
+            // v1.6 (A3): one-time CloudKit → Firestore backfill.
+            // Fire-and-forget; gated internally by @AppStorage flags so
+            // it no-ops once complete and resumes mid-step if a previous
+            // run was interrupted. Runs AFTER the local stores have been
+            // restored from CloudKit so visitedStore.visited is populated
+            // before we copy it to Firestore.
+            Task {
+                await migration.runIfNeeded(
+                    cloudKit: cloudKit,
+                    firebase: firebase,
+                    tierStore: tierStore,
+                    visitedStore: visitedStore
+                )
+            }
         }
         .onChange(of: tierStore.placements.count) { _, newCount in
             // Suppress all celebrations until launch sync settles —
