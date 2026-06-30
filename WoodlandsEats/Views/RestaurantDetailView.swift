@@ -180,6 +180,8 @@ struct RestaurantDetailView: View {
     private func reportPhoto(_ photo: DishPhoto) async {
         reportingPhotoID = photo.id
         defer { reportingPhotoID = nil }
+        // v1.6 dual-write (fire-and-forget, separate task).
+        Task { await firebase.savePhotoReport(photoID: photo.id) }
         if await cloudKit.reportPhoto(photoID: photo.id) {
             // Hide it locally right away — feels responsive, and the reporter
             // won't see the photo again on this device until they relaunch.
@@ -204,6 +206,8 @@ struct RestaurantDetailView: View {
         Task {
             _ = await cloudKit.reportPhoto(photoID: photo.id)
         }
+        // v1.6 dual-write.
+        Task { await firebase.savePhotoReport(photoID: photo.id) }
     }
 
     /// v1.3.1: upload N selected photos in sequence, with a running
@@ -314,6 +318,8 @@ struct RestaurantDetailView: View {
                 // sync across devices on next launch. Fire-and-forget; local
                 // state has already updated for instant UI feedback.
                 Task { await cloudKit.saveVisitedList(visitedStore.visited) }
+                // v1.6 dual-write to Firestore (visitedLists collection).
+                Task { await firebase.saveVisitedList(visitedStore.visited) }
             } label: {
                 HStack {
                     Image(systemName: visitedStore.isVisited(restaurant.id)
@@ -540,6 +546,16 @@ struct RestaurantDetailView: View {
                     _ = await cloudKit.unreportClosed(restaurantID: restaurant.id)
                 } else {
                     _ = await cloudKit.reportClosed(restaurantID: restaurant.id)
+                }
+                // v1.6 dual-write to Firestore (closureReports collection).
+                // Captured `reportedByMe` is pre-toggle so the branch matches.
+                let wasReported = reportedByMe
+                Task {
+                    if wasReported {
+                        await firebase.deleteClosureReport(restaurantID: restaurant.id)
+                    } else {
+                        await firebase.saveClosureReport(restaurantID: restaurant.id)
+                    }
                 }
                 let closure = await cloudKit.fetchClosureInfo(restaurantID: restaurant.id)
                 closureCount = closure.count

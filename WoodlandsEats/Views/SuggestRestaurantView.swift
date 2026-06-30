@@ -5,6 +5,8 @@ import SwiftUI
 /// Profile tab, which creates a LiveRestaurant the app fetches into its list.
 struct SuggestRestaurantView: View {
     @Environment(CloudKitService.self) private var cloudKit
+    /// v1.6 (Android migration A2): cross-platform dual-write target.
+    @Environment(FirebaseService.self) private var firebase
     @Environment(\.dismiss) private var dismiss
     @State private var name = ""
     @State private var address = ""
@@ -73,13 +75,28 @@ struct SuggestRestaurantView: View {
     private func submit() async {
         submitting = true
         error = nil
+        let cleanName = name.trimmingCharacters(in: .whitespaces)
+        let cleanAddress = address.trimmingCharacters(in: .whitespaces)
+        let cleanDescription = description.trimmingCharacters(in: .whitespaces)
         let ok = await cloudKit.submitSuggestion(
-            name: name.trimmingCharacters(in: .whitespaces),
-            address: address.trimmingCharacters(in: .whitespaces),
+            name: cleanName,
+            address: cleanAddress,
             area: area.rawValue,
             cuisines: [cuisine.rawValue],
-            description: description.trimmingCharacters(in: .whitespaces)
+            description: cleanDescription
         )
+        // v1.6 dual-write: Firestore stores its own auto-ID for the
+        // suggestion. The two stores' suggestion IDs diverge — the
+        // migration step reconciles them later.
+        Task {
+            _ = await firebase.saveSuggestion(
+                name: cleanName,
+                address: cleanAddress,
+                area: area.rawValue,
+                cuisines: [cuisine.rawValue],
+                description: cleanDescription
+            )
+        }
         submitting = false
         if ok {
             submittedOK = true

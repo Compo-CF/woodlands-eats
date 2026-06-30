@@ -8,6 +8,9 @@ import CoreLocation
 struct ProfileView: View {
     @Environment(CloudKitService.self) private var cloudKit
     @Environment(TierListStore.self) private var tierStore
+    /// v1.6 (Android migration A2): cross-platform dual-write target.
+    /// Every CloudKit save called from this view also writes to Firestore.
+    @Environment(FirebaseService.self) private var firebase
     @State private var displayName = ""
     @State private var status = ""        // "" | "requested" | "approved"
     @State private var userID = ""
@@ -233,6 +236,8 @@ struct ProfileView: View {
                                     Spacer()
                                     Button("Approve") {
                                         Task { _ = await cloudKit.approvePro(userID: req.userID); await refreshAfterChange() }
+                                        // v1.6 dual-write.
+                                        Task { await firebase.saveProApproval(forUserID: req.userID) }
                                     }
                                     .buttonStyle(.borderedProminent)
                                     .tint(.green)
@@ -250,6 +255,8 @@ struct ProfileView: View {
                                     Spacer()
                                     Button("Revoke") {
                                         Task { _ = await cloudKit.revokePro(userID: req.userID); await refreshAfterChange() }
+                                        // v1.6 dual-write.
+                                        Task { await firebase.deleteProApproval(forUserID: req.userID) }
                                     }
                                     .buttonStyle(.bordered)
                                     .tint(.red)
@@ -457,6 +464,13 @@ struct ProfileView: View {
         let ok = confirm
             ? await cloudKit.confirmClosed(restaurantID: restaurantID)
             : await cloudKit.markOpen(restaurantID: restaurantID)
+        // v1.6 dual-write: same decision to Firestore.
+        Task {
+            await firebase.saveClosureDecision(
+                restaurantID: restaurantID,
+                decision: confirm ? "closed" : "open"
+            )
+        }
         if ok {
             pendingClosures.removeAll { $0.restaurant.id == restaurantID }
             recentlyDecidedClosureIDs.insert(restaurantID)
@@ -529,6 +543,13 @@ struct ProfileView: View {
         let ok = hide
             ? await cloudKit.hidePhoto(photoID: photoID)
             : await cloudKit.approvePhoto(photoID: photoID)
+        // v1.6 dual-write.
+        Task {
+            await firebase.savePhotoModeration(
+                photoID: photoID,
+                decision: hide ? "hidden" : "approved"
+            )
+        }
         if ok {
             photoReports.removeAll { $0.report.photoID == photoID }
         }
@@ -593,6 +614,9 @@ struct ProfileView: View {
         let profile = await cloudKit.fetchMyProfile()
         displayName = profile.displayName
         status = await cloudKit.amIApproved() ? "approved" : profile.status
+        // v1.6 dual-write: post-fetch status (covers the "approved"
+        // transition that admin can apply on the CloudKit side).
+        Task { await firebase.saveProfile(displayName: displayName, status: status) }
         saving = false
     }
 }
