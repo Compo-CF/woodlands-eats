@@ -855,11 +855,19 @@ final class CloudKitService {
         var totalPlacements: Int
         var restaurantsRanked: Int  // distinct restaurant IDs appearing in any placement
         var profileCount: Int       // total FoodieProfile records
+        /// v1.7: how many users are at each FoodieRank tier. Derived from
+        /// the placements-per-user tally that fetchAdminStats already
+        /// builds. Rank cutoffs come from FoodieRank.from(placementCount:).
+        var usersByRank: [FoodieRank: Int]
     }
 
     func fetchAdminStats() async -> AdminStats {
-        guard isAvailable else { return AdminStats(activeUsers: 0, totalPlacements: 0, restaurantsRanked: 0, profileCount: 0) }
-        var users: Set<String> = []
+        guard isAvailable else {
+            return AdminStats(activeUsers: 0, totalPlacements: 0,
+                              restaurantsRanked: 0, profileCount: 0,
+                              usersByRank: [:])
+        }
+        var placementsPerUser: [String: Int] = [:]
         var restaurants: Set<String> = []
         var placementCount = 0
 
@@ -867,7 +875,7 @@ final class CloudKitService {
             for (recordID, _) in matches {
                 placementCount += 1
                 if let owner = placementOwnerID(from: recordID.recordName) {
-                    users.insert(owner)
+                    placementsPerUser[owner, default: 0] += 1
                 }
                 // Recover the restaurant UUID from the trailing 36 chars
                 // of the recordName ("placement_<user>_<restaurantUUID>").
@@ -914,11 +922,22 @@ final class CloudKitService {
             // Same — partial counts are acceptable.
         }
 
+        // v1.7: derive rank distribution from the placements-per-user
+        // tally. Skips Newcomer for anyone with 0 placements (they're
+        // not in placementsPerUser at all — no floor pollution).
+        var usersByRank: [FoodieRank: Int] = [:]
+        for (_, count) in placementsPerUser {
+            if let rank = FoodieRank.from(placementCount: count) {
+                usersByRank[rank, default: 0] += 1
+            }
+        }
+
         return AdminStats(
-            activeUsers: users.count,
+            activeUsers: placementsPerUser.count,
             totalPlacements: placementCount,
             restaurantsRanked: restaurants.count,
-            profileCount: profileCount
+            profileCount: profileCount,
+            usersByRank: usersByRank
         )
     }
 

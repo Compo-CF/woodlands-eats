@@ -1,19 +1,30 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// v1.7 Feature A hotfix: Transferable wrapper that explicitly exports
-/// PNG data. Sharing a plain SwiftUI Image works for Messages/AirDrop
-/// but iOS doesn't surface "Save to Photos" in the share sheet for it
-/// — that affordance only appears when the shared item exposes a
-/// UTType.png/jpeg DataRepresentation. Wrapping the rendered UIImage
-/// here adds that representation, so Save to Photos appears alongside
-/// Messages, Mail, Instagram, etc.
+/// v1.7 Feature A: Transferable wrapper that writes the rendered
+/// tier-list card to a temp PNG file and shares that URL.
+///
+/// Why file-based instead of data-based: DataRepresentation exports
+/// bytes tagged as image/png, which iOS routes correctly to some
+/// share extensions (Messages, Mail, AirDrop) but NOT to "Save to
+/// Photos" — that action only appears in the share sheet when the
+/// shared item is a URL pointing to an image file on disk (iOS 17+
+/// Photos share extension is picky about this). FileRepresentation
+/// gives us both — file-based extensions plus Save to Photos.
+///
+/// Temp file lives under `FileManager.default.temporaryDirectory`;
+/// iOS cleans up temp dirs automatically, no explicit removal needed.
 struct ShareableTierImage: Transferable {
     let uiImage: UIImage
 
     static var transferRepresentation: some TransferRepresentation {
-        DataRepresentation(exportedContentType: .png) { wrapper in
-            wrapper.uiImage.pngData() ?? Data()
+        FileRepresentation(exportedContentType: .png) { wrapper in
+            let url = FileManager.default.temporaryDirectory
+                .appendingPathComponent("MyTierList.png")
+            if let data = wrapper.uiImage.pngData() {
+                try? data.write(to: url, options: .atomic)
+            }
+            return SentTransferredFile(url)
         }
         .suggestedFileName("MyTierList.png")
     }

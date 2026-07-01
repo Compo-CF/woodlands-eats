@@ -241,13 +241,15 @@ struct ProfileView: View {
                 if isAdmin {
                     Section(
                         header: Text("Stats"),
-                        footer: Text("CloudKit-wide aggregates. Reflects all users, not just this device.")
+                        footer: Text("CloudKit-wide aggregates plus local catalog counts. Reflects all users, not just this device.")
                     ) {
                         if let s = adminStats {
                             statsRow(label: "Active users", value: "\(s.activeUsers)", icon: "person.3.fill", tint: .blue)
                             statsRow(label: "Profiles", value: "\(s.profileCount)", icon: "person.crop.circle", tint: .indigo)
-                            statsRow(label: "Placements", value: "\(s.totalPlacements)", icon: "list.number", tint: .orange)
+                            statsRow(label: "Foodie Pros", value: "\(approvedPros.count)", icon: "star.fill", tint: .orange)
+                            statsRow(label: "Placements", value: "\(s.totalPlacements)", icon: "list.number", tint: .purple)
                             statsRow(label: "Restaurants ranked", value: "\(s.restaurantsRanked)", icon: "fork.knife", tint: .green)
+                            statsRow(label: "Restaurants in catalog", value: "\(store.restaurants.count)", icon: "books.vertical.fill", tint: .teal)
                             Button {
                                 Task { await reloadStats() }
                             } label: {
@@ -263,6 +265,35 @@ struct ProfileView: View {
                         } else {
                             Button("Load stats") {
                                 Task { await reloadStats() }
+                            }
+                        }
+                    }
+
+                    // v1.7: users-by-rank breakdown. Separate section so
+                    // the earlier stats card stays compact and this rank
+                    // ladder reads visually distinct (colored badges).
+                    // Iterates FoodieRank.allCases so ranks with zero
+                    // users still show as "0" — makes it easy to spot
+                    // an empty top of the ladder.
+                    if let s = adminStats {
+                        Section(
+                            header: Text("Users by rank"),
+                            footer: Text("Count of users currently at each FoodieRank tier, based on their total placement count in CloudKit.")
+                        ) {
+                            ForEach(FoodieRank.allCases) { rank in
+                                HStack {
+                                    Text(rank.displayName)
+                                        .font(.system(.body, design: .rounded).weight(.semibold))
+                                        .foregroundStyle(.white)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 4)
+                                        .background(rank.color, in: Capsule())
+                                    Spacer()
+                                    Text("\(s.usersByRank[rank] ?? 0)")
+                                        .font(.body.weight(.semibold))
+                                        .foregroundStyle(.primary)
+                                        .monospacedDigit()
+                                }
                             }
                         }
                     }
