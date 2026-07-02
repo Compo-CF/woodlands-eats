@@ -905,21 +905,32 @@ final class CloudKitService {
             // Partial result is fine — return what we tallied so far.
         }
 
+        // FoodieProfile doesn't have a recordName Queryable index, so
+        // TRUEPREDICATE queries against it fail silently. Instead we
+        // OR the three known `status` values ("", "requested",
+        // "approved") — status IS a Queryable index on FoodieProfile,
+        // and every profile is written with one of those values by
+        // saveProfile. Union the results per status.
         var profileCount = 0
-        do {
-            let profileQuery = CKQuery(recordType: profileType, predicate: NSPredicate(value: true))
-            var (matches, cursor) = try await publicDB.records(
-                matching: profileQuery,
-                desiredKeys: [],
-                resultsLimit: 400)
-            profileCount += matches.count
-            while let c = cursor {
-                (matches, cursor) = try await publicDB.records(
-                    continuingMatchFrom: c, resultsLimit: 400)
+        for statusValue in ["", "requested", "approved"] {
+            do {
+                let profileQuery = CKQuery(
+                    recordType: profileType,
+                    predicate: NSPredicate(format: "status == %@", statusValue))
+                var (matches, cursor) = try await publicDB.records(
+                    matching: profileQuery,
+                    desiredKeys: [],
+                    resultsLimit: 400)
                 profileCount += matches.count
+                while let c = cursor {
+                    (matches, cursor) = try await publicDB.records(
+                        continuingMatchFrom: c, resultsLimit: 400)
+                    profileCount += matches.count
+                }
+            } catch {
+                // Partial-count is acceptable — skip this bucket, keep
+                // whatever the other queries gave us.
             }
-        } catch {
-            // Same — partial counts are acceptable.
         }
 
         // v1.7: derive rank distribution from the placements-per-user
