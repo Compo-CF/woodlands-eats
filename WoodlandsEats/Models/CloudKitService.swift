@@ -318,6 +318,55 @@ final class CloudKitService {
         return out
     }
 
+    /// v1.8 (integrity audit): fetch every Placement with the metadata
+    /// AuditService needs — owner (parsed from recordName), restaurantID,
+    /// tier, creationDate. Admin-only in the UI; the network call is
+    /// gated by the admin check in ProfileView, not by CloudKit itself
+    /// (public DB read is available to all authed users, we just don't
+    /// surface the button for non-admins).
+    ///
+    /// Cost: same TRUEPREDICATE page-through as fetchAllCommunityTiers
+    /// — one full walk. Returns [] on any error path.
+    func fetchAllPlacementsForAudit() async -> [AuditPlacement] {
+        guard isAvailable else { return [] }
+        let keys = ["restaurantID", "tier"]
+        var out: [AuditPlacement] = []
+
+        func accumulate(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+            for (recordID, result) in matches {
+                guard case .success(let rec) = result,
+                      let ridStr = rec["restaurantID"] as? String,
+                      let rid = UUID(uuidString: ridStr),
+                      let tierStr = rec["tier"] as? String,
+                      let tier = Tier(rawValue: tierStr),
+                      let owner = placementOwnerID(from: recordID.recordName),
+                      let created = rec.creationDate
+                else { continue }
+                out.append(AuditPlacement(
+                    userID: owner,
+                    restaurantID: rid,
+                    tier: tier,
+                    creationDate: created
+                ))
+            }
+        }
+
+        do {
+            let query = CKQuery(recordType: placementType, predicate: NSPredicate(value: true))
+            var (matches, cursor) = try await publicDB.records(
+                matching: query, desiredKeys: keys, resultsLimit: 200)
+            accumulate(matches)
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(
+                    continuingMatchFrom: c, desiredKeys: keys, resultsLimit: 200)
+                accumulate(matches)
+            }
+        } catch {
+            return []
+        }
+        return out
+    }
+
     // MARK: - Dish photos (public DB, CKAsset)
 
     /// Upload a dish photo (already-compressed JPEG) for a restaurant.

@@ -239,6 +239,18 @@ struct ProfileView: View {
                 }
 
                 if isAdmin {
+                    // v1.8: integrity audit entry point. NavigationLink
+                    // rather than inline so the CloudKit walk only fires
+                    // when the admin taps in — Profile load stays fast.
+                    Section(
+                        header: Text("Integrity"),
+                        footer: Text("Runs a full pass over CloudKit Placements looking for gaming patterns — biased accounts, coordinated bursts, polarized restaurants.")
+                    ) {
+                        NavigationLink(destination: AdminAuditView()) {
+                            Label("Placement Audit", systemImage: "shield.checkered")
+                        }
+                    }
+
                     Section(
                         header: Text("Stats"),
                         footer: Text("CloudKit-wide aggregates plus local catalog counts. Reflects all users, not just this device.")
