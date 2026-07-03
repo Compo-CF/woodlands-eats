@@ -96,6 +96,10 @@ final class CloudKitService {
     /// out of `fetchDishPhotos` for everyone; approved photos drop out of the
     /// admin queue but stay visible.
     private let photoModType = "PhotoModerated"
+    /// v1.8: admin-owned integrity remediation marker. recordName
+    /// `excl_<kind>_<target>`; kind "user" bans an account's votes,
+    /// kind "placement" masks one rating. See the Admin exclusions MARK.
+    private let exclusionType = "AdminExclusion"
     /// iCloud user record names allowed to approve Foodie Pros (shown on the Profile tab).
     private let adminUserIDs: Set<String> = ["_e8b0bfe996b6e232421afac393ab8a3b"]
 
@@ -258,11 +262,16 @@ final class CloudKitService {
     /// Returns nil if no one has ranked it yet (or CloudKit is unavailable).
     func fetchCommunityTier(restaurantID: UUID) async -> CommunityTier? {
         guard isAvailable else { return nil }
+        await loadExclusionsIfNeeded()
         let predicate = NSPredicate(format: "restaurantID == %@", restaurantID.uuidString)
         let query = CKQuery(recordType: placementType, predicate: predicate)
         do {
             let (results, _) = try await publicDB.records(matching: query, resultsLimit: 500)
-            let scores: [Int] = results.compactMap { _, result in
+            let scores: [Int] = results.compactMap { recordID, result in
+                // v1.8: skip admin-excluded ratings / banned users.
+                guard !isExcluded(recordName: recordID.recordName,
+                                  owner: placementOwnerID(from: recordID.recordName))
+                else { return nil }
                 if case .success(let rec) = result { return rec["score"] as? Int }
                 return nil
             }
@@ -280,15 +289,20 @@ final class CloudKitService {
     /// TRUEPREDICATE query); returns [:] gracefully until that exists.
     func fetchAllCommunityTiers() async -> [UUID: CommunityTier] {
         guard isAvailable else { return [:] }
+        await loadExclusionsIfNeeded()
         var sums: [UUID: (total: Int, count: Int)] = [:]
         let keys = ["restaurantID", "score"]
 
         func accumulate(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
-            for (_, result) in matches {
+            for (recordID, result) in matches {
                 guard case .success(let rec) = result,
                       let ridStr = rec["restaurantID"] as? String,
                       let rid = UUID(uuidString: ridStr),
-                      let score = rec["score"] as? Int else { continue }
+                      let score = rec["score"] as? Int,
+                      // v1.8: skip admin-excluded ratings / banned users.
+                      !isExcluded(recordName: recordID.recordName,
+                                  owner: placementOwnerID(from: recordID.recordName))
+                else { continue }
                 var entry = sums[rid] ?? (0, 0)
                 entry.total += score
                 entry.count += 1
@@ -343,6 +357,7 @@ final class CloudKitService {
                       let created = rec.creationDate
                 else { continue }
                 out.append(AuditPlacement(
+                    recordName: recordID.recordName,
                     userID: owner,
                     restaurantID: rid,
                     tier: tier,
@@ -365,6 +380,142 @@ final class CloudKitService {
             return []
         }
         return out
+    }
+
+    // MARK: - Admin exclusions (v1.8 integrity remediation)
+    //
+    // CloudKit public DB only lets a record's CREATOR modify or delete
+    // it — the admin cannot delete another user's Placement. Remediation
+    // therefore follows the same admin-owned-override pattern as
+    // PhotoModerated / ClosureDecision: the admin writes an
+    // `AdminExclusion` record and every client filters against it when
+    // computing community aggregates.
+    //
+    //   kind = "user"      → target = userID; ALL of that user's
+    //                        placements stop counting (ban)
+    //   kind = "placement" → target = placement recordName; that single
+    //                        rating stops counting
+    //
+    // The excluded user still sees their own My Tiers locally (their
+    // records are untouched) — their votes just no longer influence
+    // the community consensus anyone sees.
+    //
+    // CloudKit schema REQUIRED before this works in TestFlight/App Store:
+    //   Dashboard → Development → Record Types → new type `AdminExclusion`
+    //   with String fields `kind` + `target`, then Indexes → add
+    //   Queryable index on AdminExclusion recordName (needed for the
+    //   TRUEPREDICATE fetch below), then Deploy Schema Changes → Production.
+    //   Until deployed, fetchExclusions returns empty and the app behaves
+    //   exactly as before.
+
+    /// Cached exclusion sets. Loaded once per launch on first community
+    /// aggregate; force-refreshed after every admin ban/unban action.
+    private(set) var bannedUserIDs: Set<String> = []
+    private(set) var excludedPlacementNames: Set<String> = []
+    private var exclusionsLoaded = false
+
+    private func exclusionRecordID(kind: String, target: String) -> CKRecord.ID {
+        // recordName must be ≤255 chars; userIDs (~32) and placement
+        // recordNames (~80) are well under even with the prefix.
+        CKRecord.ID(recordName: "excl_\(kind)_\(target)")
+    }
+
+    /// Page all AdminExclusion records into the cached sets.
+    func loadExclusionsIfNeeded(force: Bool = false) async {
+        guard isAvailable, force || !exclusionsLoaded else { return }
+        var banned: Set<String> = []
+        var removed: Set<String> = []
+        do {
+            let query = CKQuery(recordType: exclusionType, predicate: NSPredicate(value: true))
+            var (matches, cursor) = try await publicDB.records(
+                matching: query, desiredKeys: ["kind", "target"], resultsLimit: 200)
+            func accumulate(_ ms: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+                for (_, result) in ms {
+                    guard case .success(let rec) = result,
+                          let kind = rec["kind"] as? String,
+                          let target = rec["target"] as? String else { continue }
+                    if kind == "user" { banned.insert(target) }
+                    else if kind == "placement" { removed.insert(target) }
+                }
+            }
+            accumulate(matches)
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(
+                    continuingMatchFrom: c, resultsLimit: 200)
+                accumulate(matches)
+            }
+            bannedUserIDs = banned
+            excludedPlacementNames = removed
+            exclusionsLoaded = true
+        } catch {
+            // Schema not deployed yet or transient error — leave the
+            // caches as-is (empty on first launch). Aggregates fall back
+            // to unfiltered behavior, identical to pre-v1.8.
+        }
+    }
+
+    /// True if a placement should be masked out of community aggregates.
+    private func isExcluded(recordName: String, owner: String?) -> Bool {
+        if excludedPlacementNames.contains(recordName) { return true }
+        if let owner, bannedUserIDs.contains(owner) { return true }
+        return false
+    }
+
+    /// Admin: ban a user — all their placements stop counting everywhere.
+    @discardableResult
+    func banUser(userID: String) async -> Bool {
+        guard isAvailable, await isAdmin(), !userID.isEmpty else { return false }
+        let rec = CKRecord(recordType: exclusionType,
+                           recordID: exclusionRecordID(kind: "user", target: userID))
+        rec["kind"] = "user" as CKRecordValue
+        rec["target"] = userID as CKRecordValue
+        do {
+            _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
+            bannedUserIDs.insert(userID)
+            return true
+        } catch { return false }
+    }
+
+    /// Admin: lift a ban (deletes the admin-owned exclusion record —
+    /// allowed because the admin created it).
+    @discardableResult
+    func unbanUser(userID: String) async -> Bool {
+        guard isAvailable, await isAdmin() else { return false }
+        do {
+            _ = try await publicDB.modifyRecords(
+                saving: [], deleting: [exclusionRecordID(kind: "user", target: userID)],
+                savePolicy: .allKeys)
+            bannedUserIDs.remove(userID)
+            return true
+        } catch { return false }
+    }
+
+    /// Admin: exclude one specific rating from community aggregates.
+    @discardableResult
+    func excludePlacement(recordName: String) async -> Bool {
+        guard isAvailable, await isAdmin(), !recordName.isEmpty else { return false }
+        let rec = CKRecord(recordType: exclusionType,
+                           recordID: exclusionRecordID(kind: "placement", target: recordName))
+        rec["kind"] = "placement" as CKRecordValue
+        rec["target"] = recordName as CKRecordValue
+        do {
+            _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
+            excludedPlacementNames.insert(recordName)
+            return true
+        } catch { return false }
+    }
+
+    /// Admin: restore a previously-excluded rating.
+    @discardableResult
+    func restorePlacement(recordName: String) async -> Bool {
+        guard isAvailable, await isAdmin() else { return false }
+        do {
+            _ = try await publicDB.modifyRecords(
+                saving: [], deleting: [exclusionRecordID(kind: "placement", target: recordName)],
+                savePolicy: .allKeys)
+            excludedPlacementNames.remove(recordName)
+            return true
+        } catch { return false }
     }
 
     // MARK: - Dish photos (public DB, CKAsset)
@@ -1018,6 +1169,7 @@ final class CloudKitService {
     func fetchProCommunityTiers() async -> [UUID: CommunityTier] {
         guard isAvailable else { return [:] }
 
+        await loadExclusionsIfNeeded()
         // 1. Pull all placements (Placement.recordName index is already deployed).
         var placements: [(owner: String, restaurant: UUID, score: Int)] = []
         func accumulate(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
@@ -1025,7 +1177,10 @@ final class CloudKitService {
                 guard case .success(let rec) = result,
                       let owner = placementOwnerID(from: recordID.recordName),
                       let s = rec["restaurantID"] as? String, let rid = UUID(uuidString: s),
-                      let score = rec["score"] as? Int else { continue }
+                      let score = rec["score"] as? Int,
+                      // v1.8: skip admin-excluded ratings / banned users.
+                      !isExcluded(recordName: recordID.recordName, owner: owner)
+                else { continue }
                 placements.append((owner, rid, score))
             }
         }
