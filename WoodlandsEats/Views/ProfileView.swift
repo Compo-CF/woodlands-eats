@@ -42,11 +42,6 @@ struct ProfileView: View {
     /// awaiting a Confirm/Reject decision.
     @State private var pendingClosures: [(restaurant: Restaurant, count: Int)] = []
     @State private var actingClosureID: UUID?
-    /// v1.7: admin-only stats card. Loaded once on first admin-mode
-    /// appear; refreshable via the "Refresh stats" button. nil until
-    /// the first fetch completes (shows a spinner in the meantime).
-    @State private var adminStats: CloudKitService.AdminStats?
-    @State private var loadingStats: Bool = false
     /// v1.5: session-local set of restaurants the admin has just
     /// decided this session. CloudKit's TRUEPREDICATE queries can
     /// take 10-30s to surface freshly-written ClosureDecision records,
@@ -239,74 +234,18 @@ struct ProfileView: View {
                 }
 
                 if isAdmin {
-                    // v1.8: integrity audit entry point. NavigationLink
-                    // rather than inline so the CloudKit walk only fires
-                    // when the admin taps in — Profile load stays fast.
-                    Section(
-                        header: Text("Integrity"),
-                        footer: Text("Runs a full pass over CloudKit Placements looking for gaming patterns — biased accounts, coordinated bursts, polarized restaurants.")
-                    ) {
+                    // v1.8: admin tools. Both are NavigationLinks rather
+                    // than inline so their CloudKit walks only fire when
+                    // the admin taps in — Profile load stays fast. The
+                    // Dashboard supersedes the old inline Stats card
+                    // (momentum deltas, activity chart, tier mix, top
+                    // rankers, hottest restaurants, live feed).
+                    Section(header: Text("Admin tools")) {
+                        NavigationLink(destination: AdminDashboardView()) {
+                            Label("Dashboard", systemImage: "gauge.with.dots.needle.67percent")
+                        }
                         NavigationLink(destination: AdminAuditView()) {
                             Label("Placement Audit", systemImage: "shield.checkered")
-                        }
-                    }
-
-                    Section(
-                        header: Text("Stats"),
-                        footer: Text("CloudKit-wide aggregates plus local catalog counts. Reflects all users, not just this device.")
-                    ) {
-                        if let s = adminStats {
-                            statsRow(label: "Active users", value: "\(s.activeUsers)", icon: "person.3.fill", tint: .blue)
-                            statsRow(label: "Profiles", value: "\(s.profileCount)", icon: "person.crop.circle", tint: .indigo)
-                            statsRow(label: "Foodie Pros", value: "\(approvedPros.count)", icon: "star.fill", tint: .orange)
-                            statsRow(label: "Placements", value: "\(s.totalPlacements)", icon: "list.number", tint: .purple)
-                            statsRow(label: "Restaurants ranked", value: "\(s.restaurantsRanked)", icon: "fork.knife", tint: .green)
-                            statsRow(label: "Restaurants in catalog", value: "\(store.restaurants.count)", icon: "books.vertical.fill", tint: .teal)
-                            Button {
-                                Task { await reloadStats() }
-                            } label: {
-                                Label("Refresh stats", systemImage: "arrow.clockwise")
-                            }
-                            .disabled(loadingStats)
-                        } else if loadingStats {
-                            HStack {
-                                ProgressView()
-                                Text("Loading stats…")
-                                    .foregroundStyle(.secondary)
-                            }
-                        } else {
-                            Button("Load stats") {
-                                Task { await reloadStats() }
-                            }
-                        }
-                    }
-
-                    // v1.7: users-by-rank breakdown. Separate section so
-                    // the earlier stats card stays compact and this rank
-                    // ladder reads visually distinct (colored badges).
-                    // Iterates FoodieRank.allCases so ranks with zero
-                    // users still show as "0" — makes it easy to spot
-                    // an empty top of the ladder.
-                    if let s = adminStats {
-                        Section(
-                            header: Text("Users by rank"),
-                            footer: Text("Count of users currently at each FoodieRank tier, based on their total placement count in CloudKit.")
-                        ) {
-                            ForEach(FoodieRank.allCases) { rank in
-                                HStack {
-                                    Text(rank.displayName)
-                                        .font(.system(.body, design: .rounded).weight(.semibold))
-                                        .foregroundStyle(.white)
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 4)
-                                        .background(rank.color, in: Capsule())
-                                    Spacer()
-                                    Text("\(s.usersByRank[rank] ?? 0)")
-                                        .font(.body.weight(.semibold))
-                                        .foregroundStyle(.primary)
-                                        .monospacedDigit()
-                                }
-                            }
                         }
                     }
 
@@ -622,37 +561,8 @@ struct ProfileView: View {
             pendingSuggestions = await cloudKit.fetchPendingSuggestions()
             await reloadPhotoReports()
             await reloadClosureReports()
-            // v1.7: load admin stats card once on entry. Refresh button
-            // re-fetches; cached value sticks across re-opens within
-            // the same session so admin can flip away and back without
-            // re-paying the multi-page CloudKit walk.
-            if adminStats == nil {
-                await reloadStats()
-            }
         }
         loading = false
-    }
-
-    /// v1.7: small uniform row for the admin stats card.
-    @ViewBuilder
-    private func statsRow(label: String, value: String, icon: String, tint: Color) -> some View {
-        HStack {
-            Label(label, systemImage: icon)
-                .foregroundStyle(tint)
-            Spacer()
-            Text(value)
-                .font(.body.weight(.semibold))
-                .foregroundStyle(.primary)
-                .monospacedDigit()
-        }
-    }
-
-    /// v1.7: refresh the admin stats card. Pages all Placement and
-    /// FoodieProfile records — same cost as the Community refresh.
-    private func reloadStats() async {
-        loadingStats = true
-        adminStats = await cloudKit.fetchAdminStats()
-        loadingStats = false
     }
 
     /// v1.3.1: build the admin closure-report queue. fetchPendingClosureReports

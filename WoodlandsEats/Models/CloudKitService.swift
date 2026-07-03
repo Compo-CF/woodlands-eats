@@ -382,6 +382,33 @@ final class CloudKitService {
         return out
     }
 
+    /// v1.8 (dashboard): count all FoodieProfile records. FoodieProfile
+    /// has no recordName Queryable index, so TRUEPREDICATE fails — we
+    /// bucket by the Queryable `status` field instead (every profile is
+    /// written with one of these three values by saveProfile).
+    func fetchProfileCount() async -> Int {
+        guard isAvailable else { return 0 }
+        var count = 0
+        for statusValue in ["", "requested", "approved"] {
+            do {
+                let query = CKQuery(
+                    recordType: profileType,
+                    predicate: NSPredicate(format: "status == %@", statusValue))
+                var (matches, cursor) = try await publicDB.records(
+                    matching: query, desiredKeys: [], resultsLimit: 400)
+                count += matches.count
+                while let c = cursor {
+                    (matches, cursor) = try await publicDB.records(
+                        continuingMatchFrom: c, resultsLimit: 400)
+                    count += matches.count
+                }
+            } catch {
+                // Partial counts acceptable.
+            }
+        }
+        return count
+    }
+
     // MARK: - Admin exclusions (v1.8 integrity remediation)
     //
     // CloudKit public DB only lets a record's CREATOR modify or delete
