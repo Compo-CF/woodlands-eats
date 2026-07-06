@@ -17,6 +17,8 @@ struct ProfileView: View {
     @Environment(AppleSignInService.self) private var appleSignIn
     /// v1.7 Feature D: IAP store for the $1.99 ad-free upgrade.
     @Environment(PurchaseStore.self) private var purchases
+    /// v1.9: push-notification opt-in service.
+    @Environment(NotificationService.self) private var notifications
     /// v1.6: cached display name read by MyTiersView's share-card
     /// renderer so the user's name shows up without an async fetch.
     @AppStorage("WoodlandsEats.cachedDisplayName") private var cachedDisplayName = ""
@@ -161,6 +163,8 @@ struct ProfileView: View {
                         Label("My Stats", systemImage: "chart.bar.xaxis")
                     }
                 }
+
+                notificationsSection
 
                 Section(
                     header: Text("Help others"),
@@ -539,6 +543,28 @@ struct ProfileView: View {
                         .controlSize(.small)
                 }
             }
+        }
+    }
+
+    /// v1.9: push-notification opt-in. A single toggle that requests
+    /// permission on enable and registers/removes CloudKit subscriptions.
+    /// If the OS has denied notifications, the toggle is disabled and we
+    /// point the user to Settings (can't re-prompt once denied).
+    @ViewBuilder
+    private var notificationsSection: some View {
+        Section(
+            header: Text("Notifications"),
+            footer: Text(notifications.authorization == .denied
+                ? "Notifications are turned off for S-Tier Eats in iOS Settings. Enable them there to get alerts."
+                : "Get a heads-up when a new restaurant is added to your area, or when you're approved as a Foodie Pro.")
+        ) {
+            Toggle(isOn: Binding(
+                get: { notifications.enabled && notifications.authorization != .denied },
+                set: { on in Task { await notifications.setEnabled(on, currentUserID: userID) } }
+            )) {
+                Label("New restaurant & status alerts", systemImage: "bell.badge")
+            }
+            .disabled(notifications.authorization == .denied)
         }
     }
 

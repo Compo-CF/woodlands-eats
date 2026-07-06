@@ -1,7 +1,36 @@
 import SwiftUI
+import UserNotifications
+
+/// v1.9: minimal AppDelegate so SwiftUI can complete APNs registration
+/// and present CloudKit-driven notifications while the app is foreground.
+/// CloudKit handles push delivery server-side; we just need registration
+/// to succeed and a delegate to control foreground presentation.
+final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        UNUserNotificationCenter.current().delegate = self
+        return true
+    }
+
+    // Registration succeeded — CloudKit tracks the token itself, so no work needed.
+    func application(_ application: UIApplication,
+                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {}
+
+    func application(_ application: UIApplication,
+                     didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        print("[Push] remote registration failed: \(error.localizedDescription)")
+    }
+
+    // Show the banner even when the app is in the foreground.
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
+        [.banner, .sound, .badge]
+    }
+}
 
 @main
 struct WoodlandsEatsApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var store = RestaurantStore()
     @State private var tierStore = TierListStore()
     @State private var locationManager = LocationManager()
@@ -20,6 +49,9 @@ struct WoodlandsEatsApp: App {
     /// upgrade. Fetches product + entitlement state on launch; gates
     /// MaybeBannerAd visibility on isAdFree.
     @State private var purchaseStore = PurchaseStore()
+    /// v1.9: push notifications (CloudKit CKQuerySubscriptions).
+    /// Opt-in via Profile toggle; re-syncs subscriptions on launch.
+    @State private var notifications = NotificationService()
     /// v1.7 Feature C: User ID parsed out of an incoming friend-tier
     /// universal link. When non-nil, FriendTierView is presented as a
     /// sheet over ContentView. Cleared when the user dismisses.
@@ -69,6 +101,7 @@ struct WoodlandsEatsApp: App {
                     .environment(tabRouter)
                     .environment(appleSignIn)
                     .environment(purchaseStore)
+                    .environment(notifications)
                     .task {
                         // v1.7 Feature B: check Apple's view of the
                         // credential on each cold launch. If they revoked
@@ -77,6 +110,15 @@ struct WoodlandsEatsApp: App {
                         // out locally so the UI doesn't lie about being
                         // authenticated.
                         await appleSignIn.refreshCredentialState()
+                        // v1.9: if the user opted into push and the OS
+                        // still grants it, make sure the CloudKit
+                        // subscriptions exist. No prompt here — the
+                        // permission ask only happens from the Profile
+                        // toggle. Runs after currentUserID resolves so
+                        // the personal Pro-approval subscription targets
+                        // the right account.
+                        let uid = await cloudKit.currentUserID()
+                        await notifications.syncOnLaunch(currentUserID: uid)
                     }
                     // v1.7 Feature C: friend-tier deep links. Two flavors
                     // accepted:

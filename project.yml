@@ -45,9 +45,13 @@ targets:
       path: WoodlandsEats/Info.plist
       properties:
         CFBundleDisplayName: S-Tier Eats
-        CFBundleShortVersionString: "1.8"
-        CFBundleVersion: "61"
+        CFBundleShortVersionString: "1.9"
+        CFBundleVersion: "62"
         CFBundleIconName: AppIcon
+        # v1.9: remote-notification background mode so CloudKit can wake
+        # the app for its push-subscription deliveries.
+        UIBackgroundModes:
+          - remote-notification
         UILaunchScreen:
           UIColorName: ""
         NSLocationWhenInUseUsageDescription: Used to show restaurants near you and sort by distance.
@@ -132,6 +136,15 @@ targets:
         #   }] } }
         com.apple.developer.associated-domains:
           - applinks:compo-cf.github.io
+        # v1.9: Push Notifications. CloudKit delivers CKQuerySubscription
+        # alerts through APNs, which requires this entitlement. Value is
+        # "development" in the committed entitlements file; Xcode's
+        # automatic signing promotes it to the production APNs environment
+        # for distribution (TestFlight/App Store) archives.
+        # ⚠ VERIFY on the first TestFlight build that pushes actually
+        # arrive — if not, the aps-environment likely needs to be forced
+        # to "production" here.
+        aps-environment: development
     settings:
       base:
         PRODUCT_NAME: WoodlandsEats
