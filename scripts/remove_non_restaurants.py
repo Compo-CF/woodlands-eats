@@ -414,6 +414,19 @@ DENY_PATTERNS = [
     (r"\bescape\s+rooms?\b", "entertainment"),
     (r"\baxe\s+throwing\b", "entertainment"),
     (r"\btrampoline\s+park\b", "entertainment"),
+    # ─── Sixth cleanup pass (v1.8 geo expansion) — entertainment chains
+    #     in the new Tomball/Cypress/Champions/Kingwood footprint.
+    (r"\bmain\s+event\b", "entertainment"),        # bowling/arcade/laser chain
+    (r"\blucky\s+strike\b", "entertainment"),      # bowling chain
+    (r"\bkids\s+empire\b", "entertainment"),       # kids indoor playground
+    (r"\bentertainment\s+center\b", "entertainment"),
+    (r"\bfamily\s+entertainment\b", "entertainment"),
+    (r"\bghost\s+kitchen\b", "facility"),
+    (r"\bcloud\s+kitchen\b", "facility"),
+    (r"\bcommissary\s+kitchen\b", "facility"),
+    (r"\bcoming\s+soon\b", "placeholder"),         # not-yet-open listings
+    (r"\bconcession", "venue"),                    # school/stadium stands
+    (r"nong\s+trai", "farm"),                      # Vietnamese: farm
     # Retail (Barnes & Noble, jewelers, bookstores, designer brands).
     (r"\bbarnes\s+(&|and)\s+noble\b", "retail"),
     (r"\bbookstore\b", "retail"),
@@ -468,6 +481,14 @@ EXACT_NAME_DENY = {
     # Grill retailer name contains "Grills" → RESTAURANT_WORDS exception
     # would save it. Exact-name overrides the exception.
     "paradise grills the woodlands outdoor kitchens",
+    # Sixth cleanup pass (v1.8 geo expansion):
+    "willowbrook court",                  # plaza listing, no data
+    "congregate @willowbrook",            # ghost-kitchen facility ("Kitchen"
+                                          # in its site would trip the
+                                          # RESTAURANT_WORDS exception)
+    "downtown humble",                    # district name, not a restaurant
+    "old town tomball",                   # district name
+    "foodtrucks(multiple)w/outdoorseating",  # placeholder listing
 }
 
 # Exception: legitimate restaurants whose names happen to contain a denylist
