@@ -12,7 +12,9 @@ import SwiftUI
 /// future seed introduces a new area string before the enum is updated.
 enum Area: String, Codable, CaseIterable, Identifiable {
     case woodlands, spring, shenandoah, oakRidgeNorth, oldTownSpring, klein,
-         conroe, magnolia, atascocita, montgomery
+         conroe, magnolia, atascocita, montgomery,
+         // v1.8 southern/eastern expansion:
+         tomball, cypress, champions, kingwood
 
     var id: String { rawValue }
 
@@ -33,6 +35,10 @@ enum Area: String, Codable, CaseIterable, Identifiable {
         case .magnolia: "Magnolia"
         case .atascocita: "Atascocita"
         case .montgomery: "Montgomery"
+        case .tomball: "Tomball"
+        case .cypress: "Cypress"
+        case .champions: "Champions / FM 1960"
+        case .kingwood: "Kingwood"
         }
     }
 }

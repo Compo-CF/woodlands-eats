@@ -43,6 +43,11 @@ CENTROIDS = [
     ("atascocita",     30.115, -95.370),
     # v1.2 (build 39+) addition for the expanded NW polygon:
     ("montgomery",     30.390, -95.690),   # downtown Montgomery TX
+    # v1.8 southern/eastern expansion:
+    ("tomball",        30.097, -95.616),
+    ("cypress",        29.972, -95.697),
+    ("champions",      29.990, -95.525),   # Champions Forest / FM 1960 W
+    ("kingwood",       30.054, -95.185),
 ]
 
 
@@ -59,7 +64,11 @@ def haversine_mi(lat1, lon1, lat2, lon2):
 # Atascocita already had a retag pass in build 33; rerunning is idempotent.
 # Montgomery is the v1.2 new area — its centroid is far enough from the
 # others that adding it here won't re-disturb the previous re-tag pass.)
-NEW_AREAS = {"conroe", "magnolia", "atascocita", "montgomery"}
+# v1.8: tomball/cypress/champions/kingwood join the retag-eligible set.
+# Also rescues the pre-existing mislabels (e.g. 'Crust Pizza Co. -
+# Tomball' tagged magnolia because tomball didn't exist as an area yet).
+NEW_AREAS = {"conroe", "magnolia", "atascocita", "montgomery",
+             "tomball", "cypress", "champions", "kingwood"}
 
 
 def nearest_area(lat, lon):

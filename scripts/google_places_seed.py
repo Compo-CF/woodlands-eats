@@ -51,6 +51,9 @@ CENTROIDS = {
     # v1.1 / v1.2 expansion areas:
     "conroe": (30.310, -95.460), "magnolia": (30.160, -95.660),
     "atascocita": (30.115, -95.370), "montgomery": (30.390, -95.690),
+    # v1.8 southern/eastern expansion:
+    "tomball": (30.097, -95.616), "cypress": (29.972, -95.697),
+    "champions": (29.990, -95.525), "kingwood": (30.054, -95.185),
 }
 
 TEXT_QUERIES = [
@@ -66,6 +69,25 @@ TEXT_QUERIES = [
     "places to eat Montgomery TX",
     "dining The Woodlands TX", "dining Spring TX",
     "dining Conroe TX", "dining Magnolia TX", "dining Montgomery TX",
+
+    # ─── v1.8 expansion sweeps: Tomball / Cypress / Champions-1960 /
+    #     Kingwood-Humble ────────────────────────────────────────────────
+    "restaurants in Tomball TX", "places to eat Tomball TX",
+    "dining Tomball TX", "restaurants Old Town Tomball TX",
+    "restaurants in Cypress TX", "places to eat Cypress TX",
+    "dining Cypress TX", "restaurants Towne Lake Cypress TX",
+    "restaurants Bridgeland Cypress TX", "restaurants Fairfield Cypress TX",
+    "restaurants Cypress 290 corridor",
+    "restaurants Champions Forest Houston TX",
+    "restaurants FM 1960 Houston TX", "restaurants FM 1960 West Houston",
+    "restaurants Willowbrook Houston TX", "restaurants Vintage Park Houston TX",
+    "restaurants Champions area Spring TX", "restaurants Cypress Creek Parkway",
+    "restaurants in Kingwood TX", "places to eat Kingwood TX",
+    "dining Kingwood TX", "restaurants Kingwood Town Center TX",
+    "restaurants in Humble TX", "places to eat Humble TX",
+    "restaurants Deerbrook Humble TX", "restaurants Atascocita FM 1960 East",
+    "new restaurants Tomball TX", "new restaurants Cypress TX",
+    "new restaurants Kingwood TX", "new restaurants Humble TX",
 
     # ─── shopping centers / districts / villages ───────────────────────
     "restaurants Market Street The Woodlands", "restaurants Hughes Landing The Woodlands",
@@ -244,7 +266,11 @@ def _grid(n=10):
     lons = [LON_MIN + (LON_MAX - LON_MIN) * (i + 0.5) / n for i in range(n)]
     return [(la, lo) for la in lats for lo in lons]
 
-NEARBY_CENTERS = _grid(10)
+# v1.8: 14x14 (was 10x10) — the southern/eastern polygon expansion grew
+# the bounding box ~40% per axis; the denser grid keeps roughly the same
+# cell spacing so dense corridors (FM 1960, Cypress 290, Kingwood Town
+# Center) still escape the 60-result-per-query cap.
+NEARBY_CENTERS = _grid(14)
 NEARBY_RADIUS_M = 1500
 
 # Expanded NEARBY_TYPES — adds specialty primary types that v2 missed.

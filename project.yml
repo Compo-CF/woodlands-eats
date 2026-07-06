@@ -46,7 +46,7 @@ targets:
       properties:
         CFBundleDisplayName: S-Tier Eats
         CFBundleShortVersionString: "1.8"
-        CFBundleVersion: "60"
+        CFBundleVersion: "61"
         CFBundleIconName: AppIcon
         UILaunchScreen:
           UIColorName: ""

@@ -27,15 +27,20 @@ enum ServiceArea {
     /// v1.2 expansion: pushed the western and northern edges out to cover
     /// Montgomery TX, full Magnolia (downtown + west), Pinehurst, and
     /// Lake Conroe State Park area. Roughly 2x the v1.1 polygon area.
+    /// v1.8 expansion: pushed the southern and eastern edges out to add
+    /// Tomball, Cypress, the Champions / FM 1960 corridor, and Kingwood /
+    /// Humble. Must stay in lockstep with scripts/service_area.py.
     static let polygon: [(lat: Double, lon: Double)] = [
         (30.4181863, -95.8203585),   // NW — far west of Magnolia, NW of Montgomery
         (30.1892862, -95.7824814),   // W — covers Magnolia downtown
-        (30.1252361, -95.6967624),   // W south — Pinehurst area
-        (30.0783069, -95.6507571),   // W mid-south — Tomball edge
-        (30.0230324, -95.55806),     // S middle-west (unchanged)
-        (30.026005, -95.3596195),    // SE — slight smoothing vs v1.1
-        (30.0806836, -95.3712924),   // E south
-        (30.1240483, -95.3678592),   // E — Atascocita / Kingwood edge
+        (30.06, -95.78),             // W — NEW: NW of Cypress / Hockley edge
+        (29.90, -95.72),             // SW — NEW: Cypress south (290 corridor)
+        (29.90, -95.55),             // S — NEW: Willowbrook / Champions south
+        (29.93, -95.40),             // S — NEW: FM 1960 east of 45
+        (29.96, -95.25),             // SE — NEW: Humble south
+        (30.00, -95.14),             // E — NEW: Kingwood SE corner
+        (30.10, -95.14),             // E — NEW: Kingwood NE corner
+        (30.15, -95.25),             // NE inner — NEW: Porter edge
         (30.3198431, -95.3932651),   // NE
         (30.4418687, -95.4420169),   // N mid — over Lake Conroe / NW Conroe
         (30.443753, -95.5940047),    // N — top of Montgomery county reach
