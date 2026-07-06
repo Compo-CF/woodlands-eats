@@ -33031,21 +33031,6 @@
       "signatureDishes": []
     },
     {
-      "id": "81e9d78e-665f-5c2a-9d74-e345aa835170",
-      "name": "Hospitality Pro Search",
-      "latitude": 30.42455,
-      "longitude": -95.57666,
-      "area": "montgomery",
-      "address": "12526 Lake Vista Dr, Willis, TX 77318, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.hprosearch.com/",
-      "phone": "(281) 960-7984",
-      "description": "Sourced from Google Places (montgomery).",
-      "signatureDishes": []
-    },
-    {
       "id": "9d894602-1bf6-50ed-b581-ebec94cefc78",
       "name": "Ijeoma BBQ",
       "latitude": 30.38892,
@@ -35067,21 +35052,6 @@
       "isFastFood": false,
       "website": null,
       "phone": "(281) 939-4227",
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
-    },
-    {
-      "id": "f1c4f965-06a3-563b-ad4d-89447776cbd2",
-      "name": "Clinica Hispana Gloria de America-Clinica Hispana en Spring TX",
-      "latitude": 30.12743,
-      "longitude": -95.44135,
-      "area": "oakRidgeNorth",
-      "address": "25188 I-45, Spring, TX 77386, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://gloriadeamerica.com/",
-      "phone": "(832) 299-6144",
       "description": "Sourced from Google Places (oakRidgeNorth).",
       "signatureDishes": []
     },
@@ -41731,21 +41701,6 @@
       "signatureDishes": []
     },
     {
-      "id": "60cdd297-c047-5517-82ac-132cae6eb1c7",
-      "name": "Vania Oliver Healthy Skin",
-      "latitude": 30.16447,
-      "longitude": -95.46222,
-      "area": "shenandoah",
-      "address": "9595 Six Pines Dr Ste 4250, The Woodlands, TX 77380, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://vaniaoliverhealthyskin.com/",
-      "phone": "(917) 609-2491",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
       "id": "a35fab78-deb5-59ed-a3af-4a7f8cf443ff",
       "name": "Villa",
       "latitude": 30.16408,
@@ -42793,21 +42748,6 @@
       "website": "https://cava.com",
       "phone": "+1-346-478-5109",
       "description": "Mediterranean restaurant in Spring.",
-      "signatureDishes": []
-    },
-    {
-      "id": "4fd995a7-b782-51df-80c4-d6589c9feee9",
-      "name": "Celebranding Hospitality",
-      "latitude": 29.99055,
-      "longitude": -95.40443,
-      "area": "spring",
-      "address": "Houston, TX 77073, USA",
-      "cuisines": ["american"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Sourced from Google Places (spring).",
       "signatureDishes": []
     },
     {
@@ -44832,21 +44772,6 @@
       "isFastFood": false,
       "website": "https://guilty-pleasures-bakery.square.site/",
       "phone": "(832) 356-8666",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
-      "id": "3acac2e0-610b-5a90-a72e-a070e353425c",
-      "name": "H - E - B Healthy Living",
-      "latitude": 30.06853,
-      "longitude": -95.44972,
-      "area": "spring",
-      "address": "H - E - B Healthy Living, Spring, TX 77388, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
       "description": "Sourced from Google Places (spring).",
       "signatureDishes": []
     },

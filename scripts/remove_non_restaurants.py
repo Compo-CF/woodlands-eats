@@ -427,6 +427,12 @@ DENY_PATTERNS = [
     (r"\bcoming\s+soon\b", "placeholder"),         # not-yet-open listings
     (r"\bconcession", "venue"),                    # school/stadium stands
     (r"nong\s+trai", "farm"),                      # Vietnamese: farm
+    # ─── Seventh pass — independent-probe escapees. Spanish-language
+    #     medical terms and spacing variants the English patterns missed.
+    (r"\bclinica\b", "medical"),                   # 'Clinica Hispana …' — \bclinic\b needs a
+                                                   # boundary after 'clinic' so Spanish forms escaped
+    (r"\bhealthy\s+skin\b", "medical"),            # skincare studios
+    (r"\bh\s*-\s*e\s*-\s*b\b", "grocery"),         # 'H - E - B' spaced variant
     # Retail (Barnes & Noble, jewelers, bookstores, designer brands).
     (r"\bbarnes\s+(&|and)\s+noble\b", "retail"),
     (r"\bbookstore\b", "retail"),
@@ -489,6 +495,9 @@ EXACT_NAME_DENY = {
     "downtown humble",                    # district name, not a restaurant
     "old town tomball",                   # district name
     "foodtrucks(multiple)w/outdoorseating",  # placeholder listing
+    # Seventh pass — independent-probe escapees:
+    "hospitality pro search",             # recruiting firm
+    "celebranding hospitality",           # branding/events company
 }
 
 # Exception: legitimate restaurants whose names happen to contain a denylist
