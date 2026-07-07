@@ -37,6 +37,9 @@ struct WoodlandsEatsApp: App {
     @State private var cloudKit = CloudKitService()
     @State private var blockList = BlockListStore()
     @State private var visitedStore = VisitedStore()
+    /// v2.0 Feature 3: persistent follow graph. Restored from CloudKit at
+    /// launch (see ContentView.task).
+    @State private var friendsStore = FriendsStore()
     /// v1.5: routes programmatic tab switches (e.g., the rank-icon
     /// shortcut on Map/Browse → Profile). Injected via .environment
     /// so any child view can change `selectedTab`.
@@ -98,6 +101,7 @@ struct WoodlandsEatsApp: App {
                     .environment(cloudKit)
                     .environment(blockList)
                     .environment(visitedStore)
+                    .environment(friendsStore)
                     .environment(tabRouter)
                     .environment(appleSignIn)
                     .environment(purchaseStore)
@@ -137,6 +141,7 @@ struct WoodlandsEatsApp: App {
                         FriendTierView(userID: link.value)
                             .environment(cloudKit)
                             .environment(store)
+                            .environment(friendsStore)
                     }
                     .onChange(of: locationManager.location) { _, newValue in
                         store.userLocation = newValue

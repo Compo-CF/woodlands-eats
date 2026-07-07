@@ -34,6 +34,8 @@ struct ProfileView: View {
     @State private var pending: [ProRequest] = []
     @State private var approvedPros: [ProRequest] = []
     @Environment(RestaurantStore.self) private var store
+    /// v2.0 Feature 3: persistent follow graph.
+    @Environment(FriendsStore.self) private var friendsStore
     @State private var showSuggest = false
     @State private var pendingSuggestions: [Suggestion] = []
     @State private var approvingID: String?
@@ -166,6 +168,8 @@ struct ProfileView: View {
                         Label("My Stats", systemImage: "chart.bar.xaxis")
                     }
                 }
+
+                friendsSection
 
                 notificationsSection
 
@@ -458,6 +462,38 @@ struct ProfileView: View {
     ///     the user's real name (first sign-in only) and auto-fills
     ///     displayName if empty, then auto-saves.
     ///   - Signed in: green-check status + "Use Apple name" + sign-out.
+    /// v2.0 Feature 3: the people the user follows. Each row opens that
+    /// person's tier list; swipe to unfollow. Following happens from a
+    /// friend's shared tier list (the Follow button in FriendTierView) —
+    /// this section is where you review and manage who you follow, and it
+    /// explains how to add more when empty.
+    @ViewBuilder
+    private var friendsSection: some View {
+        Section(
+            header: Text("Friends"),
+            footer: Text(friendsStore.friends.isEmpty
+                ? "Open a friend's shared tier list (they can share it from the My Tiers tab) and tap Follow. Their consensus shows up on the Community tab's Friends board."
+                : "Tap a friend to see their tier list. Swipe to unfollow.")
+        ) {
+            if friendsStore.friends.isEmpty {
+                Label("Not following anyone yet", systemImage: "person.2")
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(friendsStore.friends) { friend in
+                    NavigationLink(destination: FriendTierView(userID: friend.userID)) {
+                        Label(friend.displayName.isEmpty ? "Foodie" : friend.displayName,
+                              systemImage: "person.crop.circle")
+                    }
+                    .swipeActions(edge: .trailing) {
+                        Button("Unfollow", role: .destructive) {
+                            friendsStore.unfollow(userID: friend.userID, via: cloudKit)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     @ViewBuilder
     private var appleSignInSection: some View {
         Section(

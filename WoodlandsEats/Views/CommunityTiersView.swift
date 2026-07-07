@@ -6,6 +6,8 @@ import SwiftUI
 struct CommunityTiersView: View {
     @Environment(RestaurantStore.self) private var store
     @Environment(CloudKitService.self) private var cloudKit
+    /// v2.0 Feature 3: the follow graph, powering the Friends board.
+    @Environment(FriendsStore.self) private var friendsStore
     @State private var tiers: [UUID: CommunityTier] = [:]
     @State private var loading = true
     @State private var selected: Restaurant?
@@ -49,6 +51,7 @@ struct CommunityTiersView: View {
                 Picker("Mode", selection: $mode) {
                     Text("Everyone").tag(CommunityMode.everyone)
                     Text("Foodie Pros").tag(CommunityMode.pros)
+                    Text("Friends").tag(CommunityMode.friends)
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
@@ -129,7 +132,12 @@ struct CommunityTiersView: View {
 
     /// Label for the current board scope, used in the caption + share.
     private var scopeLabel: String {
-        let who = mode == .pros ? "Foodie Pros" : "the community"
+        let who: String
+        switch mode {
+        case .pros: who = "Foodie Pros"
+        case .friends: who = "people you follow"
+        case .everyone: who = "the community"
+        }
         if let c = cuisineFilter { return "\(c.displayName) · ranked by \(who)" }
         return "ranked by \(who)"
     }
@@ -145,6 +153,17 @@ struct CommunityTiersView: View {
     /// don't overwrite a populated cache (transient CloudKit errors
     /// don't blank the screen).
     private func load() async {
+        // v2.0 Feature 3: the Friends board is personal + small and changes
+        // whenever the user follows/unfollows, so it isn't cached — always a
+        // fresh fetch, scoped to the current follow set. An empty follow set
+        // short-circuits to the empty state without touching CloudKit.
+        if mode == .friends {
+            loading = true
+            let ids = friendsStore.friendIDs
+            tiers = ids.isEmpty ? [:] : await cloudKit.fetchFriendsCommunityTiers(friendIDs: ids)
+            loading = false
+            return
+        }
         if let cached = Self.loadCache(for: mode) {
             tiers = cached
             loading = false   // instant render
@@ -242,20 +261,36 @@ struct CommunityTiersView: View {
         }
     }
 
+    @ViewBuilder
     private var emptyState: some View {
-        ContentUnavailableView {
-            Label(mode == .pros ? "No Foodie Pro rankings yet" : "No community rankings yet",
-                  systemImage: mode == .pros ? "star" : "person.3")
-        } description: {
-            Text(mode == .pros
-                 ? "Once Foodie Pros rank places, their expert consensus tier list appears here."
-                 : "Once you and others rank places, the crowd's consensus tier list appears here. Open a restaurant and drop it into a tier to get it started.")
+        switch mode {
+        case .friends:
+            ContentUnavailableView {
+                Label(friendsStore.friends.isEmpty ? "No friends yet" : "No friend rankings yet",
+                      systemImage: "person.2")
+            } description: {
+                Text(friendsStore.friends.isEmpty
+                     ? "Follow people to see a tier list built only from those you trust. Open a friend's shared tier list and tap Follow, then come back here."
+                     : "The people you follow haven't ranked anything yet. Their consensus will appear here as they do.")
+            }
+        case .pros:
+            ContentUnavailableView {
+                Label("No Foodie Pro rankings yet", systemImage: "star")
+            } description: {
+                Text("Once Foodie Pros rank places, their expert consensus tier list appears here.")
+            }
+        case .everyone:
+            ContentUnavailableView {
+                Label("No community rankings yet", systemImage: "person.3")
+            } description: {
+                Text("Once you and others rank places, the crowd's consensus tier list appears here. Open a restaurant and drop it into a tier to get it started.")
+            }
         }
     }
 }
 
 enum CommunityMode {
-    case everyone, pros
+    case everyone, pros, friends
 }
 
 /// Codable shape of the community-tier cache. CommunityTier itself isn't

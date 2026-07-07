@@ -111,6 +111,11 @@ final class CloudKitService {
     /// aggregation), small (a few hundred UUIDs max), and last-write-wins
     /// is fine for the rare cross-device conflict.
     private let visitedType = "VisitedList"
+    /// v2.0 Feature 3: the user's follow graph. One record per user holding
+    /// the followed accounts as an array of "userID|displayName" strings.
+    /// Purely personal (no community aggregation of the graph itself),
+    /// small, last-write-wins — same rationale as VisitedList.
+    private let friendListType = "FriendList"
     /// v1.3.1: admin's verdict on a restaurant's closure status. One
     /// record per restaurant, admin-owned (like PhotoModerated). Field
     /// `decision` is "closed" or "open". Browse strikethrough + detail-
@@ -305,6 +310,87 @@ final class CloudKitService {
         } catch {
             return []
         }
+    }
+
+    // MARK: - Friends / follow graph (v2.0 Feature 3)
+
+    private func friendListRecordID(user: String) -> CKRecord.ID {
+        CKRecord.ID(recordName: "friends_\(user)")
+    }
+
+    /// Persist the user's entire follow list. Single record per user,
+    /// overwritten each change — mirrors saveVisitedList. Each friend is
+    /// encoded "userID|displayName"; the display name is a cached snapshot
+    /// for offline list rendering (the authoritative name still comes from
+    /// the followee's FoodieProfile when their tier list is opened).
+    func saveFriendList(_ friends: [Friend]) async {
+        guard isAvailable, let user = await userRecordName() else { return }
+        let record = CKRecord(recordType: friendListType,
+                              recordID: friendListRecordID(user: user))
+        record["entries"] = friends.map { "\($0.userID)|\($0.displayName)" } as CKRecordValue
+        record["count"] = friends.count as CKRecordValue
+        _ = try? await publicDB.modifyRecords(
+            saving: [record], deleting: [], savePolicy: .allKeys)
+    }
+
+    /// Fetch the user's follow list. Returns [] on any failure. Direct
+    /// record(for:) — no index needed.
+    func fetchFriendList() async -> [Friend] {
+        guard isAvailable, let user = await userRecordName() else { return [] }
+        do {
+            let rec = try await publicDB.record(for: friendListRecordID(user: user))
+            guard let entries = rec["entries"] as? [String] else { return [] }
+            return entries.compactMap { Friend(encoded: $0) }
+        } catch {
+            return []
+        }
+    }
+
+    /// Aggregate the placements of ONLY the given friend user IDs into a
+    /// per-restaurant consensus tier — the "Friends" board. Reuses the same
+    /// TRUEPREDICATE walk as fetchAllCommunityTiers but keeps a placement
+    /// only if its owner is in `friendIDs`. Admin exclusions still apply.
+    /// Returns [:] if the friend set is empty or CloudKit is unavailable.
+    func fetchFriendsCommunityTiers(friendIDs: Set<String>) async -> [UUID: CommunityTier] {
+        guard isAvailable, !friendIDs.isEmpty else { return [:] }
+        await loadExclusionsIfNeeded()
+        var sums: [UUID: (total: Int, count: Int)] = [:]
+        let keys = ["restaurantID", "score"]
+
+        func accumulate(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+            for (recordID, result) in matches {
+                let owner = placementOwnerID(from: recordID.recordName)
+                guard let owner, friendIDs.contains(owner) else { continue }
+                guard case .success(let rec) = result,
+                      let ridStr = rec["restaurantID"] as? String,
+                      let rid = UUID(uuidString: ridStr),
+                      let score = rec["score"] as? Int,
+                      !isExcluded(recordName: recordID.recordName, owner: owner)
+                else { continue }
+                var e = sums[rid] ?? (0, 0)
+                e.total += score; e.count += 1
+                sums[rid] = e
+            }
+        }
+        do {
+            let query = CKQuery(recordType: placementType, predicate: NSPredicate(value: true))
+            var (matches, cursor) = try await publicDB.records(
+                matching: query, desiredKeys: keys, resultsLimit: 200)
+            accumulate(matches)
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(
+                    continuingMatchFrom: c, resultsLimit: 200)
+                accumulate(matches)
+            }
+        } catch {
+            return [:]
+        }
+        var out: [UUID: CommunityTier] = [:]
+        for (rid, e) in sums where e.count > 0 {
+            let avg = Double(e.total) / Double(e.count)
+            out[rid] = CommunityTier(tier: .from(averageScore: avg), count: e.count, average: avg)
+        }
+        return out
     }
 
     /// Average everyone's placements for a restaurant into a consensus tier.

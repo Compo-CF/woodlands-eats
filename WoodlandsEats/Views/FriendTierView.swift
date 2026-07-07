@@ -15,8 +15,12 @@ struct FriendTierView: View {
 
     @Environment(CloudKitService.self) private var cloudKit
     @Environment(RestaurantStore.self) private var store
+    @Environment(FriendsStore.self) private var friendsStore
     @Environment(\.dismiss) private var dismiss
 
+    /// v2.0 Feature 3: the current user's own ID, so we can hide the Follow
+    /// button on our own shared list and prevent self-follows.
+    @State private var myUserID: String = ""
     @State private var displayName: String = ""
     /// v1.7 Feature B+: whether the shared friend is Apple-signed-in.
     /// When true, an Apple-verified checkmark renders in the principal
@@ -89,6 +93,13 @@ struct FriendTierView: View {
                         }
                     }
                 }
+                // v2.0 Feature 3: follow / unfollow this person. Hidden on
+                // our own list and until the profile load resolves myUserID.
+                if !myUserID.isEmpty, userID != myUserID {
+                    ToolbarItem(placement: .topBarLeading) {
+                        followButton
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
                 }
@@ -103,6 +114,27 @@ struct FriendTierView: View {
         }
     }
 
+    @ViewBuilder
+    private var followButton: some View {
+        let following = friendsStore.isFollowing(userID)
+        Button {
+            if following {
+                friendsStore.unfollow(userID: userID, via: cloudKit)
+            } else {
+                friendsStore.follow(userID: userID,
+                                    displayName: displayName,
+                                    myUserID: myUserID,
+                                    via: cloudKit)
+            }
+        } label: {
+            Label(following ? "Following" : "Follow",
+                  systemImage: following ? "checkmark" : "person.badge.plus")
+                .font(.subheadline.weight(.semibold))
+        }
+        .buttonStyle(.bordered)
+        .tint(following ? .secondary : .accentColor)
+    }
+
     private var navTitle: String {
         let trimmed = displayName.trimmingCharacters(in: .whitespaces)
         return trimmed.isEmpty ? "Tier List" : "\(trimmed)'s Tiers"
@@ -111,10 +143,12 @@ struct FriendTierView: View {
     private func load() async {
         async let placementsTask = cloudKit.fetchPlacements(forUserID: userID)
         async let profileTask = cloudKit.fetchProfile(forUserID: userID)
-        let (p, prof) = await (placementsTask, profileTask)
+        async let meTask = cloudKit.currentUserID()
+        let (p, prof, me) = await (placementsTask, profileTask, meTask)
         placements = p
         displayName = prof.displayName
         isAppleVerified = prof.isAppleVerified
+        myUserID = me ?? ""
         loading = false
     }
 }

@@ -10,6 +10,7 @@ struct ContentView: View {
     @Environment(RestaurantStore.self) private var store
     @Environment(TierListStore.self) private var tierStore
     @Environment(VisitedStore.self) private var visitedStore
+    @Environment(FriendsStore.self) private var friendsStore
     @Environment(TabRouter.self) private var tabRouter
     /// v1.7 Feature G: scene-active observer drives cross-device merge.
     @Environment(\.scenePhase) private var scenePhase
@@ -90,6 +91,9 @@ struct ContentView: View {
             // visited badges after reinstall and pulls in updates from
             // other devices (toggled on iPhone, restored next iPad launch).
             await visitedStore.restoreFromCloud(via: cloudKit)
+            // v2.0 Feature 3: hydrate the follow graph after reinstall /
+            // on a fresh device. Only runs when local is empty.
+            await friendsStore.restoreFromCloud(via: cloudKit)
             // v1.4: silent rank-migration baseline. After the CloudKit
             // restore has settled, stamp lastCelebratedRank to match
             // wherever the user actually is so future .onChange events
