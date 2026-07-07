@@ -36,6 +36,8 @@ struct MapTabView: View {
     /// v1.5: programmatic tab switching for the rank-icon shortcut.
     @Environment(TabRouter.self) private var tabRouter
     @State private var selected: Restaurant?
+    /// v2.0 Feature 4: presents the "Top near me" discovery sheet.
+    @State private var showNearMe = false
 
     /// Build 38: persisted map style across launches.
     @AppStorage("WoodlandsEats.mapStyle") private var rawMapStyle: Int = MapStyle.standard.rawValue
@@ -99,6 +101,10 @@ struct MapTabView: View {
                 }
                 .presentationDetents([.medium, .large])
             }
+            // v2.0 Feature 4: top-rated near me.
+            .sheet(isPresented: $showNearMe) {
+                NearMeView()
+            }
             .sheet(isPresented: $showClusterSheet, onDismiss: {
                 // After the cluster sheet has fully dismissed, open the
                 // restaurant detail for whatever the user tapped (if any).
@@ -146,6 +152,15 @@ struct MapTabView: View {
                         }
                         .accessibilityLabel("Your rank: \(rank.displayName). Tap to open Profile.")
                     }
+                }
+                // v2.0 Feature 4: "Top near me" discovery entry point.
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showNearMe = true
+                    } label: {
+                        Image(systemName: "location.magnifyingglass")
+                    }
+                    .accessibilityLabel("Top-rated restaurants near me")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     // Build 38: map-style picker. Menu shows the current
