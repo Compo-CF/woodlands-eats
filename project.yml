@@ -45,8 +45,8 @@ targets:
       path: WoodlandsEats/Info.plist
       properties:
         CFBundleDisplayName: S-Tier Eats
-        CFBundleShortVersionString: "1.9"
-        CFBundleVersion: "62"
+        CFBundleShortVersionString: "2.0"
+        CFBundleVersion: "63"
         CFBundleIconName: AppIcon
         # v1.9: remote-notification background mode so CloudKit can wake
         # the app for its push-subscription deliveries.
