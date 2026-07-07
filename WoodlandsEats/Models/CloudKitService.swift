@@ -21,6 +21,27 @@ struct DishPhoto: Identifiable {
     let submitterUserID: String?
 }
 
+/// v2.0 Feature 2: one community member's note on a restaurant — the "why"
+/// behind their tier placement. Stored in the `note` field of their Placement
+/// record; `placementRecordName` doubles as the stable identity and the
+/// moderation target (report / admin-hide). `authorUserID` drives block-list
+/// filtering; `tier` is the author's own placement, shown as context.
+struct CommunityNote: Identifiable {
+    let placementRecordName: String
+    let authorUserID: String?
+    let text: String
+    let tier: Tier?
+    var id: String { placementRecordName }
+}
+
+/// v2.0 Feature 2: a reported note hydrated for the admin queue.
+struct PendingNoteReport: Identifiable {
+    let placementRecordName: String
+    let authorUserID: String?
+    let text: String
+    var id: String { placementRecordName }
+}
+
 /// A user-submitted report flagging a dish photo as objectionable
 /// (admin moderation queue, App Review Guideline 1.2).
 struct PhotoReport: Identifiable {
@@ -79,6 +100,11 @@ final class CloudKitService {
     private let dismissalType = "SuggestionDismissed"
     private let photoType = "DishPhoto"
     private let photoReportType = "PhotoReport"
+    /// v2.0 Feature 2: report of an objectionable placement note. recordName
+    /// `noteReport_<reporter>_<placementRecordName>`, idempotent per reporter.
+    /// The reported note lives inside the Placement record (`note` field), so
+    /// the report stores the owning placement's recordName as `placementName`.
+    private let noteReportType = "NoteReport"
     /// v1.3: per-user "I've been here" list. Single record per user with
     /// the whole restaurant-id set as an array — chosen over per-restaurant
     /// records because the data is purely personal (no community
@@ -137,13 +163,36 @@ final class CloudKitService {
     }
 
     /// Upsert this user's tier placement for a restaurant.
-    func savePlacement(restaurantID: UUID, tier: Tier) async {
+    ///
+    /// v2.0 Feature 2: read-modify-write so changing the tier preserves
+    /// any existing `note`. When `note` is provided it's written (empty
+    /// string clears it); when nil the existing note is left untouched.
+    /// The extra fetch is one record(for:) by known ID — cheap.
+    func savePlacement(restaurantID: UUID, tier: Tier, note: String? = nil) async {
         guard isAvailable, let user = await userRecordName() else { return }
-        let record = CKRecord(recordType: placementType,
-                              recordID: placementRecordID(user: user, restaurant: restaurantID))
+        let id = placementRecordID(user: user, restaurant: restaurantID)
+        let record = (try? await publicDB.record(for: id))
+            ?? CKRecord(recordType: placementType, recordID: id)
         record["restaurantID"] = restaurantID.uuidString as CKRecordValue
         record["tier"] = tier.rawValue as CKRecordValue
         record["score"] = tier.score as CKRecordValue
+        if let note {
+            let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
+            record["note"] = trimmed.isEmpty ? nil : (trimmed as CKRecordValue)
+        }
+        _ = try? await publicDB.modifyRecords(saving: [record], deleting: [], savePolicy: .allKeys)
+    }
+
+    /// v2.0 Feature 2: set/clear ONLY the note on the user's existing
+    /// placement (used by the "add a note" field once a tier is set).
+    func saveMyNote(restaurantID: UUID, note: String) async {
+        guard isAvailable, let user = await userRecordName() else { return }
+        let id = placementRecordID(user: user, restaurant: restaurantID)
+        // No-op if the user hasn't placed this restaurant yet (a note
+        // requires a tier — enforced in the UI, guarded here too).
+        guard let record = try? await publicDB.record(for: id) else { return }
+        let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        record["note"] = trimmed.isEmpty ? nil : (trimmed as CKRecordValue)
         _ = try? await publicDB.modifyRecords(saving: [record], deleting: [], savePolicy: .allKeys)
     }
 
@@ -439,6 +488,10 @@ final class CloudKitService {
     /// aggregate; force-refreshed after every admin ban/unban action.
     private(set) var bannedUserIDs: Set<String> = []
     private(set) var excludedPlacementNames: Set<String> = []
+    /// v2.0 Feature 2: placement recordNames whose NOTE (not the rating) the
+    /// admin has hidden. The placement's tier still counts in aggregates; only
+    /// its note text is suppressed everywhere. kind="note" in AdminExclusion.
+    private(set) var hiddenNoteNames: Set<String> = []
     private var exclusionsLoaded = false
 
     private func exclusionRecordID(kind: String, target: String) -> CKRecord.ID {
@@ -452,6 +505,7 @@ final class CloudKitService {
         guard isAvailable, force || !exclusionsLoaded else { return }
         var banned: Set<String> = []
         var removed: Set<String> = []
+        var hiddenNotes: Set<String> = []
         do {
             let query = CKQuery(recordType: exclusionType, predicate: NSPredicate(value: true))
             var (matches, cursor) = try await publicDB.records(
@@ -463,6 +517,7 @@ final class CloudKitService {
                           let target = rec["target"] as? String else { continue }
                     if kind == "user" { banned.insert(target) }
                     else if kind == "placement" { removed.insert(target) }
+                    else if kind == "note" { hiddenNotes.insert(target) }
                 }
             }
             accumulate(matches)
@@ -473,6 +528,7 @@ final class CloudKitService {
             }
             bannedUserIDs = banned
             excludedPlacementNames = removed
+            hiddenNoteNames = hiddenNotes
             exclusionsLoaded = true
         } catch {
             // Schema not deployed yet or transient error — leave the
@@ -541,6 +597,161 @@ final class CloudKitService {
                 saving: [], deleting: [exclusionRecordID(kind: "placement", target: recordName)],
                 savePolicy: .allKeys)
             excludedPlacementNames.remove(recordName)
+            return true
+        } catch { return false }
+    }
+
+    // MARK: - Placement notes (v2.0 Feature 2 — the "why")
+
+    /// Fetch the community's notes for one restaurant. Piggybacks on the same
+    /// per-restaurant Placement query the detail view already runs for the
+    /// community tier, so no extra round-trip is needed at the call site if it
+    /// reuses this. Applies the same three moderation layers as photos:
+    ///   • notes on admin-excluded placements / banned users are dropped
+    ///   • notes the admin has individually hidden (kind="note") are dropped
+    ///   • notes from uploaders in the viewer's local block list are dropped
+    /// The viewer's own note is excluded here (the UI shows it in the editor).
+    func fetchCommunityNotes(restaurantID: UUID,
+                             blockedUserIDs: Set<String> = []) async -> [CommunityNote] {
+        guard isAvailable else { return [] }
+        await loadExclusionsIfNeeded()
+        let me = await userRecordName()
+        let predicate = NSPredicate(format: "restaurantID == %@", restaurantID.uuidString)
+        let query = CKQuery(recordType: placementType, predicate: predicate)
+        do {
+            let (results, _) = try await publicDB.records(matching: query, resultsLimit: 500)
+            var notes: [CommunityNote] = []
+            for (recordID, result) in results {
+                guard case .success(let rec) = result,
+                      let text = (rec["note"] as? String)?
+                        .trimmingCharacters(in: .whitespacesAndNewlines),
+                      !text.isEmpty else { continue }
+                let name = recordID.recordName
+                let owner = placementOwnerID(from: name)
+                if isExcluded(recordName: name, owner: owner) { continue }
+                if hiddenNoteNames.contains(name) { continue }
+                if let owner, blockedUserIDs.contains(owner) { continue }
+                if let owner, let me, owner == me { continue }   // own note shown in editor
+                let tier = (rec["tier"] as? String).flatMap(Tier.init(rawValue:))
+                notes.append(CommunityNote(placementRecordName: name,
+                                           authorUserID: owner,
+                                           text: text,
+                                           tier: tier))
+            }
+            // Deterministic order; newest-first isn't available without a
+            // creation-date key, so sort by tier score then text for stability.
+            return notes.sorted {
+                ($0.tier?.score ?? -1) != ($1.tier?.score ?? -1)
+                    ? ($0.tier?.score ?? -1) > ($1.tier?.score ?? -1)
+                    : $0.text < $1.text
+            }
+        } catch {
+            return []
+        }
+    }
+
+    /// Fetch the current user's own note for a restaurant (to prefill the
+    /// editor). Single record(for:) by known ID — nil if none / not signed
+    /// into iCloud / no placement yet.
+    func fetchMyNote(restaurantID: UUID) async -> String? {
+        guard isAvailable, let user = await userRecordName() else { return nil }
+        let id = placementRecordID(user: user, restaurant: restaurantID)
+        guard let rec = try? await publicDB.record(for: id) else { return nil }
+        let note = (rec["note"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        return (note?.isEmpty ?? true) ? nil : note
+    }
+
+    /// Report an objectionable note. Idempotent per (reporter, placement).
+    func reportNote(placementRecordName: String) async -> Bool {
+        guard isAvailable, let user = await userRecordName(),
+              !placementRecordName.isEmpty else { return false }
+        let recID = CKRecord.ID(recordName: "noteReport_\(user)_\(placementRecordName)")
+        let rec = CKRecord(recordType: noteReportType, recordID: recID)
+        rec["placementName"] = placementRecordName as CKRecordValue
+        rec["reporterID"] = user as CKRecordValue
+        do {
+            _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    /// Admin: hide one note from everyone (kind="note" exclusion on the owning
+    /// placement). The placement's tier keeps counting; only the note text is
+    /// suppressed. Reversible via `unhideNote`.
+    @discardableResult
+    func hideNote(placementRecordName: String) async -> Bool {
+        guard isAvailable, await isAdmin(), !placementRecordName.isEmpty else { return false }
+        let rec = CKRecord(recordType: exclusionType,
+                           recordID: exclusionRecordID(kind: "note", target: placementRecordName))
+        rec["kind"] = "note" as CKRecordValue
+        rec["target"] = placementRecordName as CKRecordValue
+        do {
+            _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
+            hiddenNoteNames.insert(placementRecordName)
+            return true
+        } catch { return false }
+    }
+
+    /// Admin: fetch reported notes not yet hidden, hydrated with the current
+    /// note text (nil if the placement/note was since deleted). Mirrors
+    /// `fetchPendingPhotoReports`: page reports, drop any whose note the admin
+    /// already hid.
+    func fetchPendingNoteReports() async -> [PendingNoteReport] {
+        guard isAvailable else { return [] }
+        await loadExclusionsIfNeeded()
+        var placementNames: [String] = []
+        func accumulate(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+            for (_, result) in matches {
+                guard case .success(let rec) = result,
+                      let name = rec["placementName"] as? String, !name.isEmpty else { continue }
+                placementNames.append(name)
+            }
+        }
+        do {
+            let q = CKQuery(recordType: noteReportType, predicate: NSPredicate(value: true))
+            var (matches, cursor) = try await publicDB.records(matching: q, resultsLimit: 200)
+            accumulate(matches)
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(continuingMatchFrom: c, resultsLimit: 200)
+                accumulate(matches)
+            }
+        } catch {
+            return []
+        }
+        // Unique, drop already-hidden, then hydrate note text in parallel.
+        let unique = Array(Set(placementNames)).filter { !hiddenNoteNames.contains($0) }
+        var out: [PendingNoteReport] = []
+        await withTaskGroup(of: PendingNoteReport?.self) { group in
+            for name in unique {
+                group.addTask { [weak self] in
+                    guard let self else { return nil }
+                    guard let rec = try? await self.publicDB.record(for: CKRecord.ID(recordName: name)),
+                          let text = (rec["note"] as? String)?
+                            .trimmingCharacters(in: .whitespacesAndNewlines),
+                          !text.isEmpty else { return nil }
+                    return PendingNoteReport(
+                        placementRecordName: name,
+                        authorUserID: self.placementOwnerID(from: name),
+                        text: text)
+                }
+            }
+            for await item in group { if let item { out.append(item) } }
+        }
+        return out
+    }
+
+    /// Admin: un-hide a previously hidden note.
+    @discardableResult
+    func unhideNote(placementRecordName: String) async -> Bool {
+        guard isAvailable, await isAdmin() else { return false }
+        do {
+            _ = try await publicDB.modifyRecords(
+                saving: [],
+                deleting: [exclusionRecordID(kind: "note", target: placementRecordName)],
+                savePolicy: .allKeys)
+            hiddenNoteNames.remove(placementRecordName)
             return true
         } catch { return false }
     }

@@ -25,6 +25,18 @@ struct RestaurantDetailView: View {
     @State private var reportingPhotoID: String?
     @State private var reportConfirmation: String?
     @State private var showDeliveryPicker = false
+    // v2.0 Feature 2: placement notes (the "why").
+    @State private var myNote = ""
+    @State private var savedNote = ""          // last value persisted to CloudKit
+    @State private var savingNote = false
+    @State private var communityNotes: [CommunityNote] = []
+    @State private var notesLoaded = false
+    @State private var reportingNoteName: String?
+
+    private var noteDirty: Bool {
+        myNote.trimmingCharacters(in: .whitespacesAndNewlines)
+            != savedNote.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 
     private var isUploading: Bool { uploadingCount > 0 }
 
@@ -43,6 +55,7 @@ struct RestaurantDetailView: View {
                 header
                 rateSection
                 communitySection
+                communityNotesSection
                 photosSection
                 if !restaurant.signatureDishes.isEmpty { dishesSection }
                 aboutSection
@@ -62,6 +75,15 @@ struct RestaurantDetailView: View {
             let closure = await cloudKit.fetchClosureInfo(restaurantID: restaurant.id)
             closureCount = closure.count
             reportedByMe = closure.reportedByMe
+            // v2.0 Feature 2: load my note + the community's notes.
+            if let mine = await cloudKit.fetchMyNote(restaurantID: restaurant.id) {
+                myNote = mine
+                savedNote = mine
+            }
+            communityNotes = await cloudKit.fetchCommunityNotes(
+                restaurantID: restaurant.id,
+                blockedUserIDs: blockList.blocked)
+            notesLoaded = true
         }
         .onChange(of: pickerItems) { _, items in
             guard !items.isEmpty else { return }
@@ -244,6 +266,37 @@ struct RestaurantDetailView: View {
         return rendered.jpegData(compressionQuality: quality)
     }
 
+    // MARK: - Placement notes (v2.0 Feature 2)
+
+    private func saveNote() async {
+        savingNote = true
+        defer { savingNote = false }
+        let trimmed = myNote.trimmingCharacters(in: .whitespacesAndNewlines)
+        await cloudKit.saveMyNote(restaurantID: restaurant.id, note: trimmed)
+        myNote = trimmed
+        savedNote = trimmed
+    }
+
+    private func reportNote(_ note: CommunityNote) async {
+        reportingNoteName = note.placementRecordName
+        defer { reportingNoteName = nil }
+        if await cloudKit.reportNote(placementRecordName: note.placementRecordName) {
+            communityNotes.removeAll { $0.id == note.id }
+            reportConfirmation = "We'll review this note within 24 hours."
+        } else {
+            reportConfirmation = "Couldn't submit the report. Please try again."
+        }
+    }
+
+    private func blockNoteAuthor(_ note: CommunityNote) {
+        guard let author = note.authorUserID else { return }
+        blockList.block(author)
+        communityNotes.removeAll { $0.authorUserID == author }
+        reportConfirmation = "You won't see notes from this user again. The administrator has been notified and will review."
+        // App Review 1.2: blocking also notifies the developer of the content.
+        Task { _ = await cloudKit.reportNote(placementRecordName: note.placementRecordName) }
+    }
+
     private func place(_ tier: Tier) {
         tierStore.setTier(tier, for: restaurant.id)
         Task {
@@ -254,6 +307,10 @@ struct RestaurantDetailView: View {
 
     private func clearPlacement() {
         tierStore.removeTier(for: restaurant.id)
+        // The whole Placement record (note included) is deleted on the server,
+        // so clear the local note state too.
+        myNote = ""
+        savedNote = ""
         Task {
             await cloudKit.removePlacement(restaurantID: restaurant.id)
             community = await cloudKit.fetchCommunityTier(restaurantID: restaurant.id)
@@ -324,9 +381,94 @@ struct RestaurantDetailView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+
+            // v2.0 Feature 2: the "why". Only offered once a tier is placed —
+            // a note without a ranking has nothing to explain. Shared publicly
+            // on the community-notes list; moderated like every other UGC
+            // surface (report + block + admin hide).
+            if tierStore.tier(for: restaurant.id) != nil {
+                Divider()
+                noteEditor
+            }
         }
         .padding()
         .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16))
+    }
+
+    @ViewBuilder
+    private var noteEditor: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Why this tier?")
+                .font(.subheadline.weight(.semibold))
+            Text("Add a one-line note. Shared with the community.")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            TextField("e.g. Best brisket in the county", text: $myNote, axis: .vertical)
+                .lineLimit(1...3)
+                .textFieldStyle(.roundedBorder)
+                .onChange(of: myNote) { _, new in
+                    // Soft cap; keeps notes to a line and bounds moderation load.
+                    if new.count > 140 { myNote = String(new.prefix(140)) }
+                }
+            HStack {
+                Text("\(140 - myNote.count) left")
+                    .font(.caption2.monospacedDigit())
+                    .foregroundStyle(.tertiary)
+                Spacer()
+                if savingNote {
+                    ProgressView()
+                } else if noteDirty {
+                    Button("Save note") { Task { await saveNote() } }
+                        .font(.subheadline.weight(.semibold))
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.small)
+                } else if !savedNote.isEmpty {
+                    Label("Saved", systemImage: "checkmark.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                }
+            }
+        }
+    }
+
+    /// Community notes from other rankers (the viewer's own is in the editor).
+    @ViewBuilder
+    private var communityNotesSection: some View {
+        if !communityNotes.isEmpty {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("What people say")
+                    .font(.headline)
+                ForEach(communityNotes) { note in
+                    HStack(alignment: .top, spacing: 10) {
+                        if let t = note.tier {
+                            TierBadge(tier: t, size: 28)
+                        }
+                        Text(note.text)
+                            .font(.subheadline)
+                            .foregroundStyle(.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        if reportingNoteName == note.placementRecordName {
+                            ProgressView()
+                        }
+                    }
+                    .padding(10)
+                    .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 12))
+                    .contextMenu {
+                        Button("Report note", systemImage: "flag", role: .destructive) {
+                            Task { await reportNote(note) }
+                        }
+                        if note.authorUserID != nil {
+                            Button("Block this user", systemImage: "hand.raised") {
+                                blockNoteAuthor(note)
+                            }
+                        }
+                    }
+                }
+                Text("Long-press a note to report it or block the author.")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+        }
     }
 
     @ViewBuilder

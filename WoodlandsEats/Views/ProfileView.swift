@@ -40,6 +40,9 @@ struct ProfileView: View {
     @State private var suggestionError: String?
     @State private var photoReports: [(report: PhotoReport, photo: DishPhoto?)] = []
     @State private var actingPhotoID: String?
+    /// v2.0 Feature 2: admin queue of reported placement notes.
+    @State private var noteReports: [PendingNoteReport] = []
+    @State private var actingNoteName: String?
     /// v1.3.1: admin queue of restaurants with user closure reports
     /// awaiting a Confirm/Reject decision.
     @State private var pendingClosures: [(restaurant: Restaurant, count: Int)] = []
@@ -392,6 +395,22 @@ struct ProfileView: View {
                     }
                 }
 
+                if isAdmin {
+                    Section(
+                        header: Text("Note reports"),
+                        footer: Text("Placement notes users have flagged. Hide removes the note everywhere (the rating still counts). Keep dismisses the report.")
+                    ) {
+                        if noteReports.isEmpty {
+                            Text("No pending note reports")
+                                .foregroundStyle(.secondary)
+                        } else {
+                            ForEach(noteReports) { item in
+                                noteReportRow(item)
+                            }
+                        }
+                    }
+                }
+
                 if !userID.isEmpty {
                     Section(
                         header: Text("Your iCloud ID"),
@@ -587,6 +606,7 @@ struct ProfileView: View {
             pendingSuggestions = await cloudKit.fetchPendingSuggestions()
             await reloadPhotoReports()
             await reloadClosureReports()
+            await reloadNoteReports()
         }
         loading = false
     }
@@ -727,6 +747,53 @@ struct ProfileView: View {
         if ok {
             photoReports.removeAll { $0.report.photoID == photoID }
         }
+    }
+
+    private func reloadNoteReports() async {
+        noteReports = await cloudKit.fetchPendingNoteReports()
+    }
+
+    @ViewBuilder
+    private func noteReportRow(_ item: PendingNoteReport) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("\u{201C}\(item.text)\u{201D}")
+                .font(.subheadline)
+            if let uid = item.authorUserID {
+                Text("Author: \(uid.prefix(12))…")
+                    .font(.caption2.monospaced())
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            if actingNoteName == item.placementRecordName {
+                ProgressView().padding(.top, 2)
+            } else {
+                HStack(spacing: 6) {
+                    Button("Keep") {
+                        Task { await actOnNote(item.placementRecordName, hide: false) }
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.gray)
+                    Button("Hide", role: .destructive) {
+                        Task { await actOnNote(item.placementRecordName, hide: true) }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.red)
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private func actOnNote(_ placementName: String, hide: Bool) async {
+        actingNoteName = placementName
+        defer { actingNoteName = nil }
+        // "Keep" just clears it from this session's queue — there's no
+        // approved-marker for notes; a re-report would resurface it, which
+        // is the desired behavior for text that's borderline.
+        if hide {
+            _ = await cloudKit.hideNote(placementRecordName: placementName)
+        }
+        noteReports.removeAll { $0.placementRecordName == placementName }
     }
 
     private func rejectOne(_ s: Suggestion) async {
