@@ -3,8 +3,10 @@ import SwiftUI
 /// Modal sheet reached from the Profile tab.
 ///
 /// Shows the app's identity (icon, name, version), a one-line tagline,
-/// a Ko-fi support button, contact + privacy links, and a credit line.
-/// Mirrors the pattern shipped in Woodlands Fishing v1.3.
+/// contact + privacy links, and a credit line. Mirrors the pattern
+/// shipped in Woodlands Fishing v1.3. (v2.0: the Ko-fi support button was
+/// removed for App Review Guideline 3.1.1 — tips for a digital service must
+/// use IAP, not an external link.)
 struct AboutSheetView: View {
     @Environment(\.dismiss) private var dismiss
 
@@ -30,8 +32,6 @@ struct AboutSheetView: View {
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
-
-                    kofiButton
 
                     linksSection
 
@@ -67,21 +67,6 @@ struct AboutSheetView: View {
                 .foregroundStyle(.tertiary)
                 .monospacedDigit()
         }
-    }
-
-    private var kofiButton: some View {
-        Link(destination: URL(string: "https://ko-fi.com/subtlefoodie")!) {
-            HStack(spacing: 10) {
-                Image(systemName: "cup.and.saucer.fill")
-                Text("Buy me a coffee")
-                    .fontWeight(.semibold)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
-            .background(Color(red: 1.0, green: 0.36, blue: 0.36), in: .capsule)
-            .foregroundStyle(.white)
-        }
-        .padding(.horizontal, 24)
     }
 
     private var linksSection: some View {

@@ -26,7 +26,6 @@ struct ContentView: View {
     /// versioned so a future major release can re-ask (bump to .v1.6
     /// in a later major and users get one more chance to engage).
     @AppStorage("WoodlandsEats.hasSeenReviewPrompt.v1.5") private var hasSeenReviewPrompt = false
-    @AppStorage("WoodlandsEats.hasSeenKofiPrompt.v1.5") private var hasSeenKofiPrompt = false
     /// v1.7 Feature I: one-time gate for the orphan-placement cleanup.
     /// Set after first successful run so we don't pay the CloudKit-walk
     /// cost again — re-seeds in future versions can bump the key suffix
@@ -39,9 +38,8 @@ struct ContentView: View {
     @State private var celebratingRank: FoodieRank?
     /// v1.5: remembers which tier just got celebrated so the onDismiss
     /// of the celebration sheet can fire the right secondary prompt
-    /// (review at Critic, Ko-fi at Connoisseur). Cleared after handling.
+    /// (review at Critic). Cleared after handling.
     @State private var pendingPostCelebrationRank: FoodieRank?
-    @State private var showKofiSheet = false
     /// Guards .onChange against firing celebrations during the launch-
     /// time CloudKit restore (which retroactively sets placements from
     /// 0 to the user's actual count). Flipped to true at the end of
@@ -164,15 +162,13 @@ struct ContentView: View {
         .sheet(item: $celebratingRank, onDismiss: handlePostCelebration) { rank in
             RankCelebrationView(rank: rank, placementCount: tierStore.placements.count)
         }
-        .sheet(isPresented: $showKofiSheet) {
-            KofiSupportSheet()
-        }
     }
 
-    /// v1.5: fires after a rank-up celebration sheet dismisses. Drives
-    /// the milestone-specific secondary prompts — review at Critic, Ko-fi
-    /// at Connoisseur. Other tier-ups (Foodie, Tastemaker) get just the
-    /// celebration and nothing else.
+    /// v1.5: fires after a rank-up celebration sheet dismisses. Drives the
+    /// milestone-specific secondary prompt — the App Store review request at
+    /// Critic. (v2.0: the Connoisseur Ko-fi tip prompt was removed for App
+    /// Review Guideline 3.1.1 — donations for a digital service must use IAP,
+    /// not an external link.) Other tier-ups get just the celebration.
     private func handlePostCelebration() {
         guard let rank = pendingPostCelebrationRank else { return }
         pendingPostCelebrationRank = nil
@@ -183,9 +179,6 @@ struct ContentView: View {
             // by the OS so even if we miscount, users aren't spammed.
             requestReview()
             hasSeenReviewPrompt = true
-        case .connoisseur where !hasSeenKofiPrompt:
-            showKofiSheet = true
-            hasSeenKofiPrompt = true
         default:
             break
         }

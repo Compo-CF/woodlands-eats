@@ -1,11 +1,13 @@
 import SwiftUI
 
-/// v1.3.1: four-screen first-launch flow. Surfaces:
+/// v1.3.1: first-launch flow. Surfaces:
 ///   1. What S-Tier Eats does (welcome + the "no star averages" pitch)
 ///   2. How the S/A/B/C/F tier system works (reuses TierGuide content)
 ///   3. Why we want location + an in-app explanation before the iOS prompt
-///   4. Support the developer (Ko-fi tip jar) — soft ask after the user
-///      has seen what the app does. Skippable via "Maybe later".
+///
+/// (v2.0: the old 4th "Support the developer" Ko-fi screen was removed for
+/// App Review Guideline 3.1.1 — tips for a digital service must use IAP,
+/// not an external link.)
 ///
 /// Driven by @AppStorage("WoodlandsEats.hasCompletedOnboarding"). Existing
 /// pre-v1.3 users get auto-migrated in WoodlandsEatsApp.init (if they
@@ -20,7 +22,6 @@ struct OnboardingView: View {
     @Binding var hasCompletedOnboarding: Bool
     @Environment(LocationManager.self) private var locationManager
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.openURL) private var openURL
 
     @State private var page: Int = 0
 
@@ -30,16 +31,14 @@ struct OnboardingView: View {
                 welcomePage.tag(0)
                 tiersPage.tag(1)
                 locationPage.tag(2)
-                supportPage.tag(3)
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
 
             // Skip is visible on the first two pages so a returning user
             // can bail without walking through the whole tour. Hidden on
-            // pages 2 (location) and 3 (support) because each has an
-            // explicit secondary button — "Not now" and "Maybe later" —
-            // that makes Skip redundant and avoids dual escape hatches.
+            // the last page (location) because it has an explicit "Not now"
+            // secondary button that makes Skip redundant.
             if page < 2 {
                 Button("Skip") { finish() }
                     .padding(.top, 8)
@@ -166,55 +165,9 @@ struct OnboardingView: View {
                     if locationManager.authorizationStatus == .notDetermined {
                         locationManager.requestPermission()
                     }
-                    page = 3
-                }
-                Button("Not now") { page = 3 }
-                    .foregroundStyle(.secondary)
-                    .padding(.vertical, 4)
-            }
-            .padding(.bottom, 48)
-        }
-        .padding(.horizontal, 24)
-    }
-
-    /// v1.3.1: support-the-developer screen. Last page of the tour so
-    /// the user has already seen what the app does before the ask. Two
-    /// outs: 'Buy me a coffee' (opens Ko-fi in Safari + dismisses) or
-    /// 'Maybe later' (dismisses silently). Profile -> Support S-Tier
-    /// Eats still surfaces the same Ko-fi link for anyone who wants
-    /// to chip in later.
-    private var supportPage: some View {
-        VStack(spacing: 24) {
-            Spacer()
-            Image(systemName: "cup.and.saucer.fill")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 90, height: 90)
-                .foregroundStyle(Tier.s.color)
-                .symbolRenderingMode(.hierarchical)
-
-            VStack(spacing: 12) {
-                Text("Support S-Tier Eats")
-                    .font(.largeTitle.weight(.bold))
-                    .multilineTextAlignment(.center)
-
-                Text("This app is free, made by one person who lives in the area. There's no subscription and no premium tier. If you end up using it, a small tip on Ko-fi keeps the lights on and funds new features.")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
-            }
-
-            Spacer()
-
-            VStack(spacing: 10) {
-                primaryButton("Buy me a coffee") {
-                    if let url = URL(string: "https://ko-fi.com/subtlefoodie") {
-                        openURL(url)
-                    }
                     finish()
                 }
-                Button("Maybe later") { finish() }
+                Button("Not now") { finish() }
                     .foregroundStyle(.secondary)
                     .padding(.vertical, 4)
             }

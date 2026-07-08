@@ -185,24 +185,6 @@ struct ProfileView: View {
                 }
 
                 premiumSection
-                Section(
-                    header: Text("Support S-Tier Eats"),
-                    footer: Text("S-Tier Eats is free. If you've enjoyed using it, a small tip keeps the lights on and funds new features.")
-                ) {
-                    Link(destination: URL(string: "https://ko-fi.com/subtlefoodie")!) {
-                        HStack {
-                            Image(systemName: "cup.and.saucer.fill")
-                            Text("Buy me a coffee")
-                                .fontWeight(.semibold)
-                            Spacer()
-                            Image(systemName: "arrow.up.right")
-                                .font(.caption)
-                                .opacity(0.8)
-                        }
-                        .foregroundStyle(.white)
-                    }
-                    .listRowBackground(Color.red)
-                }
 
                 if let app = preferredDeliveryApp {
                     Section(
