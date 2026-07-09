@@ -46,7 +46,7 @@ targets:
       properties:
         CFBundleDisplayName: S-Tier Eats
         CFBundleShortVersionString: "2.0"
-        CFBundleVersion: "63"
+        CFBundleVersion: "64"
         CFBundleIconName: AppIcon
         # v1.9: remote-notification background mode so CloudKit can wake
         # the app for its push-subscription deliveries.
