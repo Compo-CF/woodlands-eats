@@ -38,6 +38,13 @@ final class BlockListStore {
         return blocked.contains(userID)
     }
 
+    /// Account deletion (Guideline 5.1.1(v)): wipe the local block list.
+    @MainActor
+    func clearLocal() {
+        blocked = []
+        UserDefaults.standard.removeObject(forKey: defaultsKey)
+    }
+
     private func persist() {
         UserDefaults.standard.set(Array(blocked), forKey: defaultsKey)
     }

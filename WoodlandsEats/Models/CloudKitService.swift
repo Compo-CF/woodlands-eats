@@ -393,6 +393,102 @@ final class CloudKitService {
         return out
     }
 
+    // MARK: - Account deletion (App Review Guideline 5.1.1(v))
+
+    /// Delete every CloudKit record this user created — their account
+    /// (FoodieProfile) and all associated data (placements + notes, visited
+    /// list, follow graph, dish photos, suggestions, and their own reports).
+    ///
+    /// Admin-owned records (ProApproval, AdminExclusion, PhotoModerated,
+    /// ClosureDecision, LiveRestaurant) are NOT the user's and are left
+    /// intact — the public DB wouldn't let a normal user delete them anyway.
+    ///
+    /// Best-effort per type: one type failing (e.g. transient error) doesn't
+    /// abort the rest. Returns false only if there's no iCloud user to act on.
+    func deleteMyAccount() async -> Bool {
+        guard isAvailable, let user = await userRecordName() else { return false }
+
+        // 1. Direct deletes by known recordName — no query required.
+        let direct: [CKRecord.ID] = [
+            profileRecordID(user: user),
+            visitedRecordID(user: user),
+            friendListRecordID(user: user),
+        ]
+        _ = try? await publicDB.modifyRecords(saving: [], deleting: direct, savePolicy: .allKeys)
+
+        // 2. Types whose recordName encodes the userID — page + prefix-match.
+        //    (note: deleting a Placement removes its embedded note too.)
+        await deleteByRecordNamePrefix(type: placementType, prefix: "placement_\(user)_")
+        await deleteByRecordNamePrefix(type: closureType, prefix: "closure_\(user)_")
+        await deleteByRecordNamePrefix(type: photoReportType, prefix: "photoReport_\(user)_")
+        await deleteByRecordNamePrefix(type: noteReportType, prefix: "noteReport_\(user)_")
+
+        // 3. Types that store the owner in a field — page + field-match.
+        await deleteByField(type: photoType, field: "submitterUserID", equals: user)
+        await deleteByField(type: suggestionType, field: "submitterUserID", equals: user)
+
+        return true
+    }
+
+    /// Page a record type and delete every record whose recordName begins
+    /// with `prefix`. Needs a Queryable recordName index on the type (all
+    /// four callers have one). Swallows errors — best-effort.
+    private func deleteByRecordNamePrefix(type: String, prefix: String) async {
+        var toDelete: [CKRecord.ID] = []
+        func collect(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+            for (id, _) in matches where id.recordName.hasPrefix(prefix) {
+                toDelete.append(id)
+            }
+        }
+        do {
+            let q = CKQuery(recordType: type, predicate: NSPredicate(value: true))
+            var (matches, cursor) = try await publicDB.records(
+                matching: q, desiredKeys: [], resultsLimit: 200)
+            collect(matches)
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(
+                    continuingMatchFrom: c, resultsLimit: 200)
+                collect(matches)
+            }
+        } catch { return }
+        await deleteInBatches(toDelete)
+    }
+
+    /// Page a record type and delete every record whose `field` equals `value`.
+    private func deleteByField(type: String, field: String, equals value: String) async {
+        var toDelete: [CKRecord.ID] = []
+        func collect(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+            for (id, result) in matches {
+                if case .success(let rec) = result, rec[field] as? String == value {
+                    toDelete.append(id)
+                }
+            }
+        }
+        do {
+            let q = CKQuery(recordType: type, predicate: NSPredicate(value: true))
+            var (matches, cursor) = try await publicDB.records(
+                matching: q, desiredKeys: [field], resultsLimit: 200)
+            collect(matches)
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(
+                    continuingMatchFrom: c, resultsLimit: 200)
+                collect(matches)
+            }
+        } catch { return }
+        await deleteInBatches(toDelete)
+    }
+
+    /// Delete record IDs in chunks (CloudKit caps records per modify op).
+    private func deleteInBatches(_ ids: [CKRecord.ID]) async {
+        guard !ids.isEmpty else { return }
+        var i = 0
+        while i < ids.count {
+            let batch = Array(ids[i..<min(i + 300, ids.count)])
+            _ = try? await publicDB.modifyRecords(saving: [], deleting: batch, savePolicy: .allKeys)
+            i += 300
+        }
+    }
+
     /// Average everyone's placements for a restaurant into a consensus tier.
     /// Returns nil if no one has ranked it yet (or CloudKit is unavailable).
     func fetchCommunityTier(restaurantID: UUID) async -> CommunityTier? {

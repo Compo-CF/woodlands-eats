@@ -92,6 +92,14 @@ final class TierListStore {
         save()
     }
 
+    /// Account deletion (Guideline 5.1.1(v)): wipe all local placements and
+    /// the backing file so the user's tier list is gone on-device too.
+    @MainActor
+    func clearLocal() {
+        placements = [:]
+        try? FileManager.default.removeItem(at: fileURL)
+    }
+
     func tier(for id: UUID) -> Tier? { placements[id] }
 
     func isRanked(_ id: UUID) -> Bool { placements[id] != nil }

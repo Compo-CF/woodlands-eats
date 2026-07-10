@@ -36,7 +36,14 @@ struct ProfileView: View {
     @Environment(RestaurantStore.self) private var store
     /// v2.0 Feature 3: persistent follow graph.
     @Environment(FriendsStore.self) private var friendsStore
+    /// v2.0: needed for account deletion (Guideline 5.1.1(v)) — wiped locally.
+    @Environment(VisitedStore.self) private var visitedStore
+    @Environment(BlockListStore.self) private var blockList
     @State private var showSuggest = false
+    // v2.0: account deletion (Guideline 5.1.1(v)).
+    @State private var showDeleteConfirm = false
+    @State private var deletingAccount = false
+    @State private var accountDeleted = false
     @State private var pendingSuggestions: [Suggestion] = []
     @State private var approvingID: String?
     @State private var suggestionError: String?
@@ -408,6 +415,11 @@ struct ProfileView: View {
                             .textSelection(.enabled)
                     }
                 }
+
+                // v2.0: account deletion (App Review Guideline 5.1.1(v)).
+                // Because the app offers Sign in with Apple (account
+                // creation), it must offer in-app account deletion.
+                deleteAccountSection
             }
             .navigationTitle("Profile")
             .overlay {
@@ -436,7 +448,80 @@ struct ProfileView: View {
             } message: {
                 Text(requirementAlert ?? "")
             }
+            // v2.0: two-step account deletion (Guideline 5.1.1(v)).
+            .alert("Delete your account?", isPresented: $showDeleteConfirm) {
+                Button("Cancel", role: .cancel) {}
+                Button("Delete", role: .destructive) {
+                    Task { await deleteAccount() }
+                }
+            } message: {
+                Text("This permanently deletes your profile, all your rankings and notes, your visited list, your follows, your uploaded photos, and any submissions. This can't be undone.")
+            }
+            .alert("Account deleted", isPresented: $accountDeleted) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Your account and all associated data have been removed.")
+            }
         }
+    }
+
+    // MARK: - Account deletion (Guideline 5.1.1(v))
+
+    @ViewBuilder
+    private var deleteAccountSection: some View {
+        Section(
+            footer: Text("Permanently deletes your account and all associated data from S-Tier Eats.")
+        ) {
+            Button(role: .destructive) {
+                showDeleteConfirm = true
+            } label: {
+                HStack {
+                    if deletingAccount {
+                        ProgressView()
+                        Text("Deleting…")
+                    } else {
+                        Label("Delete Account", systemImage: "trash")
+                    }
+                    Spacer()
+                }
+            }
+            .disabled(deletingAccount)
+        }
+    }
+
+    private func deleteAccount() async {
+        deletingAccount = true
+        defer { deletingAccount = false }
+
+        // 1. Remove every CloudKit record the user created.
+        _ = await cloudKit.deleteMyAccount()
+
+        // 2. Sign out of Apple + wipe all local state.
+        appleSignIn.signOut()
+        tierStore.clearLocal()
+        visitedStore.clearLocal()
+        friendsStore.clearLocal()
+        blockList.clearLocal()
+
+        // 3. Clear cached identity + derived caches so the UI resets clean.
+        let d = UserDefaults.standard
+        for key in [
+            "WoodlandsEats.cachedDisplayName",
+            "WoodlandsEats.cachedUserID",
+            "WoodlandsEats.communityCache.everyone",
+            "WoodlandsEats.communityCache.pros",
+            "WoodlandsEats.lastCelebratedRank",
+        ] {
+            d.removeObject(forKey: key)
+        }
+
+        // 4. Reset this screen's in-memory state.
+        displayName = ""
+        status = ""
+        userID = ""
+        pending = []
+        approvedPros = []
+        accountDeleted = true
     }
 
     /// v1.7 Feature B: Sign in with Apple section. Two states:

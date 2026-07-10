@@ -68,6 +68,13 @@ final class VisitedStore {
         await cloudKit.saveVisitedList(cleaned)
     }
 
+    /// Account deletion (Guideline 5.1.1(v)): wipe the local visited set.
+    @MainActor
+    func clearLocal() {
+        visited = []
+        UserDefaults.standard.removeObject(forKey: defaultsKey)
+    }
+
     func isVisited(_ id: UUID) -> Bool {
         visited.contains(id)
     }

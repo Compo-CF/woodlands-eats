@@ -94,6 +94,13 @@ final class FriendsStore {
         Task { await cloudKit.saveFriendList(friends) }
     }
 
+    /// Account deletion (Guideline 5.1.1(v)): wipe the local follow graph.
+    @MainActor
+    func clearLocal() {
+        friends = []
+        UserDefaults.standard.removeObject(forKey: defaultsKey)
+    }
+
     private func persist() {
         if let data = try? JSONEncoder().encode(friends) {
             UserDefaults.standard.set(data, forKey: defaultsKey)
