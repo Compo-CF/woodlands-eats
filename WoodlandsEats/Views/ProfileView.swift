@@ -40,6 +40,8 @@ struct ProfileView: View {
     @Environment(VisitedStore.self) private var visitedStore
     @Environment(BlockListStore.self) private var blockList
     @State private var showSuggest = false
+    // v2.1: Friend Activity feed sheet.
+    @State private var showFriendActivity = false
     // v2.0: account deletion (Guideline 5.1.1(v)).
     @State private var showDeleteConfirm = false
     @State private var deletingAccount = false
@@ -436,6 +438,9 @@ struct ProfileView: View {
             .sheet(isPresented: $showTierGuide) {
                 TierGuideView()
             }
+            .sheet(isPresented: $showFriendActivity) {
+                FriendActivityView()
+            }
             .fullScreenCover(isPresented: $showAppTour) {
                 AppTourWrapper(isPresented: $showAppTour)
             }
@@ -546,6 +551,11 @@ struct ProfileView: View {
                 Label("Not following anyone yet", systemImage: "person.2")
                     .foregroundStyle(.secondary)
             } else {
+                Button {
+                    showFriendActivity = true
+                } label: {
+                    Label("Recent activity", systemImage: "clock.arrow.circlepath")
+                }
                 ForEach(friendsStore.friends) { friend in
                     NavigationLink(destination: FriendTierView(userID: friend.userID)) {
                         Label(friend.displayName.isEmpty ? "Foodie" : friend.displayName,

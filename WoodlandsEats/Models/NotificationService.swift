@@ -40,6 +40,15 @@ final class NotificationService {
     /// Live authorization status from the system (mirrors UNNotificationSettings).
     private(set) var authorization: UNAuthorizationStatus = .notDetermined
 
+    /// v2.1: set when the user taps a "new restaurant" push. ContentView
+    /// observes this and presents that restaurant's detail, then clears it.
+    var pendingRestaurantID: UUID?
+
+    /// v2.1: bridge so the UIApplicationDelegate (which lives outside the
+    /// SwiftUI environment) can hand notification taps to the live service
+    /// instance. Set in init; there's only ever one NotificationService.
+    static weak var shared: NotificationService?
+
     private let enabledKey = "WoodlandsEats.notificationsEnabled"
     private let newRestaurantSubID = "sub-new-restaurant-v1"
     private let proApprovalSubIDPrefix = "sub-pro-approval-"
@@ -49,6 +58,20 @@ final class NotificationService {
 
     init() {
         enabled = UserDefaults.standard.bool(forKey: enabledKey)
+        NotificationService.shared = self
+    }
+
+    /// v2.1: handle a tapped notification. For the new-restaurant push, the
+    /// CloudKit payload carries the LiveRestaurant recordID ("live_<uuid>");
+    /// we extract the UUID so ContentView can open that restaurant. The Pro-
+    /// approval push has no deep link (it just re-engages), so it's ignored.
+    func handleNotificationTap(_ userInfo: [AnyHashable: Any]) {
+        guard let note = CKNotification(fromRemoteNotificationDictionary: userInfo) as? CKQueryNotification,
+              let name = note.recordID?.recordName,
+              name.hasPrefix("live_"),
+              let uuid = UUID(uuidString: String(name.dropFirst("live_".count)))
+        else { return }
+        pendingRestaurantID = uuid
     }
 
     /// Refresh the cached authorization status from the system.

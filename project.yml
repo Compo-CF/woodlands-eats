@@ -45,9 +45,17 @@ targets:
       path: WoodlandsEats/Info.plist
       properties:
         CFBundleDisplayName: S-Tier Eats
-        CFBundleShortVersionString: "2.0"
-        CFBundleVersion: "66"
+        CFBundleShortVersionString: "2.1"
+        CFBundleVersion: "67"
         CFBundleIconName: AppIcon
+        # v2.1: register the stier:// custom URL scheme so friend-tier deep
+        # links resolve even when Universal Links don't (the web 404 page's
+        # "open in app" fallback uses stier://tier/<id>). parseFriendTierID
+        # in WoodlandsEatsApp already handles this scheme.
+        CFBundleURLTypes:
+          - CFBundleURLName: com.compofelice.WoodlandsEats.tier
+            CFBundleURLSchemes:
+              - stier
         # v1.9: remote-notification background mode so CloudKit can wake
         # the app for its push-subscription deliveries.
         UIBackgroundModes:

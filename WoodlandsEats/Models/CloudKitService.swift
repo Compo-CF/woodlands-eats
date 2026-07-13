@@ -34,6 +34,17 @@ struct CommunityNote: Identifiable {
     var id: String { placementRecordName }
 }
 
+/// v2.1: one recent ranking action by someone the user follows, for the
+/// Friend Activity feed. `date` is the placement's last-modified time.
+struct FriendActivity: Identifiable {
+    let placementRecordName: String
+    let authorUserID: String
+    let restaurantID: UUID
+    let tier: Tier
+    let date: Date
+    var id: String { placementRecordName }
+}
+
 /// v2.0 Feature 2: a reported note hydrated for the admin queue.
 struct PendingNoteReport: Identifiable {
     let placementRecordName: String
@@ -487,6 +498,48 @@ final class CloudKitService {
             _ = try? await publicDB.modifyRecords(saving: [], deleting: batch, savePolicy: .allKeys)
             i += 300
         }
+    }
+
+    /// v2.1: recent ranking activity from the people the user follows, newest
+    /// first, capped. Pages Placement (reusing the recordName Queryable index),
+    /// keeps only records owned by a followed user, and stamps each with the
+    /// placement's last-modified date. Admin exclusions are honored.
+    func fetchFriendActivity(friendIDs: Set<String>, limit: Int = 60) async -> [FriendActivity] {
+        guard isAvailable, !friendIDs.isEmpty else { return [] }
+        await loadExclusionsIfNeeded()
+        var out: [FriendActivity] = []
+
+        func accumulate(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+            for (recordID, result) in matches {
+                let name = recordID.recordName
+                guard let owner = placementOwnerID(from: name), friendIDs.contains(owner),
+                      !isExcluded(recordName: name, owner: owner),
+                      case .success(let rec) = result,
+                      let ridStr = rec["restaurantID"] as? String, let rid = UUID(uuidString: ridStr),
+                      let tierStr = rec["tier"] as? String, let tier = Tier(rawValue: tierStr) else { continue }
+                out.append(FriendActivity(
+                    placementRecordName: name,
+                    authorUserID: owner,
+                    restaurantID: rid,
+                    tier: tier,
+                    date: rec.modificationDate ?? rec.creationDate ?? .distantPast))
+            }
+        }
+
+        do {
+            let query = CKQuery(recordType: placementType, predicate: NSPredicate(value: true))
+            var (matches, cursor) = try await publicDB.records(
+                matching: query, desiredKeys: ["restaurantID", "tier"], resultsLimit: 200)
+            accumulate(matches)
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(
+                    continuingMatchFrom: c, resultsLimit: 200)
+                accumulate(matches)
+            }
+        } catch {
+            return []
+        }
+        return Array(out.sorted { $0.date > $1.date }.prefix(limit))
     }
 
     /// Average everyone's placements for a restaurant into a consensus tier.

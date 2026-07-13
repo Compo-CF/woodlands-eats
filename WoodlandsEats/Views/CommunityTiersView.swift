@@ -17,6 +17,8 @@ struct CommunityTiersView: View {
     /// Client-side filter over the already-aggregated tiers — no extra
     /// CloudKit work, so switching cuisines is instant.
     @State private var cuisineFilter: Cuisine?
+    /// v2.1: presents the Friend Activity feed (Friends board only).
+    @State private var showFriendActivity = false
 
     var body: some View {
         NavigationStack {
@@ -88,6 +90,16 @@ struct CommunityTiersView: View {
                         }
                     }
                 }
+                // v2.1: Friend Activity feed — only meaningful on the
+                // Friends board, so it's scoped to that mode.
+                if mode == .friends {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button { showFriendActivity = true } label: {
+                            Image(systemName: "clock.arrow.circlepath")
+                        }
+                        .accessibilityLabel("Recent friend activity")
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         Task { await load() }
@@ -105,6 +117,9 @@ struct CommunityTiersView: View {
                     RestaurantDetailView(restaurant: restaurant)
                 }
                 .presentationDetents([.medium, .large])
+            }
+            .sheet(isPresented: $showFriendActivity) {
+                FriendActivityView()
             }
         }
     }

@@ -26,6 +26,14 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
                                 willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
         [.banner, .sound, .badge]
     }
+
+    // v2.1: user tapped a notification — route new-restaurant pushes to that
+    // restaurant's detail via the shared NotificationService.
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse) async {
+        await NotificationService.shared?.handleNotificationTap(
+            response.notification.request.content.userInfo)
+    }
 }
 
 @main

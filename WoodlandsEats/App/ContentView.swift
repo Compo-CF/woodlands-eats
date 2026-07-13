@@ -11,6 +11,7 @@ struct ContentView: View {
     @Environment(TierListStore.self) private var tierStore
     @Environment(VisitedStore.self) private var visitedStore
     @Environment(FriendsStore.self) private var friendsStore
+    @Environment(NotificationService.self) private var notifications
     @Environment(TabRouter.self) private var tabRouter
     /// v1.7 Feature G: scene-active observer drives cross-device merge.
     @Environment(\.scenePhase) private var scenePhase
@@ -46,6 +47,9 @@ struct ContentView: View {
     /// .task once we've absorbed any restored data and migrated the
     /// lastCelebratedRank baseline.
     @State private var hasFinishedLaunchSync = false
+    /// v2.1: restaurant to open in detail after tapping a "new restaurant"
+    /// push notification (routed via NotificationService.pendingRestaurantID).
+    @State private var deepLinkedRestaurant: Restaurant?
     var body: some View {
         @Bindable var tabRouter = tabRouter
         TabView(selection: $tabRouter.selectedTab) {
@@ -143,6 +147,24 @@ struct ContentView: View {
                 await tierStore.mergeFromCloud(via: cloudKit)
                 await visitedStore.mergeFromCloud(via: cloudKit)
             }
+        }
+        // v2.1: tapped a "new restaurant" push → open that restaurant. If the
+        // freshly-added LiveRestaurant isn't in the local catalog yet (warm
+        // launch before a refresh), pull live records once, then present.
+        .onChange(of: notifications.pendingRestaurantID) { _, id in
+            guard let id else { return }
+            Task {
+                if let r = store.restaurants.first(where: { $0.id == id }) {
+                    deepLinkedRestaurant = r
+                } else {
+                    await store.refreshLive(via: cloudKit)
+                    deepLinkedRestaurant = store.restaurants.first(where: { $0.id == id })
+                }
+                notifications.pendingRestaurantID = nil
+            }
+        }
+        .sheet(item: $deepLinkedRestaurant) { r in
+            NavigationStack { RestaurantDetailView(restaurant: r) }
         }
         .onChange(of: tierStore.placements.count) { _, newCount in
             // Suppress all celebrations until launch sync settles —
