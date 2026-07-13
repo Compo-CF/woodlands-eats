@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>S-Tier Eats</title>
+<style>
+  :root { --s:#e93d3d; --a:#f5941e; --b:#f5c518; --c:#4caf50; --f:#8c59c7; --ink:#1c1c1e; --gray:#6e6e76; --bg:#f5f5f7; }
+  * { box-sizing:border-box; -webkit-text-size-adjust:100%; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+         background:var(--bg); color:var(--ink); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .card { max-width:440px; width:100%; text-align:center; }
+  .stripe { display:flex; gap:8px; justify-content:center; margin:0 auto 28px; }
+  .stripe span { width:34px; height:34px; border-radius:8px; }
+  h1 { font-size:30px; line-height:1.2; margin:0 0 12px; }
+  p { font-size:17px; color:var(--gray); line-height:1.5; margin:0 0 28px; }
+  .btn { display:block; width:100%; padding:16px; border-radius:14px; font-size:18px; font-weight:600;
+         text-decoration:none; margin:12px 0; }
+  .primary { background:var(--ink); color:#fff; }
+  .secondary { background:transparent; color:var(--ink); border:1.5px solid #c9c9cf; font-weight:500; }
+  .foot { font-size:13px; color:var(--gray); margin-top:28px; }
+  .foot a { color:var(--gray); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="stripe"><span style="background:var(--s)"></span><span style="background:var(--a)"></span><span style="background:var(--b)"></span><span style="background:var(--c)"></span><span style="background:var(--f)"></span></div>
+    <h1 id="title">S-Tier Eats</h1>
+    <p id="msg">The no-stars, all-tiers restaurant tier list for The Woodlands &amp; north Houston.</p>
+    <a class="primary btn" id="store" href="https://apps.apple.com/app/id6773501518">Get S-Tier Eats — free</a>
+    <a class="secondary btn" id="open" href="#" style="display:none">Already have the app? Open it</a>
+    <p class="foot"><a href="https://apps.apple.com/app/id6773501518">App Store</a> · <a href="/woodlands-eats/privacy.html">Privacy</a></p>
+  </div>
+<script>
+  // Friend-tier links look like /woodlands-eats/tier/<userID>. GitHub Pages
+  // serves this 404 page for any unmatched path; if the path is a tier link,
+  // turn it into a proper "open a friend's list" landing instead of a 404.
+  (function () {
+    var m = location.pathname.match(/\/tier\/([^\/?#]+)/);
+    if (!m) return;
+    var id = decodeURIComponent(m[1]);
+    document.getElementById('title').textContent = "A friend shared their tier list";
+    document.getElementById('msg').textContent =
+      "Open it in S-Tier Eats to see how they ranked local spots — then follow them and build your own board.";
+    var open = document.getElementById('open');
+    open.style.display = 'block';
+    open.href = 'stier://tier/' + encodeURIComponent(id);
+  })();
+</script>
+</body>
+</html>
