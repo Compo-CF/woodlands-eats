@@ -40,6 +40,18 @@ struct RestaurantDetailView: View {
 
     private var isUploading: Bool { uploadingCount > 0 }
 
+    /// v2.1: message for the single-restaurant share sheet. Leads with the
+    /// community tier when available (social proof), always ends with the
+    /// App Store link so recipients can grab the app.
+    private var shareText: String {
+        let url = "https://apps.apple.com/app/id6773501518"
+        if let c = community {
+            let plural = c.count == 1 ? "person has" : "people have"
+            return "\(restaurant.name) is \(c.tier.label)-tier on S-Tier Eats — \(c.count) \(plural) ranked it. See the community's picks for The Woodlands & north Houston: \(url)"
+        }
+        return "\(restaurant.name) on S-Tier Eats — rank your favorite local restaurants across The Woodlands & north Houston: \(url)"
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -66,6 +78,17 @@ struct RestaurantDetailView: View {
         }
         .navigationTitle(restaurant.name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            // v2.1: share this single spot. Text share (with the App Store
+            // link) — the most common "you gotta try this place" moment,
+            // which per-restaurant sharing captures better than the whole-
+            // tier-list share. Includes the community tier when we have it.
+            ToolbarItem(placement: .topBarTrailing) {
+                ShareLink(item: shareText) {
+                    Image(systemName: "square.and.arrow.up")
+                }
+            }
+        }
         .task {
             community = await cloudKit.fetchCommunityTier(restaurantID: restaurant.id)
             dishPhotos = await cloudKit.fetchDishPhotos(

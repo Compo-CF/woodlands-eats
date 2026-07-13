@@ -29,6 +29,8 @@ struct FriendTierView: View {
     @State private var placements: [(restaurantID: UUID, tier: Tier)] = []
     @State private var loading: Bool = true
     @State private var selected: Restaurant?
+    /// v2.1: presents the Taste Match comparison against this friend.
+    @State private var showCompare = false
 
     private var byTier: [Tier: [Restaurant]] {
         // index placements by tier, hydrating against the local catalog.
@@ -100,6 +102,16 @@ struct FriendTierView: View {
                         followButton
                     }
                 }
+                // v2.1: Taste Match — compare this friend's list to yours.
+                // Shown once their list has loaded with something in it.
+                if !placements.isEmpty {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button { showCompare = true } label: {
+                            Image(systemName: "arrow.left.arrow.right")
+                        }
+                        .accessibilityLabel("Compare tastes")
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
                 }
@@ -109,6 +121,9 @@ struct FriendTierView: View {
                     RestaurantDetailView(restaurant: r)
                 }
                 .presentationDetents([.medium, .large])
+            }
+            .sheet(isPresented: $showCompare) {
+                FriendCompareView(friendName: displayName, friendPlacements: placements)
             }
             .task { await load() }
         }

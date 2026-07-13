@@ -150,6 +150,7 @@ struct WoodlandsEatsApp: App {
                             .environment(cloudKit)
                             .environment(store)
                             .environment(friendsStore)
+                            .environment(tierStore)
                     }
                     .onChange(of: locationManager.location) { _, newValue in
                         store.userLocation = newValue

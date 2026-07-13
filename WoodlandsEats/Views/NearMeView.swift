@@ -27,6 +27,8 @@ struct NearMeView: View {
     /// genuinely good options rather than every rated dive nearby. Default
     /// B+ and up; a toggle relaxes it to everything ranked.
     @State private var goodOnly = true
+    /// v2.1: optional cuisine filter — "best BBQ near me right now". nil = all.
+    @State private var cuisineFilter: Cuisine?
 
     private let maxResults = 40
 
@@ -46,7 +48,9 @@ struct NearMeView: View {
                     ContentUnavailableView {
                         Label("Nothing ranked nearby yet", systemImage: "fork.knife")
                     } description: {
-                        Text("No community-ranked spots close by. Try turning off \u{201C}Great spots only\u{201D}, or be the first to rank places around here.")
+                        Text(cuisineFilter == nil
+                             ? "No community-ranked spots close by. Try turning off \u{201C}Great spots only\u{201D}, or be the first to rank places around here."
+                             : "No \(cuisineFilter!.displayName) spots ranked close by. Try another cuisine or turn off \u{201C}Great spots only\u{201D}.")
                     }
                 } else {
                     List {
@@ -69,6 +73,28 @@ struct NearMeView: View {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Done") { dismiss() }
                 }
+                // v2.1: cuisine filter — only lists cuisines actually present
+                // in the nearby set, so we never offer an empty "best X" board.
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button {
+                            cuisineFilter = nil
+                        } label: {
+                            Label("All cuisines", systemImage: cuisineFilter == nil ? "checkmark" : "")
+                        }
+                        Divider()
+                        ForEach(availableCuisines, id: \.self) { c in
+                            Button {
+                                cuisineFilter = c
+                            } label: {
+                                Label(c.displayName, systemImage: cuisineFilter == c ? "checkmark" : "")
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                    }
+                    .accessibilityLabel("Filter by cuisine")
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Toggle(isOn: $goodOnly) { Text("Great spots only") }
                         .toggleStyle(.button)
@@ -89,9 +115,10 @@ struct NearMeView: View {
         let meters: CLLocationDistance
     }
 
-    /// Ranked restaurants near the user, sorted by distance, filtered by
-    /// the goodOnly threshold, capped at maxResults.
-    private var nearby: [NearbyItem] {
+    /// Ranked restaurants near the user (goodOnly + not-closed applied), sorted
+    /// by distance. The cuisine filter is applied on top in `nearby`; this base
+    /// also feeds `availableCuisines` so the menu only offers real options.
+    private var nearbyBase: [NearbyItem] {
         guard let loc = store.userLocation else { return [] }
         let byID = Dictionary(store.restaurants.map { ($0.id, $0) },
                               uniquingKeysWith: { _, latest in latest })
@@ -103,7 +130,24 @@ struct NearMeView: View {
             if store.confirmedClosedIDs.contains(rid) { continue }
             items.append(NearbyItem(restaurant: r, tier: info, meters: r.distance(from: loc)))
         }
-        return items.sorted { $0.meters < $1.meters }.prefix(maxResults).map { $0 }
+        return items.sorted { $0.meters < $1.meters }
+    }
+
+    /// Final list: base + cuisine filter, capped at maxResults.
+    private var nearby: [NearbyItem] {
+        let filtered = cuisineFilter == nil
+            ? nearbyBase
+            : nearbyBase.filter { $0.restaurant.cuisines.contains(cuisineFilter!) }
+        return Array(filtered.prefix(maxResults))
+    }
+
+    /// Cuisines present among nearby ranked spots, most-common first.
+    private var availableCuisines: [Cuisine] {
+        var counts: [Cuisine: Int] = [:]
+        for item in nearbyBase {
+            for c in item.restaurant.cuisines { counts[c, default: 0] += 1 }
+        }
+        return counts.sorted { $0.value > $1.value }.map(\.key)
     }
 
     @ViewBuilder
