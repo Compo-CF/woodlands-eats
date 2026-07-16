@@ -161,6 +161,7 @@ struct WoodlandsEatsApp: App {
                     )) {
                         OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
                             .environment(locationManager)
+                            .environment(purchaseStore)
                     }
             } else {
                 EULAView(hasAccepted: $hasAcceptedEULA)

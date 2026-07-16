@@ -4,10 +4,10 @@ import SwiftUI
 ///   1. What S-Tier Eats does (welcome + the "no star averages" pitch)
 ///   2. How the S/A/B/C/F tier system works (reuses TierGuide content)
 ///   3. Why we want location + an in-app explanation before the iOS prompt
-///
-/// (v2.0: the old 4th "Support the developer" Ko-fi screen was removed for
-/// App Review Guideline 3.1.1 — tips for a digital service must use IAP,
-/// not an external link.)
+///   4. Leave-a-tip (v2.1) — IAP tip jar, App Review 3.1.1-compliant
+///      (replaces the old external Ko-fi screen removed in v2.0). Soft ask
+///      with a clear "Maybe later"; hidden entirely if the tip products
+///      haven't loaded, so a StoreKit hiccup never blocks onboarding.
 ///
 /// Driven by @AppStorage("WoodlandsEats.hasCompletedOnboarding"). Existing
 /// pre-v1.3 users get auto-migrated in WoodlandsEatsApp.init (if they
@@ -21,9 +21,16 @@ struct OnboardingView: View {
     /// flipped to true the view's containing fullScreenCover dismisses.
     @Binding var hasCompletedOnboarding: Bool
     @Environment(LocationManager.self) private var locationManager
+    @Environment(PurchaseStore.self) private var purchases
     @Environment(\.dismiss) private var dismiss
 
     @State private var page: Int = 0
+
+    /// Only show the tip page if the products actually loaded. If StoreKit
+    /// hasn't returned them (or they aren't in App Store Connect yet), the
+    /// flow ends at the location page — never a dead "support" screen.
+    private var showTipPage: Bool { !purchases.tipProducts.isEmpty }
+    private var lastPage: Int { showTipPage ? 3 : 2 }
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
@@ -31,14 +38,14 @@ struct OnboardingView: View {
                 welcomePage.tag(0)
                 tiersPage.tag(1)
                 locationPage.tag(2)
+                if showTipPage { supportPage.tag(3) }
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
 
-            // Skip is visible on the first two pages so a returning user
-            // can bail without walking through the whole tour. Hidden on
-            // the last page (location) because it has an explicit "Not now"
-            // secondary button that makes Skip redundant.
+            // Skip shows on the first two pages so a returning user can bail.
+            // Hidden on the location + tip pages, which each have their own
+            // explicit secondary button ("Not now" / "Maybe later").
             if page < 2 {
                 Button("Skip") { finish() }
                     .padding(.top, 8)
@@ -165,13 +172,68 @@ struct OnboardingView: View {
                     if locationManager.authorizationStatus == .notDetermined {
                         locationManager.requestPermission()
                     }
-                    finish()
+                    advanceFromLocation()
                 }
-                Button("Not now") { finish() }
+                Button("Not now") { advanceFromLocation() }
                     .foregroundStyle(.secondary)
                     .padding(.vertical, 4)
             }
             .padding(.bottom, 48)
+        }
+        .padding(.horizontal, 24)
+    }
+
+    /// After the location step: go to the tip page if it exists, else done.
+    private func advanceFromLocation() {
+        if showTipPage { withAnimation { page = 3 } } else { finish() }
+    }
+
+    /// v2.1: leave-a-tip page (StoreKit consumables). Soft ask, clear out.
+    private var supportPage: some View {
+        VStack(spacing: 22) {
+            Spacer()
+            Image(systemName: "hands.clap.fill")
+                .resizable().scaledToFit()
+                .frame(width: 84, height: 84)
+                .foregroundStyle(Tier.s.color)
+                .symbolRenderingMode(.hierarchical)
+
+            VStack(spacing: 12) {
+                Text("Keep it free")
+                    .font(.largeTitle.weight(.bold))
+                    .multilineTextAlignment(.center)
+                Text("S-Tier Eats is made by one person who lives here, and it stays free. If you'd like to chip in, a tip helps cover the costs — totally optional.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+            }
+
+            HStack(spacing: 10) {
+                ForEach(Array(purchases.tipProducts.enumerated()), id: \.element.id) { idx, product in
+                    Button {
+                        Task { await purchases.purchaseTip(product); finish() }
+                    } label: {
+                        VStack(spacing: 3) {
+                            Text(["Small", "Medium", "Generous"][min(idx, 2)])
+                                .font(.caption.weight(.semibold))
+                            Text(product.displayPrice)
+                                .font(.subheadline.bold())
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 12))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(purchases.isPurchasing)
+                }
+            }
+            .padding(.horizontal, 24)
+
+            Spacer()
+            Button("Maybe later") { finish() }
+                .foregroundStyle(.secondary)
+                .padding(.bottom, 48)
         }
         .padding(.horizontal, 24)
     }

@@ -47,6 +47,19 @@ final class PurchaseStore {
 
     private let adFreeProductID = "com.compofelice.WoodlandsEats.adfree"
     private let isAdFreeKey = "WoodlandsEats.iap.isAdFree"
+    /// v2.1: three consumable "tip jar" products — the App Store 3.1.1-
+    /// compliant way to let users support the app (replaces the removed
+    /// external Ko-fi link). Ordered small → generous; displayed with
+    /// StoreKit's localized price so we never hard-code dollar amounts.
+    private let tipProductIDs = [
+        "com.compofelice.WoodlandsEats.tip.small",
+        "com.compofelice.WoodlandsEats.tip.medium",
+        "com.compofelice.WoodlandsEats.tip.large",
+    ]
+
+    /// v2.1: set true briefly after a successful tip so the UI can show a
+    /// thank-you. The view flips it back to false when the message is shown.
+    var didTip: Bool = false
     /// @ObservationIgnored because @Observable's macro-generated tracking
     /// code accesses property storage from contexts the compiler can't
     /// prove are MainActor-isolated. We never read this from views (it's
@@ -88,13 +101,37 @@ final class PurchaseStore {
         products.first { $0.id == adFreeProductID }
     }
 
+    /// v2.1: the tip products, small → generous (by price). Empty until
+    /// loaded / if the IAPs don't exist in App Store Connect yet.
+    var tipProducts: [Product] {
+        products.filter { tipProductIDs.contains($0.id) }
+            .sorted { $0.price < $1.price }
+    }
+
     /// Fetch product metadata from App Store Connect. Called on init.
     /// Errors are logged; the UI gracefully degrades to disabled button.
     func loadProducts() async {
         do {
-            self.products = try await Product.products(for: [adFreeProductID])
+            self.products = try await Product.products(for: [adFreeProductID] + tipProductIDs)
         } catch {
             print("[Purchase] loadProducts failed: \(error)")
+        }
+    }
+
+    /// v2.1: purchase a consumable tip. No entitlement to track — just
+    /// complete the transaction, finish it, and flag the thank-you.
+    func purchaseTip(_ product: Product) async {
+        guard !isPurchasing else { return }
+        isPurchasing = true
+        defer { isPurchasing = false }
+        do {
+            let result = try await product.purchase()
+            if case .success(.verified(let transaction)) = result {
+                await transaction.finish()
+                didTip = true
+            }
+        } catch {
+            print("[Purchase] tip failed: \(error)")
         }
     }
 

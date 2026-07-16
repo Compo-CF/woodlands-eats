@@ -1,14 +1,15 @@
 import SwiftUI
+import StoreKit
 
 /// Modal sheet reached from the Profile tab.
 ///
-/// Shows the app's identity (icon, name, version), a one-line tagline,
-/// contact + privacy links, and a credit line. Mirrors the pattern
-/// shipped in Woodlands Fishing v1.3. (v2.0: the Ko-fi support button was
-/// removed for App Review Guideline 3.1.1 — tips for a digital service must
-/// use IAP, not an external link.)
+/// Shows the app's identity (icon, name, version), a one-line tagline, an
+/// optional in-app "leave a tip" jar (v2.1), contact + privacy links, and a
+/// credit line. (v2.0 removed the Ko-fi link for App Review 3.1.1; v2.1
+/// brings tips back the compliant way — StoreKit consumable IAPs.)
 struct AboutSheetView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(PurchaseStore.self) private var purchases
 
     private var version: String {
         let dict = Bundle.main.infoDictionary
@@ -33,6 +34,8 @@ struct AboutSheetView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
 
+                    tipSection
+
                     linksSection
 
                     creditFooter
@@ -46,7 +49,59 @@ struct AboutSheetView: View {
                     Button("Done") { dismiss() }
                 }
             }
+            .alert("Thank you! 🙏", isPresented: Binding(
+                get: { purchases.didTip },
+                set: { if !$0 { purchases.didTip = false } }
+            )) {
+                Button("You're welcome", role: .cancel) { purchases.didTip = false }
+            } message: {
+                Text("Your tip genuinely helps keep S-Tier Eats free and ad-light. It means a lot.")
+            }
         }
+    }
+
+    /// v2.1: in-app tip jar (StoreKit consumables). Hidden until the
+    /// products load (or if they don't exist in App Store Connect yet), so
+    /// the section never shows dead buttons. Labels map small → generous;
+    /// the amount comes from StoreKit's localized price, never hard-coded.
+    @ViewBuilder
+    private var tipSection: some View {
+        let tips = purchases.tipProducts
+        if !tips.isEmpty {
+            VStack(spacing: 12) {
+                Text("Leave a tip")
+                    .font(.headline)
+                Text("S-Tier Eats is free. If it's earned a spot in your routine, a tip helps keep it going.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+                HStack(spacing: 10) {
+                    ForEach(Array(tips.enumerated()), id: \.element.id) { idx, product in
+                        Button {
+                            Task { await purchases.purchaseTip(product) }
+                        } label: {
+                            VStack(spacing: 3) {
+                                Text(tipLabel(idx))
+                                    .font(.caption.weight(.semibold))
+                                Text(product.displayPrice)
+                                    .font(.subheadline.bold())
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 12))
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(purchases.isPurchasing)
+                    }
+                }
+                .padding(.horizontal, 20)
+            }
+        }
+    }
+
+    private func tipLabel(_ idx: Int) -> String {
+        ["Small tip", "Medium tip", "Generous tip"][min(idx, 2)]
     }
 
     private var header: some View {
