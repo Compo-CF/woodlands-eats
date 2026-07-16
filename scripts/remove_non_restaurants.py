@@ -447,6 +447,12 @@ DENY_PATTERNS = [
 # stands, etc). Matched case-insensitively against the FULL name after
 # normalization.
 EXACT_NAME_DENY = {
+    # v2.1 re-seed cleanup (2026-07-13) — shopping/office/residential that
+    # slipped through the pattern rules in the Google Places v4 pull.
+    "kleinwood center",
+    "one hughes landing",
+    "three hughes landing",
+    "villas at birnham woods",
     "indian springs center",
     "northland center",
     "pinecroft center",
