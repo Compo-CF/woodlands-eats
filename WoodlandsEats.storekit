@@ -1,0 +1,75 @@
+{
+  "identifier" : "STIER-TIPS-TEST",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayPrice" : "1.99",
+      "familyShareable" : false,
+      "internalID" : "TIP0000001",
+      "localizations" : [
+        {
+          "description" : "A little thank-you that helps keep S-Tier Eats free and ad-light.",
+          "displayName" : "Small Tip",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.compofelice.WoodlandsEats.tip.small",
+      "referenceName" : "Small Tip",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : false,
+      "internalID" : "TIP0000002",
+      "localizations" : [
+        {
+          "description" : "A generous tip that supports ongoing development of S-Tier Eats.",
+          "displayName" : "Medium Tip",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.compofelice.WoodlandsEats.tip.medium",
+      "referenceName" : "Medium Tip",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "TIP0000003",
+      "localizations" : [
+        {
+          "description" : "A big thank-you that funds new features and keeps the app free for everyone.",
+          "displayName" : "Generous Tip",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.compofelice.WoodlandsEats.tip.large",
+      "referenceName" : "Generous Tip",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "1.99",
+      "familyShareable" : false,
+      "internalID" : "ADFREE0001",
+      "localizations" : [
+        {
+          "description" : "Remove banner ads from S-Tier Eats forever. One-time purchase.",
+          "displayName" : "Remove Ads",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.compofelice.WoodlandsEats.adfree",
+      "referenceName" : "Ad-Free Upgrade",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6773501518",
+    "_developerTeamID" : "7H5T5AR2X5"
+  },
+  "subscriptionGroups" : [],
+  "version" : {
+    "major" : 1,
+    "minor" : 0
+  }
+}
