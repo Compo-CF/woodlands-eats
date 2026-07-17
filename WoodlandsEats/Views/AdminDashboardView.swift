@@ -76,6 +76,48 @@ struct AdminDashboardView: View {
                 .padding(.vertical, 6)
             }
 
+            // v2.1: all-time trend — weekly rankings (bars) vs cumulative (line).
+            Section(header: Text("Rankings per week — since launch")) {
+                Chart(m.weekly, id: \.week) { pt in
+                    BarMark(
+                        x: .value("Week", pt.week, unit: .weekOfYear),
+                        y: .value("New", pt.newPlacements)
+                    )
+                    .foregroundStyle(Tier.s.color.opacity(0.85))
+                    LineMark(
+                        x: .value("Week", pt.week, unit: .weekOfYear),
+                        y: .value("Cumulative", pt.cumPlacements)
+                    )
+                    .foregroundStyle(.primary)
+                    .interpolationMethod(.catmullRom)
+                    .symbol(.circle)
+                }
+                .frame(height: 190)
+                .padding(.vertical, 6)
+                Text("Bars: new rankings that week. Line: cumulative total (\(m.totalPlacements)).")
+                    .font(.caption2).foregroundStyle(.secondary)
+            }
+
+            // v2.1: cumulative rankers over time.
+            Section(header: Text("Rankers — cumulative")) {
+                Chart(m.weekly, id: \.week) { pt in
+                    AreaMark(
+                        x: .value("Week", pt.week, unit: .weekOfYear),
+                        y: .value("Rankers", pt.cumUsers)
+                    )
+                    .foregroundStyle(Tier.a.color.opacity(0.25))
+                    LineMark(
+                        x: .value("Week", pt.week, unit: .weekOfYear),
+                        y: .value("Rankers", pt.cumUsers)
+                    )
+                    .foregroundStyle(Tier.a.color)
+                }
+                .frame(height: 160)
+                .padding(.vertical, 6)
+                Text("Distinct people who have placed at least one ranking (\(m.totalUsers) total).")
+                    .font(.caption2).foregroundStyle(.secondary)
+            }
+
             Section(header: Text("Totals")) {
                 plainRow("Active users (ever placed)", "\(m.totalUsers)", icon: "person.3.fill", tint: .blue)
                 plainRow("Profiles", "\(m.profileCount)", icon: "person.crop.circle", tint: .indigo)
@@ -274,6 +316,8 @@ struct DashboardMetrics {
     struct DayCount { let day: Date; let count: Int }
     struct TopUser { let userID: String; let count: Int; let lastActive: Date }
     struct HotRestaurant { let restaurantID: UUID; let votes: Int; let consensus: Tier }
+    /// v2.1: one week of the all-time trend (new + cumulative).
+    struct WeekPoint { let week: Date; let newPlacements: Int; let cumPlacements: Int; let newUsers: Int; let cumUsers: Int }
 
     let totalUsers: Int
     let totalPlacements: Int
@@ -289,6 +333,7 @@ struct DashboardMetrics {
     let newUsersPrior7d: Int
 
     let dailyCounts: [DayCount]
+    let weekly: [WeekPoint]
     let tierCounts: [Tier: Int]
     let usersByRank: [FoodieRank: Int]
     let topUsers: [TopUser]
@@ -386,5 +431,23 @@ struct DashboardMetrics {
         let counts = byUser.values.map(\.count).sorted()
         avgPlacementsPerUser = counts.isEmpty ? 0 : Double(counts.reduce(0, +)) / Double(counts.count)
         medianPlacementsPerUser = counts.isEmpty ? 0 : counts[counts.count / 2]
+
+        // v2.1: all-time weekly trend (new + cumulative placements & rankers).
+        func weekStart(_ d: Date) -> Date {
+            cal.dateInterval(of: .weekOfYear, for: d)?.start ?? cal.startOfDay(for: d)
+        }
+        var newPByWeek: [Date: Int] = [:]
+        for p in placements { newPByWeek[weekStart(p.creationDate), default: 0] += 1 }
+        var newUByWeek: [Date: Int] = [:]
+        for first in firstSeen.values { newUByWeek[weekStart(first), default: 0] += 1 }
+        let allWeeks = Set(newPByWeek.keys).union(newUByWeek.keys).sorted()
+        var cumP = 0, cumU = 0
+        weekly = allWeeks.map { w in
+            cumP += newPByWeek[w] ?? 0
+            cumU += newUByWeek[w] ?? 0
+            return WeekPoint(week: w,
+                             newPlacements: newPByWeek[w] ?? 0, cumPlacements: cumP,
+                             newUsers: newUByWeek[w] ?? 0, cumUsers: cumU)
+        }
     }
 }
