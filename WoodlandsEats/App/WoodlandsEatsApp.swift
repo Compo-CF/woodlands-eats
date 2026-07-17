@@ -31,8 +31,13 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     // restaurant's detail via the shared NotificationService.
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse) async {
-        await NotificationService.shared?.handleNotificationTap(
-            response.notification.request.content.userInfo)
+        let userInfo = response.notification.request.content.userInfo
+        // handleNotificationTap is a synchronous @MainActor method, so hop to
+        // the main actor explicitly (await MainActor.run) rather than awaiting
+        // the call itself — avoids the "no async operations" warning.
+        await MainActor.run {
+            NotificationService.shared?.handleNotificationTap(userInfo)
+        }
     }
 }
 
