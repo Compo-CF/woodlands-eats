@@ -12,6 +12,7 @@ struct ContentView: View {
     @Environment(VisitedStore.self) private var visitedStore
     @Environment(FriendsStore.self) private var friendsStore
     @Environment(NotificationService.self) private var notifications
+    @Environment(PurchaseStore.self) private var purchases
     @Environment(TabRouter.self) private var tabRouter
     /// v1.7 Feature G: scene-active observer drives cross-device merge.
     @Environment(\.scenePhase) private var scenePhase
@@ -50,6 +51,8 @@ struct ContentView: View {
     /// v2.1: restaurant to open in detail after tapping a "new restaurant"
     /// push notification (routed via NotificationService.pendingRestaurantID).
     @State private var deepLinkedRestaurant: Restaurant?
+    /// v2.1: the occasional tip reminder (eligibility gated in PurchaseStore).
+    @State private var showTipReminder = false
     var body: some View {
         @Bindable var tabRouter = tabRouter
         TabView(selection: $tabRouter.selectedTab) {
@@ -132,6 +135,14 @@ struct ContentView: View {
                 await visitedStore.cleanupOrphans(via: cloudKit, against: store.restaurants)
                 hasCleanedOrphans = true
             }
+
+            // v2.1: gentle, infrequent tip reminder. All cadence/opt-out
+            // logic lives in PurchaseStore; only fire if nothing else is
+            // already on screen. Recording it here resets the 60-day clock.
+            if celebratingRank == nil, deepLinkedRestaurant == nil, purchases.tipReminderEligible {
+                purchases.recordTipPromptShown()
+                showTipReminder = true
+            }
         }
         // v1.7 Feature G: cross-device live-ish sync. When the scene
         // returns to .active from .inactive/.background (app switcher
@@ -166,6 +177,7 @@ struct ContentView: View {
         .sheet(item: $deepLinkedRestaurant) { r in
             NavigationStack { RestaurantDetailView(restaurant: r) }
         }
+        .sheet(isPresented: $showTipReminder) { TipReminderView() }
         .onChange(of: tierStore.placements.count) { _, newCount in
             // Suppress all celebrations until launch sync settles —
             // otherwise restoreFromCloud's retroactive jump from 0 to

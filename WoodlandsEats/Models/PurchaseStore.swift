@@ -60,6 +60,20 @@ final class PurchaseStore {
     /// v2.1: set true briefly after a successful tip so the UI can show a
     /// thank-you. The view flips it back to false when the message is shown.
     var didTip: Bool = false
+
+    /// v2.1: whether the user has ever tipped (persisted). Once true, the
+    /// occasional tip reminder never fires again — we don't nag supporters.
+    private(set) var hasEverTipped: Bool = false
+
+    // Tip-reminder cadence keys. The reminder is deliberately rare: nothing
+    // for the first 2 weeks after install, then at most once every 60 days,
+    // and never after the user tips or taps "Don't ask again."
+    private let everTippedKey = "WoodlandsEats.iap.hasEverTipped"
+    private let tipNeverAskKey = "WoodlandsEats.tip.neverAsk"
+    private let tipLastPromptKey = "WoodlandsEats.tip.lastPromptAt"   // epoch seconds
+    private let tipInstallDateKey = "WoodlandsEats.tip.firstSeenAt"   // epoch seconds
+    private let graceDays: Double = 14
+    private let betweenPromptDays: Double = 60
     /// @ObservationIgnored because @Observable's macro-generated tracking
     /// code accesses property storage from contexts the compiler can't
     /// prove are MainActor-isolated. We never read this from views (it's
@@ -74,6 +88,11 @@ final class PurchaseStore {
         // before entitlements resolve. The async updateEntitlements()
         // run below corrects the cache if it disagrees with Apple.
         isAdFree = UserDefaults.standard.bool(forKey: isAdFreeKey)
+        hasEverTipped = UserDefaults.standard.bool(forKey: everTippedKey)
+        // Stamp first-seen once so the reminder's 2-week grace has a baseline.
+        if UserDefaults.standard.object(forKey: tipInstallDateKey) == nil {
+            UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: tipInstallDateKey)
+        }
 
         // Listen for transaction updates that arrive outside our
         // purchase flow — refunds, family sharing, purchases on other
@@ -129,10 +148,38 @@ final class PurchaseStore {
             if case .success(.verified(let transaction)) = result {
                 await transaction.finish()
                 didTip = true
+                hasEverTipped = true
+                UserDefaults.standard.set(true, forKey: everTippedKey)
             }
         } catch {
             print("[Purchase] tip failed: \(error)")
         }
+    }
+
+    // MARK: - Occasional tip reminder (v2.1)
+
+    /// Whether it's OK to surface the gentle tip reminder on this launch.
+    /// False if: opted out, already tipped, products not loaded, still in the
+    /// 2-week grace after install, or fewer than 60 days since the last prompt.
+    var tipReminderEligible: Bool {
+        let d = UserDefaults.standard
+        guard !d.bool(forKey: tipNeverAskKey), !hasEverTipped,
+              !tipProducts.isEmpty, !isPurchasing else { return false }
+        let now = Date().timeIntervalSince1970
+        let firstSeen = d.double(forKey: tipInstallDateKey)
+        guard firstSeen > 0, now - firstSeen >= graceDays * 86400 else { return false }
+        let last = d.double(forKey: tipLastPromptKey)
+        return last == 0 ? true : (now - last >= betweenPromptDays * 86400)
+    }
+
+    /// Call when the reminder is shown, to reset the 60-day clock.
+    func recordTipPromptShown() {
+        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: tipLastPromptKey)
+    }
+
+    /// "Don't ask again" — permanently silences the reminder.
+    func stopTipReminders() {
+        UserDefaults.standard.set(true, forKey: tipNeverAskKey)
     }
 
     /// Kicks off the Apple purchase sheet for the ad-free upgrade.

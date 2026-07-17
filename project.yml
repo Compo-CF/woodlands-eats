@@ -46,7 +46,7 @@ targets:
       properties:
         CFBundleDisplayName: S-Tier Eats
         CFBundleShortVersionString: "2.1"
-        CFBundleVersion: "69"
+        CFBundleVersion: "70"
         CFBundleIconName: AppIcon
         # v2.1: register the stier:// custom URL scheme so friend-tier deep
         # links resolve even when Universal Links don't (the web 404 page's
