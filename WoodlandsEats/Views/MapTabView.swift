@@ -38,6 +38,8 @@ struct MapTabView: View {
     @State private var selected: Restaurant?
     /// v2.0 Feature 4: presents the "Top near me" discovery sheet.
     @State private var showNearMe = false
+    /// v2.2: presents the "Plan a Night Out" decision sheet.
+    @State private var showNightOut = false
 
     /// Build 38: persisted map style across launches.
     @AppStorage("WoodlandsEats.mapStyle") private var rawMapStyle: Int = MapStyle.standard.rawValue
@@ -105,6 +107,10 @@ struct MapTabView: View {
             .sheet(isPresented: $showNearMe) {
                 NearMeView()
             }
+            // v2.2: plan a night out.
+            .sheet(isPresented: $showNightOut) {
+                NightOutView()
+            }
             .sheet(isPresented: $showClusterSheet, onDismiss: {
                 // After the cluster sheet has fully dismissed, open the
                 // restaurant detail for whatever the user tapped (if any).
@@ -152,6 +158,15 @@ struct MapTabView: View {
                         }
                         .accessibilityLabel("Your rank: \(rank.displayName). Tap to open Profile.")
                     }
+                }
+                // v2.2: "Plan a Night Out" decision engine entry point.
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showNightOut = true
+                    } label: {
+                        Image(systemName: "sparkles")
+                    }
+                    .accessibilityLabel("Plan a night out")
                 }
                 // v2.0 Feature 4: "Top near me" discovery entry point.
                 ToolbarItem(placement: .topBarTrailing) {

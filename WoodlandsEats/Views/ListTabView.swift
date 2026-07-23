@@ -24,6 +24,9 @@ struct ListTabView: View {
         BrowseSortMode(rawValue: rawSortMode) ?? .nearby
     }
 
+    /// v2.2: presents the "Plan a Night Out" decision sheet.
+    @State private var showNightOut = false
+
     var body: some View {
         @Bindable var store = store
         NavigationStack {
@@ -78,6 +81,10 @@ struct ListTabView: View {
             }
             .navigationTitle("Browse")
             .navigationBarTitleDisplayMode(.inline)
+            // v2.2: plan a night out.
+            .sheet(isPresented: $showNightOut) {
+                NightOutView()
+            }
             .toolbar {
                 // v1.5: rank-icon shortcut to Profile. Hidden for
                 // zero-placement users (no rank yet).
@@ -98,6 +105,15 @@ struct ListTabView: View {
                         }
                         .accessibilityLabel("Your rank: \(rank.displayName). Tap to open Profile.")
                     }
+                }
+                // v2.2: "Plan a Night Out" decision engine entry point.
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showNightOut = true
+                    } label: {
+                        Image(systemName: "sparkles")
+                    }
+                    .accessibilityLabel("Plan a night out")
                 }
             }
         }
