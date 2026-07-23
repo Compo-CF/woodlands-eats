@@ -31,6 +31,15 @@ struct ListTabView: View {
         @Bindable var store = store
         NavigationStack {
             List {
+                // v2.2: prominent, colorful "Plan a Night Out" entry point
+                // pinned at the top of Browse so it's the first thing users
+                // see (the toolbar icon alone wasn't discoverable enough).
+                Section {
+                    NightOutCTA { showNightOut = true }
+                        .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
+                        .listRowSeparator(.hidden)
+                        .buttonStyle(.plain)
+                }
                 ForEach(sorted) { r in
                     NavigationLink(value: r) {
                         RestaurantRow(restaurant: r)

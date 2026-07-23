@@ -97,6 +97,13 @@ struct MapTabView: View {
                 // user owns the ad-free upgrade — reclaims the inset.
                 MaybeBannerAd()
             }
+            // v2.2: floating "Plan a Night Out" pill — the prominent,
+            // colorful entry point that drives users into the feature
+            // (the toolbar icon alone wasn't discoverable enough).
+            .overlay(alignment: .bottom) {
+                NightOutCTA(compact: true) { showNightOut = true }
+                    .padding(.bottom, 14)
+            }
             .sheet(item: $selected) { r in
                 NavigationStack {
                     RestaurantDetailView(restaurant: r)

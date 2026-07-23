@@ -50,6 +50,7 @@ struct NightOutView: View {
     var body: some View {
         NavigationStack {
             Form {
+                headerSection
                 sourceSection
                 cuisineSection
                 locationSection
@@ -79,6 +80,29 @@ struct NightOutView: View {
     }
 
     // MARK: - Sections
+
+    /// A colorful full-bleed banner header so the sheet reads as a
+    /// distinct, fun feature the moment it opens.
+    private var headerSection: some View {
+        Section {
+            VStack(spacing: 8) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 34, weight: .bold))
+                    .symbolRenderingMode(.hierarchical)
+                Text("Tonight's the night")
+                    .font(.title3.weight(.bold))
+                Text("Tell us the vibe — we'll pick the spot.")
+                    .font(.subheadline)
+                    .opacity(0.95)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 20)
+            .foregroundStyle(.white)
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(LinearGradient.nightOut)
+        }
+    }
 
     private var sourceSection: some View {
         Section {
@@ -196,7 +220,8 @@ struct NightOutView: View {
                 }
                 .padding(.vertical, 6)
             }
-            .listRowBackground(Tier.s.color)
+            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+            .listRowBackground(LinearGradient.nightOut)
             .foregroundStyle(.white)
             .disabled(isSearching || (useNearMe && store.userLocation == nil))
         }
@@ -423,7 +448,11 @@ private struct NightOutResultView: View {
         }
         .padding(20)
         .frame(maxWidth: .infinity)
-        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 22))
+        .background(hero.tier.color.opacity(0.12), in: RoundedRectangle(cornerRadius: 22))
+        .overlay(
+            RoundedRectangle(cornerRadius: 22)
+                .strokeBorder(hero.tier.color.opacity(0.35), lineWidth: 1.5)
+        )
     }
 
     private var alternatesBlock: some View {
@@ -574,6 +603,61 @@ struct NightOutPick: Identifiable {
     let miles: Double?
     let rankCount: Int?
     var id: UUID { restaurant.id }
+}
+
+// MARK: - Shared entry point + styling
+
+extension LinearGradient {
+    /// v2.2: the "night out" spectrum — the full S→F tier palette as a
+    /// gradient. Reads as "the tier list" and gives the feature a colorful,
+    /// unmistakable identity across its button, header, and CTA.
+    static var nightOut: LinearGradient {
+        LinearGradient(
+            colors: [Tier.s.color, Tier.a.color, Tier.b.color, Tier.c.color, Tier.f.color],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+}
+
+/// v2.2: the prominent, colorful entry point that drives users into Plan a
+/// Night Out. `compact` renders a pill (used as a floating Map overlay);
+/// otherwise a full-width card (used as the Browse list header).
+struct NightOutCTA: View {
+    var compact = false
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Image(systemName: "sparkles")
+                    .font(compact ? .subheadline.weight(.bold) : .title2.weight(.bold))
+                if compact {
+                    Text("Plan a Night Out")
+                        .font(.subheadline.weight(.bold))
+                } else {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Plan a Night Out")
+                            .font(.headline.weight(.bold))
+                        Text("Can't decide? Get tonight's pick.")
+                            .font(.caption)
+                            .opacity(0.95)
+                    }
+                    Spacer(minLength: 8)
+                    Image(systemName: "arrow.right.circle.fill")
+                        .font(.title2)
+                }
+            }
+            .foregroundStyle(.white)
+            .padding(.horizontal, compact ? 20 : 16)
+            .padding(.vertical, compact ? 12 : 15)
+            .frame(maxWidth: compact ? nil : .infinity)
+            .background(LinearGradient.nightOut,
+                        in: RoundedRectangle(cornerRadius: compact ? 26 : 16, style: .continuous))
+            .shadow(color: .black.opacity(0.22), radius: 8, y: 3)
+        }
+        .buttonStyle(.plain)
+    }
 }
 
 // MARK: - Chip cloud
