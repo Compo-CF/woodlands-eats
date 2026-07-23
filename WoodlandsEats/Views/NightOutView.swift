@@ -44,6 +44,9 @@ struct NightOutView: View {
     @State private var spinIndex = 0
     @State private var showResult = false
     @State private var hasSearched = false
+    /// Non-nil when a search can't proceed (empty source, or the crowd
+    /// fetch timed out) — shown instead of leaving the spinner hanging.
+    @State private var searchError: String?
 
     private let radiusOptions: [Double] = [2, 5, 10, 25]
 
@@ -57,7 +60,14 @@ struct NightOutView: View {
                 qualitySection
                 priceSection
                 findSection
-                if hasSearched && ranked.isEmpty && !isSearching {
+                if let searchError, !isSearching {
+                    Section {
+                        Label(searchError, systemImage: "exclamationmark.triangle")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                if hasSearched && ranked.isEmpty && !isSearching && searchError == nil {
                     relaxSection
                 }
             }
@@ -248,11 +258,42 @@ struct NightOutView: View {
 
     private func find() async {
         isSearching = true
+        searchError = nil
         defer { isSearching = false }
-        if source != .myTiers, loadedSource != source {
-            sourceTiers = await fetchTiers(for: source)
-            loadedSource = source
+
+        // Guard the sources that can't produce results, so the user gets a
+        // clear message instead of an empty spinner or dead-end.
+        if source == .myTiers, tierStore.placements.isEmpty {
+            ranked = []; hasSearched = true
+            searchError = "You haven't ranked any spots yet. Rank a few, or switch to Community."
+            return
         }
+        if source == .friends, friendsStore.friendIDs.isEmpty {
+            ranked = []; hasSearched = true
+            searchError = "You're not following anyone yet. Follow friends to use their rankings."
+            return
+        }
+
+        // Non-personal sources need CloudKit data. Render instantly from the
+        // launch-warmed cache when present, then bound the live refresh with
+        // a timeout so the spinner can NEVER hang (the old bug).
+        if source != .myTiers, loadedSource != source {
+            if let cached = Self.cachedTiers(for: source) {
+                sourceTiers = cached
+                loadedSource = source
+            }
+            let live = await fetchTiersWithTimeout(source)
+            if !live.isEmpty {
+                sourceTiers = live
+                loadedSource = source
+            } else if loadedSource != source {
+                // No cache AND the live fetch timed out / came back empty.
+                ranked = []; hasSearched = true
+                searchError = "Couldn't load \(source.longName) rankings — check your connection and try again."
+                return
+            }
+        }
+
         let results = makeRanked()
         ranked = results
         spinIndex = 0
@@ -267,6 +308,48 @@ struct NightOutView: View {
         case .pros:     return await cloudKit.fetchProCommunityTiers()
         case .friends:  return await cloudKit.fetchFriendsCommunityTiers(friendIDs: friendsStore.friendIDs)
         }
+    }
+
+    /// Runs the crowd-tier fetch against a wall-clock timeout. Whichever
+    /// finishes first wins; if the timeout fires first we return an empty
+    /// dictionary and the caller surfaces a retry message. This is what
+    /// guarantees the Find spinner can't hang on a slow/stalled CloudKit call.
+    private func fetchTiersWithTimeout(_ source: NightOutSource,
+                                       seconds: Double = 12) async -> [UUID: CommunityTier] {
+        await withTaskGroup(of: [UUID: CommunityTier]?.self) { group in
+            group.addTask { await fetchTiers(for: source) }
+            group.addTask {
+                try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+                return nil
+            }
+            let first = (await group.next()) ?? nil
+            group.cancelAll()
+            return first ?? [:]
+        }
+    }
+
+    /// Reads the community/pro tiers the Community tab already warms into
+    /// UserDefaults at launch (same key + shape), so Night Out renders
+    /// instantly on a warm cache instead of waiting on a fresh CloudKit walk.
+    private static func cachedTiers(for source: NightOutSource) -> [UUID: CommunityTier]? {
+        let suffix: String
+        switch source {
+        case .everyone: suffix = "everyone"
+        case .pros:     suffix = "pros"
+        default:        return nil   // friends board isn't cached
+        }
+        let key = "WoodlandsEats.communityCache.\(suffix)"
+        guard let data = UserDefaults.standard.data(forKey: key),
+              let cached = try? JSONDecoder().decode(CachedTiersDTO.self, from: data) else {
+            return nil
+        }
+        var out: [UUID: CommunityTier] = [:]
+        for e in cached.entries {
+            if let id = UUID(uuidString: e.restaurantID), let t = Tier(rawValue: e.tierRaw) {
+                out[id] = CommunityTier(tier: t, count: e.count, average: e.average)
+            }
+        }
+        return out.isEmpty ? nil : out
     }
 
     /// The matcher: filter by every input, score, sort best-first.
@@ -603,6 +686,20 @@ struct NightOutPick: Identifiable {
     let miles: Double?
     let rankCount: Int?
     var id: UUID { restaurant.id }
+}
+
+/// Decode-only mirror of CommunityTiersView's private cache payload
+/// (same UserDefaults key + field names), so Night Out can read the tiers
+/// the Community tab already warms at launch without refetching.
+private struct CachedTiersDTO: Codable {
+    let timestamp: Date
+    let entries: [Entry]
+    struct Entry: Codable {
+        let restaurantID: String
+        let tierRaw: String
+        let count: Int
+        let average: Double
+    }
 }
 
 // MARK: - Shared entry point + styling
