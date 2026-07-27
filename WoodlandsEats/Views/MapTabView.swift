@@ -86,6 +86,14 @@ struct MapTabView: View {
                     showClusterSheet = true
                 }
             )
+            // v2.2: floating "Plan a Night Out" pill. Attached to the map
+            // BEFORE the top safeAreaInset so it lives in the map's content
+            // region and floats just UNDER the region filter chips (not over
+            // them), while staying clear of the bottom banner ad.
+            .overlay(alignment: .top) {
+                NightOutCTA(compact: true) { showNightOut = true }
+                    .padding(.top, 10)
+            }
             .ignoresSafeArea(edges: .bottom)
             .safeAreaInset(edge: .top) {
                 FilterBar(filter: $store.filter)
@@ -96,14 +104,6 @@ struct MapTabView: View {
                 // v1.7 Feature D: MaybeBannerAd hides itself when the
                 // user owns the ad-free upgrade — reclaims the inset.
                 MaybeBannerAd()
-            }
-            // v2.2: floating "Plan a Night Out" pill — the prominent,
-            // colorful entry point that drives users into the feature.
-            // Pinned to the TOP (just under the region filter chips) so it
-            // never overlaps the bottom banner ad.
-            .overlay(alignment: .top) {
-                NightOutCTA(compact: true) { showNightOut = true }
-                    .padding(.top, 10)
             }
             .sheet(item: $selected) { r in
                 NavigationStack {
