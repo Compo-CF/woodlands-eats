@@ -704,19 +704,19 @@ private struct CachedTiersDTO: Codable {
 
 // MARK: - Shared entry point + styling
 
+extension Color {
+    /// v2.2: the single bold "night out" accent — a modern indigo-violet
+    /// (data-viz-era accent). Stands out on the Map/Browse without a
+    /// rainbow; drives the pill, header, and Find button.
+    static let nightOut = Color(red: 0.42, green: 0.36, blue: 0.96)
+}
+
 extension LinearGradient {
-    /// v2.2: the "night out" gradient — a bold two-tone pink→violet
-    /// (nightlife vibe). Stands out on the Map/Browse without reading as a
-    /// rainbow; one definition drives the pill, header, and Find button.
+    /// Flat fill exposed as a LinearGradient so existing call sites
+    /// (listRowBackground / background) stay unchanged.
     static var nightOut: LinearGradient {
-        LinearGradient(
-            colors: [
-                Color(red: 1.00, green: 0.31, blue: 0.48),   // vivid pink/rose
-                Color(red: 0.49, green: 0.30, blue: 1.00)    // vivid violet
-            ],
-            startPoint: .leading,
-            endPoint: .trailing
-        )
+        LinearGradient(colors: [.nightOut, .nightOut],
+                       startPoint: .leading, endPoint: .trailing)
     }
 }
 
