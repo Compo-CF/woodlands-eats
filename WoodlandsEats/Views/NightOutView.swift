@@ -746,7 +746,9 @@ struct NightOutCTA: View {
                 }
             }
             .foregroundStyle(.white)
-            .padding(.horizontal, compact ? 20 : 16)
+            // compact horizontal padding widened ~20% (20→42) so the Map
+            // pill reads as a deliberate, prominent button at the top.
+            .padding(.horizontal, compact ? 42 : 16)
             .padding(.vertical, compact ? 12 : 15)
             .frame(maxWidth: compact ? nil : .infinity)
             .background(LinearGradient.nightOut,

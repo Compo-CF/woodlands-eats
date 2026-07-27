@@ -98,11 +98,12 @@ struct MapTabView: View {
                 MaybeBannerAd()
             }
             // v2.2: floating "Plan a Night Out" pill — the prominent,
-            // colorful entry point that drives users into the feature
-            // (the toolbar icon alone wasn't discoverable enough).
-            .overlay(alignment: .bottom) {
+            // colorful entry point that drives users into the feature.
+            // Pinned to the TOP (just under the region filter chips) so it
+            // never overlaps the bottom banner ad.
+            .overlay(alignment: .top) {
                 NightOutCTA(compact: true) { showNightOut = true }
-                    .padding(.bottom, 14)
+                    .padding(.top, 10)
             }
             .sheet(item: $selected) { r in
                 NavigationStack {
