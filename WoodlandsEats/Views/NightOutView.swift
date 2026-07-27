@@ -705,14 +705,17 @@ private struct CachedTiersDTO: Codable {
 // MARK: - Shared entry point + styling
 
 extension LinearGradient {
-    /// v2.2: the "night out" spectrum — the full S→F tier palette as a
-    /// gradient. Reads as "the tier list" and gives the feature a colorful,
-    /// unmistakable identity across its button, header, and CTA.
+    /// v2.2: the "night out" gradient — a bold two-tone pink→violet
+    /// (nightlife vibe). Stands out on the Map/Browse without reading as a
+    /// rainbow; one definition drives the pill, header, and Find button.
     static var nightOut: LinearGradient {
         LinearGradient(
-            colors: [Tier.s.color, Tier.a.color, Tier.b.color, Tier.c.color, Tier.f.color],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            colors: [
+                Color(red: 1.00, green: 0.31, blue: 0.48),   // vivid pink/rose
+                Color(red: 0.49, green: 0.30, blue: 1.00)    // vivid violet
+            ],
+            startPoint: .leading,
+            endPoint: .trailing
         )
     }
 }
