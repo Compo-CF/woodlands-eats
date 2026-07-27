@@ -89,6 +89,14 @@ TEXT_QUERIES = [
     "new restaurants Tomball TX", "new restaurants Cypress TX",
     "new restaurants Kingwood TX", "new restaurants Humble TX",
 
+    # ─── v2.2 edge-ring expansion: Willis / Waller / Hockley / Porter /
+    #     New Caney ──────────────────────────────────────────────────────
+    "restaurants in Willis TX", "places to eat Willis TX",
+    "restaurants in Waller TX", "restaurants in Hockley TX",
+    "restaurants in Porter TX", "restaurants in New Caney TX",
+    "restaurants Valley Ranch New Caney TX", "restaurants Grand Parkway Porter TX",
+    "new restaurants Willis TX", "new restaurants Porter TX",
+
     # ─── shopping centers / districts / villages ───────────────────────
     "restaurants Market Street The Woodlands", "restaurants Hughes Landing The Woodlands",
     "restaurants Waterway Square The Woodlands", "restaurants Town Center The Woodlands",

@@ -30,20 +30,24 @@ enum ServiceArea {
     /// v1.8 expansion: pushed the southern and eastern edges out to add
     /// Tomball, Cypress, the Champions / FM 1960 corridor, and Kingwood /
     /// Humble. Must stay in lockstep with scripts/service_area.py.
+    /// v2.2 expansion: modest edge push to fill the suburban ring —
+    /// N up to Willis / N Conroe, W out toward Waller / Hockley, and small
+    /// S (Cypress/1960) and E (Kingwood/Porter) nudges. Must stay in
+    /// lockstep with scripts/service_area.py.
     static let polygon: [(lat: Double, lon: Double)] = [
-        (30.4181863, -95.8203585),   // NW — far west of Magnolia, NW of Montgomery
-        (30.1892862, -95.7824814),   // W — covers Magnolia downtown
-        (30.06, -95.78),             // W — NEW: NW of Cypress / Hockley edge
-        (29.90, -95.72),             // SW — NEW: Cypress south (290 corridor)
-        (29.90, -95.55),             // S — NEW: Willowbrook / Champions south
-        (29.93, -95.40),             // S — NEW: FM 1960 east of 45
-        (29.96, -95.25),             // SE — NEW: Humble south
-        (30.00, -95.14),             // E — NEW: Kingwood SE corner
-        (30.10, -95.14),             // E — NEW: Kingwood NE corner
-        (30.15, -95.25),             // NE inner — NEW: Porter edge
+        (30.50, -95.92),             // NW — Waller/Magnolia west, N of Montgomery
+        (30.19, -95.85),             // W — Magnolia west edge
+        (30.06, -95.85),             // W — Hockley / Waller edge
+        (29.85, -95.75),             // SW — Cypress south (290 corridor)
+        (29.85, -95.55),             // S — Willowbrook / Champions south
+        (29.90, -95.38),             // S — FM 1960 east of 45
+        (29.93, -95.22),             // SE — Humble south
+        (30.00, -95.08),             // E — Kingwood SE corner
+        (30.12, -95.08),             // E — Kingwood NE corner
+        (30.15, -95.25),             // NE inner — Porter edge
         (30.3198431, -95.3932651),   // NE
-        (30.4418687, -95.4420169),   // N mid — over Lake Conroe / NW Conroe
-        (30.443753, -95.5940047),    // N — top of Montgomery county reach
+        (30.52, -95.46),             // N mid — Willis / N Conroe
+        (30.52, -95.64),             // N — top of Montgomery county reach
     ]
 
     /// True if (lat, lon) is inside the service-area polygon.
