@@ -53,6 +53,12 @@ struct ContentView: View {
     @State private var deepLinkedRestaurant: Restaurant?
     /// v2.1: the occasional tip reminder (eligibility gated in PurchaseStore).
     @State private var showTipReminder = false
+    /// v2.2 (AdMob revenue): one-time App Tracking Transparency priming.
+    /// Shown once on a fresh install for ad-supported users, then triggers
+    /// the system ATT prompt so authorized users get higher-CPM
+    /// personalized ads.
+    @AppStorage("WoodlandsEats.hasPrimedTracking") private var hasPrimedTracking = false
+    @State private var showTrackingPrime = false
     var body: some View {
         @Bindable var tabRouter = tabRouter
         TabView(selection: $tabRouter.selectedTab) {
@@ -136,10 +142,19 @@ struct ContentView: View {
                 hasCleanedOrphans = true
             }
 
+            // v2.2: one-time ATT priming — ad-supported users only, fresh
+            // install only. Gated first so it wins the launch slot; the tip
+            // reminder never fires on first launch (14-day grace), so they
+            // can't collide.
+            if !hasPrimedTracking, !purchases.isAdFree {
+                showTrackingPrime = true
+            }
+
             // v2.1: gentle, infrequent tip reminder. All cadence/opt-out
             // logic lives in PurchaseStore; only fire if nothing else is
             // already on screen. Recording it here resets the 60-day clock.
-            if celebratingRank == nil, deepLinkedRestaurant == nil, purchases.tipReminderEligible {
+            if !showTrackingPrime, celebratingRank == nil, deepLinkedRestaurant == nil,
+               purchases.tipReminderEligible {
                 purchases.recordTipPromptShown()
                 showTipReminder = true
             }
@@ -178,6 +193,19 @@ struct ContentView: View {
             NavigationStack { RestaurantDetailView(restaurant: r) }
         }
         .sheet(isPresented: $showTipReminder) { TipReminderView() }
+        // v2.2 (AdMob revenue): priming alert shown once before the system
+        // ATT prompt. Either choice sets hasPrimedTracking so we never ask
+        // twice; "Continue" triggers the OS prompt (personalized ads if
+        // granted → higher eCPM), "Not now" keeps non-personalized.
+        .alert("Keep S-Tier Eats free", isPresented: $showTrackingPrime) {
+            Button("Continue") {
+                hasPrimedTracking = true
+                Task { await AdsService.shared.requestTrackingIfNeeded() }
+            }
+            Button("Not now", role: .cancel) { hasPrimedTracking = true }
+        } message: {
+            Text("S-Tier Eats is free and ad-supported. Allowing tracking lets us show more relevant ads, which helps keep the app free — you can decline and still use everything.")
+        }
         .onChange(of: tierStore.placements.count) { _, newCount in
             // Suppress all celebrations until launch sync settles —
             // otherwise restoreFromCloud's retroactive jump from 0 to

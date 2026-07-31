@@ -46,7 +46,7 @@ targets:
       properties:
         CFBundleDisplayName: S-Tier Eats
         CFBundleShortVersionString: "2.2"
-        CFBundleVersion: "79"
+        CFBundleVersion: "80"
         CFBundleIconName: AppIcon
         # v2.1: register the stier:// custom URL scheme so friend-tier deep
         # links resolve even when Universal Links don't (the web 404 page's
@@ -63,6 +63,10 @@ targets:
         UILaunchScreen:
           UIColorName: ""
         NSLocationWhenInUseUsageDescription: Used to show restaurants near you and sort by distance.
+        # v2.2 (AdMob revenue): App Tracking Transparency. Shown after an
+        # in-app priming step; granting it lets AdMob serve higher-CPM
+        # personalized ads, which helps keep the app free.
+        NSUserTrackingUsageDescription: Allow tracking to show more relevant ads, which helps keep S-Tier Eats free.
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         UIRequiredDeviceCapabilities:
