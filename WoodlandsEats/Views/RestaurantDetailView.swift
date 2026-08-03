@@ -67,7 +67,7 @@ struct RestaurantDetailView: View {
                 header
                 rateSection
                 communitySection
-                communityNotesSection
+                reviewsSection
                 photosSection
                 if !restaurant.signatureDishes.isEmpty { dishesSection }
                 aboutSection
@@ -421,32 +421,33 @@ struct RestaurantDetailView: View {
     @ViewBuilder
     private var noteEditor: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Why this tier?")
+            Text("Your review")
                 .font(.subheadline.weight(.semibold))
-            Text("Add a one-line note. Shared with the community.")
+            Text("A line or two on why — shared with the community.")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
-            TextField("e.g. Best brisket in the county", text: $myNote, axis: .vertical)
-                .lineLimit(1...3)
+            TextField("e.g. Best brisket in the county — get there before noon", text: $myNote, axis: .vertical)
+                .lineLimit(1...4)
                 .textFieldStyle(.roundedBorder)
                 .onChange(of: myNote) { _, new in
-                    // Soft cap; keeps notes to a line and bounds moderation load.
-                    if new.count > 140 { myNote = String(new.prefix(140)) }
+                    // v2.4: soft cap raised 140 -> 280 so a "review" can be a
+                    // sentence or two, while still bounding moderation load.
+                    if new.count > 280 { myNote = String(new.prefix(280)) }
                 }
             HStack {
-                Text("\(140 - myNote.count) left")
+                Text("\(280 - myNote.count) left")
                     .font(.caption2.monospacedDigit())
                     .foregroundStyle(.tertiary)
                 Spacer()
                 if savingNote {
                     ProgressView()
                 } else if noteDirty {
-                    Button("Save note") { Task { await saveNote() } }
+                    Button("Post review") { Task { await saveNote() } }
                         .font(.subheadline.weight(.semibold))
                         .buttonStyle(.borderedProminent)
                         .controlSize(.small)
                 } else if !savedNote.isEmpty {
-                    Label("Saved", systemImage: "checkmark.circle.fill")
+                    Label("Posted", systemImage: "checkmark.circle.fill")
                         .font(.caption)
                         .foregroundStyle(.green)
                 }
@@ -454,14 +455,30 @@ struct RestaurantDetailView: View {
         }
     }
 
-    /// Community notes from other rankers (the viewer's own is in the editor).
+    /// v2.4: Reviews — promoted from the old conditional "What people say"
+    /// block into an always-present, titled section with a self-seeding
+    /// empty state. A review is tier-anchored (the tier is the rating, the
+    /// text is the review); the viewer's own is composed in the tier card.
+    /// Only rendered after the fetch settles so the header doesn't flash.
     @ViewBuilder
-    private var communityNotesSection: some View {
-        if !communityNotes.isEmpty {
+    private var reviewsSection: some View {
+        if notesLoaded {
             VStack(alignment: .leading, spacing: 10) {
-                Text("What people say")
+                Text(communityNotes.isEmpty ? "Reviews" : "Reviews (\(communityNotes.count))")
                     .font(.headline)
-                ForEach(communityNotes) { note in
+                if communityNotes.isEmpty {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Be the first to review \(restaurant.name).")
+                            .font(.subheadline.weight(.medium))
+                        Text("Rank it above, then add a line on why.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+                    .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 12))
+                } else {
+                    ForEach(communityNotes) { note in
                     HStack(alignment: .top, spacing: 10) {
                         if let t = note.tier {
                             TierBadge(tier: t, size: 28)
@@ -477,7 +494,7 @@ struct RestaurantDetailView: View {
                     .padding(10)
                     .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 12))
                     .contextMenu {
-                        Button("Report note", systemImage: "flag", role: .destructive) {
+                        Button("Report review", systemImage: "flag", role: .destructive) {
                             Task { await reportNote(note) }
                         }
                         if note.authorUserID != nil {
@@ -486,10 +503,11 @@ struct RestaurantDetailView: View {
                             }
                         }
                     }
+                    }
+                    Text("Long-press a review to report it or block the author.")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
                 }
-                Text("Long-press a note to report it or block the author.")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
             }
         }
     }
