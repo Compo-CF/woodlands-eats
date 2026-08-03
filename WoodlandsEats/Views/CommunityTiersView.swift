@@ -93,6 +93,11 @@ struct CommunityTiersView: View {
                 // v2.1: Friend Activity feed — only meaningful on the
                 // Friends board, so it's scoped to that mode.
                 if mode == .friends {
+                    // v2.2: invite-a-friend (referral loop) on the Friends board.
+                    ToolbarItem(placement: .topBarTrailing) {
+                        InviteFriendButton(prominent: false)
+                            .labelStyle(.iconOnly)
+                    }
                     ToolbarItem(placement: .topBarTrailing) {
                         Button { showFriendActivity = true } label: {
                             Image(systemName: "clock.arrow.circlepath")
@@ -285,8 +290,11 @@ struct CommunityTiersView: View {
                       systemImage: "person.2")
             } description: {
                 Text(friendsStore.friends.isEmpty
-                     ? "Follow people to see a tier list built only from those you trust. Open a friend's shared tier list and tap Follow, then come back here."
+                     ? "Follow people to see a tier list built only from those you trust. Invite a friend below — when they open your link and tap Follow, they'll show up here."
                      : "The people you follow haven't ranked anything yet. Their consensus will appear here as they do.")
+            } actions: {
+                InviteFriendButton()
+                    .padding(.horizontal, 40)
             }
         case .pros:
             ContentUnavailableView {

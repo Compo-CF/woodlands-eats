@@ -71,6 +71,12 @@ struct FriendCompareView: View {
                                     .buttonStyle(.plain)
                             }
                         }
+                        // v2.2: referral loop — invite more friends to compare.
+                        Section {
+                            InviteFriendButton()
+                                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                                .listRowBackground(Color.clear)
+                        }
                     }
                 }
             }

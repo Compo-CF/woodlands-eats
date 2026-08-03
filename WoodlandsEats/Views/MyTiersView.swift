@@ -56,6 +56,23 @@ struct MyTiersView: View {
                 } else {
                     ScrollView {
                         VStack(spacing: 12) {
+                            // v2.2: prominent share + invite CTAs (was toolbar-
+                            // icon only). Sharing tier lists / inviting friends
+                            // are the app's App-Referrer growth loop, so they
+                            // get visible buttons, not a buried menu.
+                            VStack(spacing: 10) {
+                                Menu { shareMenuContent } label: {
+                                    Label("Share my tier list", systemImage: "square.and.arrow.up")
+                                        .font(.headline)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 8)
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .tint(Color.nightOut)
+                                InviteFriendButton()
+                            }
+                            .padding(.bottom, 4)
+
                             ForEach(Tier.allCases) { tier in
                                 TierRow(
                                     tier: tier,
@@ -100,31 +117,37 @@ struct MyTiersView: View {
     private var shareToolbar: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             if tierStore.rankedCount > 0 {
-                Menu {
-                    if let image = shareImage {
-                        ShareLink(
-                            item: ShareableTierImage(uiImage: image),
-                            preview: SharePreview(
-                                "My S-Tier Eats Tier List",
-                                image: Image(uiImage: image)
-                            )
-                        ) {
-                            Label("Share as image", systemImage: "photo")
-                        }
-                    }
-                    if !cachedUserID.isEmpty,
-                       let url = URL(string: "https://compo-cf.github.io/woodlands-eats/tier/\(cachedUserID)") {
-                        ShareLink(
-                            item: url,
-                            subject: Text("My S-Tier Eats Tier List"),
-                            message: Text("Check out my Woodlands restaurant tier list:")
-                        ) {
-                            Label("Share friend link", systemImage: "link")
-                        }
-                    }
-                } label: {
+                Menu { shareMenuContent } label: {
                     Image(systemName: "square.and.arrow.up")
                 }
+            }
+        }
+    }
+
+    /// The share options, shared by the toolbar menu and the prominent
+    /// top-of-list button: share the rendered card image, and (if we have
+    /// the user's ID) share the friend link.
+    @ViewBuilder
+    private var shareMenuContent: some View {
+        if let image = shareImage {
+            ShareLink(
+                item: ShareableTierImage(uiImage: image),
+                preview: SharePreview(
+                    "My S-Tier Eats Tier List",
+                    image: Image(uiImage: image)
+                )
+            ) {
+                Label("Share as image", systemImage: "photo")
+            }
+        }
+        if !cachedUserID.isEmpty,
+           let url = URL(string: "https://compo-cf.github.io/woodlands-eats/tier/\(cachedUserID)") {
+            ShareLink(
+                item: url,
+                subject: Text("My S-Tier Eats Tier List"),
+                message: Text("Check out my Woodlands restaurant tier list:")
+            ) {
+                Label("Share friend link", systemImage: "link")
             }
         }
     }

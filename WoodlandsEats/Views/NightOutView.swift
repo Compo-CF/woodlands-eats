@@ -431,8 +431,11 @@ private struct NightOutResultView: View {
     let useNearMe: Bool
 
     @Environment(CloudKitService.self) private var cloudKit
+    @Environment(\.displayScale) private var displayScale
     @State private var heroNote: String?
     @State private var selected: Restaurant?
+    /// v2.2: rendered "Tonight's Pick" share card (growth hook).
+    @State private var shareImage: UIImage?
 
     private var hero: NightOutPick { ranked[spinIndex % max(ranked.count, 1)] }
     private var alternates: [NightOutPick] {
@@ -525,9 +528,28 @@ private struct NightOutResultView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(Tier.s.color)
+                .tint(Color.nightOut)
             }
             .padding(.top, 4)
+
+            // v2.2: prominent share CTA — turns tonight's pick into a
+            // shareable image (App-Referrer growth hook).
+            if let shareImage {
+                ShareLink(
+                    item: NightOutShareImage(uiImage: shareImage),
+                    subject: Text("Tonight's Pick"),
+                    message: Text("Tonight's pick from S-Tier Eats: \(hero.restaurant.name). Can't decide where to eat? apps.apple.com/app/id6773501518"),
+                    preview: SharePreview("Tonight's Pick — \(hero.restaurant.name)",
+                                          image: Image(uiImage: shareImage))
+                ) {
+                    Label("Share tonight's pick", systemImage: "square.and.arrow.up")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color.nightOut)
+            }
         }
         .padding(20)
         .frame(maxWidth: .infinity)
@@ -588,6 +610,7 @@ private struct NightOutResultView: View {
 
     private func loadNote() async {
         heroNote = nil
+        renderShareImage(note: nil)   // render immediately so Share is ready
         let note: String?
         if source == .myTiers {
             note = await cloudKit.fetchMyNote(restaurantID: hero.restaurant.id)
@@ -595,6 +618,15 @@ private struct NightOutResultView: View {
             note = await cloudKit.fetchCommunityNotes(restaurantID: hero.restaurant.id).first?.text
         }
         heroNote = note
+        renderShareImage(note: note)  // re-render with the "why" once loaded
+    }
+
+    /// Render the off-screen "Tonight's Pick" card to a UIImage for ShareLink.
+    @MainActor
+    private func renderShareImage(note: String?) {
+        let renderer = ImageRenderer(content: NightOutShareCard(pick: hero, note: note))
+        renderer.scale = displayScale
+        shareImage = renderer.uiImage
     }
 
     private func openDirections(to r: Restaurant) {
