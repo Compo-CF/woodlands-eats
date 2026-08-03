@@ -504,6 +504,10 @@ EXACT_NAME_DENY = {
     # Seventh pass — independent-probe escapees:
     "hospitality pro search",             # recruiting firm
     "celebranding hospitality",           # branding/events company
+    # v2.2 — entertainment venues with no real dining (Topgolf / arcade-
+    # eateries are kept; these two are pure golf/mini-golf).
+    "longview greens miniature golfing",
+    "fieldhouse golf simulator",
 }
 
 # Exception: legitimate restaurants whose names happen to contain a denylist
@@ -529,6 +533,14 @@ RESTAURANT_WORDS = re.compile(
 )
 
 
+# v2.2: adult / cannabis / illicit terms — unconditional drop (see should_drop).
+ADULT_DENY = re.compile(
+    r"\b(cannabis|dispensar(y|ies)|marijuana|weed shop|cbd|smoke shop|"
+    r"vape|strip club|adult (store|video|novelt)|xxx|porn|tits|escort)\b",
+    re.IGNORECASE,
+)
+
+
 def normalize(s):
     """Strip diacritics for matching: 'Café' / 'Cafè' / 'CAFÉ' all → 'Cafe'.
     Owner-typed restaurant names occasionally use the wrong accent variant
@@ -543,7 +555,15 @@ def should_drop(name):
     """Return (drop, category) for an entry name."""
     normalized = normalize(name)
     name_lower = normalized.lower()
-    # Exact-name denylist runs first. These are unambiguous — no
+    # v2.2: unconditional drop for adult / cannabis / illicit content.
+    # These are never appropriate in a family-rated (4+) restaurant catalog,
+    # and — unlike the pattern rules below — NO RESTAURANT_WORDS exception
+    # should ever save them (a "cannabis cafe" still drops). Runs before the
+    # exact-name list so a single joke/spam Google Places entry like
+    # "Tits out Cannabis dot com" can't reach the map.
+    if ADULT_DENY.search(name_lower):
+        return (True, "adult/illicit")
+    # Exact-name denylist runs next. These are unambiguous — no
     # RESTAURANT_WORDS exception (the names already don't contain food
     # words; that's why we have to list them out).
     if name_lower.strip() in EXACT_NAME_DENY:

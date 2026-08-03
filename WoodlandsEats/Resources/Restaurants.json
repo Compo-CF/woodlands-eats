@@ -10816,21 +10816,6 @@
       "signatureDishes": []
     },
     {
-      "id": "f2335bd4-c79c-5f82-b2b9-e89d62f09f4c",
-      "name": "Tits out Cannabis dot com",
-      "latitude": 29.9641,
-      "longitude": -95.46398,
-      "area": "champions",
-      "address": "2833 Spears Rd Ste B, Houston, TX 77067, USA",
-      "cuisines": ["dessert", "cafeBakery"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": null,
-      "description": "Sourced from Google Places (champions).",
-      "signatureDishes": []
-    },
-    {
       "id": "85369ec7-ef6c-5e2e-a57c-0c1dace82f11",
       "name": "Tony's New York Pizza",
       "latitude": 29.92564,
@@ -44476,21 +44461,6 @@
       "signatureDishes": []
     },
     {
-      "id": "01b5f297-a09e-5ee1-b966-429c672d8b49",
-      "name": "Longview Greens Miniature Golfing",
-      "latitude": 30.39142,
-      "longitude": -95.68853,
-      "area": "montgomery",
-      "address": "735 Clepper Dr, Montgomery, TX 77356, USA",
-      "cuisines": ["dessert"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.longviewgreens.com/",
-      "phone": "(936) 242-0604",
-      "description": "Sourced from Google Places (montgomery).",
-      "signatureDishes": []
-    },
-    {
       "id": "f64c0b93-27ca-554e-832e-5a24ddb0a54b",
       "name": "Los 3 Mexicanos Mexican Bar & Grill",
       "latitude": 30.43204,
@@ -56232,21 +56202,6 @@
       "isFastFood": false,
       "website": null,
       "phone": "(832) 983-9075",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
-      "id": "cb0f619a-9043-5db3-be04-986709cf439b",
-      "name": "Fieldhouse Golf Simulator",
-      "latitude": 30.10496,
-      "longitude": -95.40045,
-      "area": "spring",
-      "address": "2007 Riley Fuzzel Rd, Spring, TX 77386, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://communityfieldhouse.com/sports/",
-      "phone": "(346) 340-4417",
       "description": "Sourced from Google Places (spring).",
       "signatureDishes": []
     },
