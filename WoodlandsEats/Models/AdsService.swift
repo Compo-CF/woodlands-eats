@@ -1,17 +1,13 @@
 import Foundation
 import GoogleMobileAds
-import AppTrackingTransparency
 
 /// Centralized AdMob lifecycle.
 ///
-/// Initialize once on app launch.
-///
-/// v2.2 (AdMob revenue): ad requests now follow App Tracking Transparency.
-/// `adRequest()` returns a PERSONALIZED request when the user has granted
-/// tracking (higher eCPM), and falls back to the non-personalized (NPA)
-/// request otherwise. The ATT system prompt is triggered once, after a
-/// short in-app priming step (see TrackingPrimingView / ContentView), so we
-/// only pay the "explain why" cost when it can actually lift revenue.
+/// Initialize once on app launch. Every ad request is non-personalized
+/// (NPA=1) — the app does NOT track users, so there's no ATT prompt and no
+/// IDFA use. (v2.2 briefly added ATT/personalized ads; removed after App
+/// Review 2.1 flagged the prompt and the personalized-ads upside was
+/// negligible at this volume. The privacy label declares no tracking.)
 ///
 /// Test IDs (publishable, no AdMob account required during development):
 ///   App ID:        ca-app-pub-3940256099942544~1458002511   (Info.plist)
@@ -25,35 +21,17 @@ final class AdsService {
         GADMobileAds.sharedInstance().start(completionHandler: nil)
     }
 
-    /// The request to use for every ad load. Personalized when ATT is
-    /// authorized (Google can use the IDFA for user-level targeting →
-    /// higher CPM); non-personalized in every other state (denied,
-    /// restricted, or not-yet-determined).
-    func adRequest() -> GADRequest {
-        if ATTrackingManager.trackingAuthorizationStatus == .authorized {
-            return GADRequest()   // personalized
-        }
-        return nonPersonalizedRequest()
-    }
+    /// The request to use for every ad load — always non-personalized.
+    func adRequest() -> GADRequest { nonPersonalizedRequest() }
 
-    /// Build a request flagged as non-personalized (NPA=1). The SDK still
-    /// shows ads, but Google's targeting falls back to contextual signals
-    /// rather than user-level tracking — no IDFA.
+    /// Build a request flagged as non-personalized (NPA=1). Ads still show,
+    /// but Google's targeting uses contextual signals only — no IDFA, no
+    /// ATT prompt, no tracking.
     func nonPersonalizedRequest() -> GADRequest {
         let extras = GADExtras()
         extras.additionalParameters = ["npa": "1"]
         let request = GADRequest()
         request.register(extras)
         return request
-    }
-
-    /// Present the system ATT prompt if the user hasn't answered yet. Call
-    /// this AFTER the in-app priming screen so the user understands the ask.
-    /// The OS shows the prompt at most once per install; subsequent calls
-    /// no-op and just return the stored status.
-    @MainActor
-    func requestTrackingIfNeeded() async {
-        guard ATTrackingManager.trackingAuthorizationStatus == .notDetermined else { return }
-        _ = await ATTrackingManager.requestTrackingAuthorization()
     }
 }
