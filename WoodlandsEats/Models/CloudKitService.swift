@@ -116,6 +116,11 @@ final class CloudKitService {
     /// The reported note lives inside the Placement record (`note` field), so
     /// the report stores the owning placement's recordName as `placementName`.
     private let noteReportType = "NoteReport"
+    /// v2.4: community dietary/needs tags. One record per (user, restaurant,
+    /// tag) so confirmations dedupe + count. recordName
+    /// `diet_<user>_<restaurant>_<tag>`. Fields: restaurantID (queryable),
+    /// tag, userID.
+    private let dietaryTagType = "DietaryTag"
     /// v1.3: per-user "I've been here" list. Single record per user with
     /// the whole restaurant-id set as an array — chosen over per-restaurant
     /// records because the data is purely personal (no community
@@ -218,6 +223,65 @@ final class CloudKitService {
             saving: [],
             deleting: [placementRecordID(user: user, restaurant: restaurantID)],
             savePolicy: .allKeys)
+    }
+
+    // MARK: - Dietary tags (v2.4)
+
+    private func dietaryTagRecordID(user: String, restaurant: UUID, tag: String) -> CKRecord.ID {
+        CKRecord.ID(recordName: "diet_\(user)_\(restaurant.uuidString)_\(tag)")
+    }
+
+    /// Add or remove this user's confirmation of a dietary tag for a
+    /// restaurant. `tag` is the DietaryTag raw value.
+    func setDietaryTag(restaurantID: UUID, tag: String, on: Bool) async {
+        guard isAvailable, let user = await userRecordName() else { return }
+        let id = dietaryTagRecordID(user: user, restaurant: restaurantID, tag: tag)
+        if on {
+            let record = (try? await publicDB.record(for: id))
+                ?? CKRecord(recordType: dietaryTagType, recordID: id)
+            record["restaurantID"] = restaurantID.uuidString as CKRecordValue
+            record["tag"] = tag as CKRecordValue
+            record["userID"] = user as CKRecordValue
+            _ = try? await publicDB.modifyRecords(saving: [record], deleting: [], savePolicy: .allKeys)
+        } else {
+            _ = try? await publicDB.modifyRecords(saving: [], deleting: [id], savePolicy: .allKeys)
+        }
+    }
+
+    /// Community dietary tags for a restaurant: count per tag, plus the set
+    /// of tags the current user has personally confirmed. Both keyed by the
+    /// DietaryTag raw value. Returns empties on any failure path.
+    func fetchDietaryTags(restaurantID: UUID) async -> (counts: [String: Int], mine: Set<String>) {
+        guard isAvailable else { return ([:], []) }
+        let me = await userRecordName()
+        var counts: [String: Int] = [:]
+        var mine: Set<String> = []
+        let keys = ["tag", "userID"]
+        let pred = NSPredicate(format: "restaurantID == %@", restaurantID.uuidString)
+        let query = CKQuery(recordType: dietaryTagType, predicate: pred)
+
+        func accumulate(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+            for (_, result) in matches {
+                guard case .success(let rec) = result,
+                      let tag = rec["tag"] as? String else { continue }
+                counts[tag, default: 0] += 1
+                if let uid = rec["userID"] as? String, uid == me { mine.insert(tag) }
+            }
+        }
+
+        do {
+            var (matches, cursor) = try await publicDB.records(
+                matching: query, desiredKeys: keys, resultsLimit: 200)
+            accumulate(matches)
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(
+                    continuingMatchFrom: c, desiredKeys: keys, resultsLimit: 200)
+                accumulate(matches)
+            }
+        } catch {
+            return ([:], [])
+        }
+        return (counts, mine)
     }
 
     /// Fetch all of this user's tier placements from CloudKit.

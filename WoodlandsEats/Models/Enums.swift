@@ -99,6 +99,28 @@ enum Cuisine: String, Codable, CaseIterable, Identifiable {
     }
 }
 
+/// v2.4: community-confirmed dietary / needs tags for a restaurant. Google
+/// Places has no allergen/gluten-free/kosher data, so these are crowdsourced
+/// — each user can confirm a tag, and the count shows community agreement.
+/// (Dog-friendly patio is data-sourced from Google separately, not here.)
+enum DietaryTag: String, CaseIterable, Identifiable {
+    case glutenFree, vegetarian, vegan, allergyAware, halal, kidFriendly, kosher
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .glutenFree: "Gluten-free"
+        case .vegetarian: "Vegetarian"
+        case .vegan: "Vegan"
+        case .allergyAware: "Allergy-aware"
+        case .halal: "Halal"
+        case .kidFriendly: "Kid-friendly"
+        case .kosher: "Kosher"
+        }
+    }
+}
+
 /// The crowdsourced ranking primitive: an S/A/B/C/F tier list.
 /// No star ratings — you place each spot in a tier, and (Phase 1) the
 /// community average surfaces a consensus tier per restaurant.

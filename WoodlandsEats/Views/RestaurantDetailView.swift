@@ -32,6 +32,12 @@ struct RestaurantDetailView: View {
     @State private var communityNotes: [CommunityNote] = []
     @State private var notesLoaded = false
     @State private var reportingNoteName: String?
+    // v2.4: community dietary tags — counts + the viewer's own confirmations,
+    // keyed by DietaryTag raw value.
+    @State private var dietaryCounts: [String: Int] = [:]
+    @State private var myDietary: Set<String> = []
+    @State private var dietaryLoaded = false
+    @State private var togglingTag: String?
 
     private var noteDirty: Bool {
         myNote.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -68,6 +74,7 @@ struct RestaurantDetailView: View {
                 rateSection
                 communitySection
                 reviewsSection
+                dietarySection
                 photosSection
                 if !restaurant.signatureDishes.isEmpty { dishesSection }
                 aboutSection
@@ -107,6 +114,11 @@ struct RestaurantDetailView: View {
                 restaurantID: restaurant.id,
                 blockedUserIDs: blockList.blocked)
             notesLoaded = true
+            // v2.4: community dietary tags.
+            let diet = await cloudKit.fetchDietaryTags(restaurantID: restaurant.id)
+            dietaryCounts = diet.counts
+            myDietary = diet.mine
+            dietaryLoaded = true
         }
         .onChange(of: pickerItems) { _, items in
             guard !items.isEmpty else { return }
@@ -510,6 +522,84 @@ struct RestaurantDetailView: View {
                 }
             }
         }
+    }
+
+    // MARK: - Dietary tags (v2.4)
+
+    /// Community-confirmed dietary / needs tags. Green chip = you've
+    /// confirmed it; the count shows how many neighbors agree. Google has
+    /// no allergen/GF/kosher data, so this is fully crowdsourced.
+    @ViewBuilder
+    private var dietarySection: some View {
+        if dietaryLoaded {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("Dietary & needs").font(.headline)
+                    Spacer()
+                    Text("tap to confirm")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                }
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(DietaryTag.allCases) { tag in
+                            dietaryChip(tag)
+                        }
+                    }
+                    .padding(.horizontal, 1)
+                }
+                Text("Community-sourced. Tap to add your confirmation.")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+        }
+    }
+
+    private func dietaryChip(_ tag: DietaryTag) -> some View {
+        let key = tag.rawValue
+        let count = dietaryCounts[key] ?? 0
+        let mine = myDietary.contains(key)
+        return Button {
+            Task { await toggleDietary(tag) }
+        } label: {
+            HStack(spacing: 5) {
+                if mine {
+                    Image(systemName: "checkmark").font(.caption2.weight(.bold))
+                }
+                Text(tag.displayName)
+                if count > 0 {
+                    Text("\(count)")
+                        .foregroundStyle(mine ? .white.opacity(0.85) : .secondary)
+                }
+                if togglingTag == key {
+                    ProgressView().controlSize(.mini)
+                }
+            }
+            .font(.subheadline)
+            .fontWeight(mine ? .semibold : .regular)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(mine ? Color.green : Color(.secondarySystemBackground), in: Capsule())
+            .foregroundStyle(mine ? .white : .primary)
+        }
+        .buttonStyle(.plain)
+        .disabled(togglingTag != nil)
+    }
+
+    /// Optimistically flip the viewer's confirmation, then persist to CloudKit.
+    private func toggleDietary(_ tag: DietaryTag) async {
+        let key = tag.rawValue
+        let turningOn = !myDietary.contains(key)
+        togglingTag = key
+        defer { togglingTag = nil }
+        if turningOn {
+            myDietary.insert(key)
+            dietaryCounts[key] = (dietaryCounts[key] ?? 0) + 1
+        } else {
+            myDietary.remove(key)
+            dietaryCounts[key] = max(0, (dietaryCounts[key] ?? 1) - 1)
+        }
+        await cloudKit.setDietaryTag(restaurantID: restaurant.id, tag: key, on: turningOn)
     }
 
     @ViewBuilder
