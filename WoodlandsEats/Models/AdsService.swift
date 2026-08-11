@@ -9,6 +9,10 @@ import GoogleMobileAds
 /// Review 2.1 flagged the prompt and the personalized-ads upside was
 /// negligible at this volume. The privacy label declares no tracking.)
 ///
+/// Ad content is also capped to `.general` (see start()) — without it,
+/// AdMob's default targeting can serve adult/dating/suggestive creative
+/// with no relation to a food/restaurant app.
+///
 /// Test IDs (publishable, no AdMob account required during development):
 ///   App ID:        ca-app-pub-3940256099942544~1458002511   (Info.plist)
 ///   Banner unit:   ca-app-pub-3940256099942544/2934735716   (BannerAdView)
@@ -18,6 +22,9 @@ final class AdsService {
 
     /// Boot the Google Mobile Ads SDK. Safe to call on the main thread.
     func start() {
+        // Must be set before start() — applies to every ad request for the
+        // lifetime of the process, banner or otherwise.
+        GADMobileAds.sharedInstance().requestConfiguration.maxAdContentRating = .general
         GADMobileAds.sharedInstance().start(completionHandler: nil)
     }
 
