@@ -167,15 +167,19 @@ final class FirebaseService {
 
     // MARK: - Profiles (Foodie Pro request identity)
 
-    func saveProfile(displayName: String, status: String) async {
+    /// `status` is optional: nil means "leave the existing status untouched"
+    /// (used when CloudKit is unavailable so we can't read the current value —
+    /// avoids downgrading an already-approved pro back to "" on a name edit).
+    func saveProfile(displayName: String, status: String?) async {
         guard let userID else { return }
+        var data: [String: Any] = [
+            "userID": userID,
+            "displayName": displayName,
+            "updatedAt": FieldValue.serverTimestamp(),
+        ]
+        if let status { data["status"] = status }   // "" | "requested" | "approved"
         await tryWrite("saveProfile") {
-            try await self.db.collection("profiles").document(userID).setData([
-                "userID": userID,
-                "displayName": displayName,
-                "status": status,                    // "" | "requested" | "approved"
-                "updatedAt": FieldValue.serverTimestamp(),
-            ], merge: true)
+            try await self.db.collection("profiles").document(userID).setData(data, merge: true)
         }
     }
 

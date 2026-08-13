@@ -190,6 +190,11 @@ final class CloudKitService {
     /// string clears it); when nil the existing note is left untouched.
     /// The extra fetch is one record(for:) by known ID — cheap.
     func savePlacement(restaurantID: UUID, tier: Tier, note: String? = nil) async {
+        // Android migration: the Firestore mirror fires INDEPENDENTLY of
+        // CloudKit availability. Firestore is the cross-platform store keyed by
+        // its own anon UID — an Android or no-iCloud user has no CloudKit, but
+        // their writes must still land. (This is why it's above the guard.)
+        Task { await FirebaseService.shared.savePlacement(restaurantID: restaurantID, tier: tier, note: note) }
         guard isAvailable, let user = await userRecordName() else { return }
         let id = placementRecordID(user: user, restaurant: restaurantID)
         let record = (try? await publicDB.record(for: id))
@@ -202,13 +207,12 @@ final class CloudKitService {
             record["note"] = trimmed.isEmpty ? nil : (trimmed as CKRecordValue)
         }
         _ = try? await publicDB.modifyRecords(saving: [record], deleting: [], savePolicy: .allKeys)
-        // Android migration: mirror to Firestore (fire-and-forget).
-        Task { await FirebaseService.shared.savePlacement(restaurantID: restaurantID, tier: tier, note: note) }
     }
 
     /// v2.0 Feature 2: set/clear ONLY the note on the user's existing
     /// placement (used by the "add a note" field once a tier is set).
     func saveMyNote(restaurantID: UUID, note: String) async {
+        Task { await FirebaseService.shared.saveNote(restaurantID: restaurantID, note: note) }
         guard isAvailable, let user = await userRecordName() else { return }
         let id = placementRecordID(user: user, restaurant: restaurantID)
         // No-op if the user hasn't placed this restaurant yet (a note
@@ -217,16 +221,15 @@ final class CloudKitService {
         let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
         record["note"] = trimmed.isEmpty ? nil : (trimmed as CKRecordValue)
         _ = try? await publicDB.modifyRecords(saving: [record], deleting: [], savePolicy: .allKeys)
-        Task { await FirebaseService.shared.saveNote(restaurantID: restaurantID, note: note) }
     }
 
     func removePlacement(restaurantID: UUID) async {
+        Task { await FirebaseService.shared.removePlacement(restaurantID: restaurantID) }
         guard isAvailable, let user = await userRecordName() else { return }
         _ = try? await publicDB.modifyRecords(
             saving: [],
             deleting: [placementRecordID(user: user, restaurant: restaurantID)],
             savePolicy: .allKeys)
-        Task { await FirebaseService.shared.removePlacement(restaurantID: restaurantID) }
     }
 
     // MARK: - Dietary tags (v2.4)
@@ -238,6 +241,7 @@ final class CloudKitService {
     /// Add or remove this user's confirmation of a dietary tag for a
     /// restaurant. `tag` is the DietaryTag raw value.
     func setDietaryTag(restaurantID: UUID, tag: String, on: Bool) async {
+        Task { await FirebaseService.shared.setDietaryTag(restaurantID: restaurantID, tag: tag, on: on) }
         guard isAvailable, let user = await userRecordName() else { return }
         let id = dietaryTagRecordID(user: user, restaurant: restaurantID, tag: tag)
         if on {
@@ -250,7 +254,6 @@ final class CloudKitService {
         } else {
             _ = try? await publicDB.modifyRecords(saving: [], deleting: [id], savePolicy: .allKeys)
         }
-        Task { await FirebaseService.shared.setDietaryTag(restaurantID: restaurantID, tag: tag, on: on) }
     }
 
     /// Community dietary tags for a restaurant: count per tag, plus the set
@@ -364,6 +367,7 @@ final class CloudKitService {
     /// a personal flag with no community aggregation.
     /// Fired from RestaurantDetailView after each local toggle.
     func saveVisitedList(_ ids: Set<UUID>) async {
+        Task { await FirebaseService.shared.saveVisitedList(ids) }
         guard isAvailable, let user = await userRecordName() else { return }
         let record = CKRecord(recordType: visitedType,
                               recordID: visitedRecordID(user: user))
@@ -371,7 +375,6 @@ final class CloudKitService {
         record["count"] = ids.count as CKRecordValue
         _ = try? await publicDB.modifyRecords(
             saving: [record], deleting: [], savePolicy: .allKeys)
-        Task { await FirebaseService.shared.saveVisitedList(ids) }
     }
 
     /// Fetch the user's visited-restaurant set from CloudKit. Used by
@@ -405,15 +408,15 @@ final class CloudKitService {
     /// for offline list rendering (the authoritative name still comes from
     /// the followee's FoodieProfile when their tier list is opened).
     func saveFriendList(_ friends: [Friend]) async {
+        let entries = friends.map { "\($0.userID)|\($0.displayName)" }
+        Task { await FirebaseService.shared.saveFriendList(entries) }
         guard isAvailable, let user = await userRecordName() else { return }
         let record = CKRecord(recordType: friendListType,
                               recordID: friendListRecordID(user: user))
-        let entries = friends.map { "\($0.userID)|\($0.displayName)" }
         record["entries"] = entries as CKRecordValue
         record["count"] = friends.count as CKRecordValue
         _ = try? await publicDB.modifyRecords(
             saving: [record], deleting: [], savePolicy: .allKeys)
-        Task { await FirebaseService.shared.saveFriendList(entries) }
     }
 
     /// Fetch the user's follow list. Returns [] on any failure. Direct
@@ -854,6 +857,9 @@ final class CloudKitService {
     /// Admin: ban a user — all their placements stop counting everywhere.
     @discardableResult
     func banUser(userID: String) async -> Bool {
+        if !userID.isEmpty {
+            Task { await FirebaseService.shared.saveExclusion(kind: "user", target: userID) }
+        }
         guard isAvailable, await isAdmin(), !userID.isEmpty else { return false }
         let rec = CKRecord(recordType: exclusionType,
                            recordID: exclusionRecordID(kind: "user", target: userID))
@@ -862,7 +868,6 @@ final class CloudKitService {
         do {
             _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
             bannedUserIDs.insert(userID)
-            Task { await FirebaseService.shared.saveExclusion(kind: "user", target: userID) }
             return true
         } catch { return false }
     }
@@ -871,13 +876,13 @@ final class CloudKitService {
     /// allowed because the admin created it).
     @discardableResult
     func unbanUser(userID: String) async -> Bool {
+        Task { await FirebaseService.shared.deleteExclusion(kind: "user", target: userID) }
         guard isAvailable, await isAdmin() else { return false }
         do {
             _ = try await publicDB.modifyRecords(
                 saving: [], deleting: [exclusionRecordID(kind: "user", target: userID)],
                 savePolicy: .allKeys)
             bannedUserIDs.remove(userID)
-            Task { await FirebaseService.shared.deleteExclusion(kind: "user", target: userID) }
             return true
         } catch { return false }
     }
@@ -885,6 +890,9 @@ final class CloudKitService {
     /// Admin: exclude one specific rating from community aggregates.
     @discardableResult
     func excludePlacement(recordName: String) async -> Bool {
+        if !recordName.isEmpty {
+            Task { await FirebaseService.shared.saveExclusion(kind: "placement", target: recordName) }
+        }
         guard isAvailable, await isAdmin(), !recordName.isEmpty else { return false }
         let rec = CKRecord(recordType: exclusionType,
                            recordID: exclusionRecordID(kind: "placement", target: recordName))
@@ -893,7 +901,6 @@ final class CloudKitService {
         do {
             _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
             excludedPlacementNames.insert(recordName)
-            Task { await FirebaseService.shared.saveExclusion(kind: "placement", target: recordName) }
             return true
         } catch { return false }
     }
@@ -901,13 +908,13 @@ final class CloudKitService {
     /// Admin: restore a previously-excluded rating.
     @discardableResult
     func restorePlacement(recordName: String) async -> Bool {
+        Task { await FirebaseService.shared.deleteExclusion(kind: "placement", target: recordName) }
         guard isAvailable, await isAdmin() else { return false }
         do {
             _ = try await publicDB.modifyRecords(
                 saving: [], deleting: [exclusionRecordID(kind: "placement", target: recordName)],
                 savePolicy: .allKeys)
             excludedPlacementNames.remove(recordName)
-            Task { await FirebaseService.shared.deleteExclusion(kind: "placement", target: recordName) }
             return true
         } catch { return false }
     }
@@ -974,6 +981,9 @@ final class CloudKitService {
 
     /// Report an objectionable note. Idempotent per (reporter, placement).
     func reportNote(placementRecordName: String) async -> Bool {
+        if !placementRecordName.isEmpty {
+            Task { await FirebaseService.shared.saveNoteReport(placementRecordName: placementRecordName) }
+        }
         guard isAvailable, let user = await userRecordName(),
               !placementRecordName.isEmpty else { return false }
         let recID = CKRecord.ID(recordName: "noteReport_\(user)_\(placementRecordName)")
@@ -982,7 +992,6 @@ final class CloudKitService {
         rec["reporterID"] = user as CKRecordValue
         do {
             _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
-            Task { await FirebaseService.shared.saveNoteReport(placementRecordName: placementRecordName) }
             return true
         } catch {
             return false
@@ -994,6 +1003,9 @@ final class CloudKitService {
     /// suppressed. Reversible via `unhideNote`.
     @discardableResult
     func hideNote(placementRecordName: String) async -> Bool {
+        if !placementRecordName.isEmpty {
+            Task { await FirebaseService.shared.saveExclusion(kind: "note", target: placementRecordName) }
+        }
         guard isAvailable, await isAdmin(), !placementRecordName.isEmpty else { return false }
         let rec = CKRecord(recordType: exclusionType,
                            recordID: exclusionRecordID(kind: "note", target: placementRecordName))
@@ -1002,7 +1014,6 @@ final class CloudKitService {
         do {
             _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
             hiddenNoteNames.insert(placementRecordName)
-            Task { await FirebaseService.shared.saveExclusion(kind: "note", target: placementRecordName) }
             return true
         } catch { return false }
     }
@@ -1058,6 +1069,7 @@ final class CloudKitService {
     /// Admin: un-hide a previously hidden note.
     @discardableResult
     func unhideNote(placementRecordName: String) async -> Bool {
+        Task { await FirebaseService.shared.deleteExclusion(kind: "note", target: placementRecordName) }
         guard isAvailable, await isAdmin() else { return false }
         do {
             _ = try await publicDB.modifyRecords(
@@ -1065,7 +1077,6 @@ final class CloudKitService {
                 deleting: [exclusionRecordID(kind: "note", target: placementRecordName)],
                 savePolicy: .allKeys)
             hiddenNoteNames.remove(placementRecordName)
-            Task { await FirebaseService.shared.deleteExclusion(kind: "note", target: placementRecordName) }
             return true
         } catch { return false }
     }
@@ -1144,6 +1155,9 @@ final class CloudKitService {
 
     /// Report a dish photo as objectionable. Idempotent per (reporter, photo).
     func reportPhoto(photoID: String) async -> Bool {
+        if !photoID.isEmpty {
+            Task { await FirebaseService.shared.savePhotoReport(photoID: photoID) }
+        }
         guard isAvailable, let user = await userRecordName(), !photoID.isEmpty else { return false }
         let recID = CKRecord.ID(recordName: "photoReport_\(user)_\(photoID)")
         let rec = CKRecord(recordType: photoReportType, recordID: recID)
@@ -1151,7 +1165,6 @@ final class CloudKitService {
         rec["reporterID"] = user as CKRecordValue
         do {
             _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
-            Task { await FirebaseService.shared.savePhotoReport(photoID: photoID) }
             return true
         } catch {
             return false
@@ -1255,6 +1268,9 @@ final class CloudKitService {
     }
 
     private func setPhotoDecision(photoID: String, decision: String) async -> Bool {
+        if !photoID.isEmpty {
+            Task { await FirebaseService.shared.savePhotoModeration(photoID: photoID, decision: decision) }
+        }
         guard isAvailable, !photoID.isEmpty else { return false }
         let recID = CKRecord.ID(recordName: "photoMod_\(photoID)")
         let rec = CKRecord(recordType: photoModType, recordID: recID)
@@ -1262,7 +1278,6 @@ final class CloudKitService {
         rec["decision"] = decision as CKRecordValue
         do {
             _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
-            Task { await FirebaseService.shared.savePhotoModeration(photoID: photoID, decision: decision) }
             return true
         } catch {
             return false
@@ -1276,13 +1291,13 @@ final class CloudKitService {
     }
 
     func reportClosed(restaurantID: UUID) async -> Bool {
+        Task { await FirebaseService.shared.saveClosureReport(restaurantID: restaurantID) }
         guard isAvailable, let user = await userRecordName() else { return false }
         let record = CKRecord(recordType: closureType,
                               recordID: closureRecordID(user: user, restaurant: restaurantID))
         record["restaurantID"] = restaurantID.uuidString as CKRecordValue
         do {
             _ = try await publicDB.modifyRecords(saving: [record], deleting: [], savePolicy: .allKeys)
-            Task { await FirebaseService.shared.saveClosureReport(restaurantID: restaurantID) }
             return true
         } catch {
             return false
@@ -1290,13 +1305,13 @@ final class CloudKitService {
     }
 
     func unreportClosed(restaurantID: UUID) async -> Bool {
+        Task { await FirebaseService.shared.deleteClosureReport(restaurantID: restaurantID) }
         guard isAvailable, let user = await userRecordName() else { return false }
         do {
             _ = try await publicDB.modifyRecords(
                 saving: [],
                 deleting: [closureRecordID(user: user, restaurant: restaurantID)],
                 savePolicy: .allKeys)
-            Task { await FirebaseService.shared.deleteClosureReport(restaurantID: restaurantID) }
             return true
         } catch {
             return false
@@ -1423,13 +1438,13 @@ final class CloudKitService {
     /// Admin: revert a previous closure decision (rare — used if admin
     /// confirmed-closed by mistake and wants to unsay it).
     func clearClosureDecision(restaurantID: UUID) async -> Bool {
+        Task { await FirebaseService.shared.deleteClosureDecision(restaurantID: restaurantID) }
         guard isAvailable else { return false }
         do {
             _ = try await publicDB.modifyRecords(
                 saving: [],
                 deleting: [closureDecisionRecordID(restaurant: restaurantID)],
                 savePolicy: .allKeys)
-            Task { await FirebaseService.shared.deleteClosureDecision(restaurantID: restaurantID) }
             return true
         } catch {
             return false
@@ -1437,6 +1452,7 @@ final class CloudKitService {
     }
 
     private func setClosureDecision(restaurantID: UUID, decision: String) async -> Bool {
+        Task { await FirebaseService.shared.saveClosureDecision(restaurantID: restaurantID, decision: decision) }
         guard isAvailable else { return false }
         let recID = closureDecisionRecordID(restaurant: restaurantID)
         let rec = CKRecord(recordType: closureDecisionType, recordID: recID)
@@ -1444,7 +1460,6 @@ final class CloudKitService {
         rec["decision"] = decision as CKRecordValue
         do {
             _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
-            Task { await FirebaseService.shared.saveClosureDecision(restaurantID: restaurantID, decision: decision) }
             return true
         } catch {
             return false
@@ -1539,6 +1554,11 @@ final class CloudKitService {
     /// field `isAppleVerified` to the FoodieProfile record type in CK
     /// Dashboard → Dev → Deploy Schema Changes → Production.
     func saveProfile(displayName: String, requestingPro: Bool, isAppleVerified: Bool = false) async -> Bool {
+        // Firestore mirror fires independently of CloudKit. status is nil when
+        // NOT requesting Pro so we never downgrade an approved pro on a plain
+        // name edit; "requested" is only ever set on an explicit request (the
+        // UI never shows that button to an already-approved pro).
+        Task { await FirebaseService.shared.saveProfile(displayName: displayName, status: requestingPro ? "requested" : nil) }
         guard isAvailable, let user = await userRecordName() else { return false }
         let id = profileRecordID(user: user)
         let record: CKRecord
@@ -1558,8 +1578,6 @@ final class CloudKitService {
         record["isAppleVerified"] = (isAppleVerified ? 1 : 0) as CKRecordValue
         do {
             _ = try await publicDB.modifyRecords(saving: [record], deleting: [], savePolicy: .allKeys)
-            let mirroredStatus = status
-            Task { await FirebaseService.shared.saveProfile(displayName: displayName, status: mirroredStatus) }
             return true
         } catch {
             return false
@@ -1830,13 +1848,15 @@ final class CloudKitService {
 
     /// Admin: approve a user — creates an admin-owned ProApproval record.
     func approvePro(userID: String) async -> Bool {
+        if !userID.isEmpty {
+            Task { await FirebaseService.shared.saveProApproval(forUserID: userID) }
+        }
         guard isAvailable, !userID.isEmpty else { return false }
         let rec = CKRecord(recordType: approvalType,
                            recordID: CKRecord.ID(recordName: "approval_\(userID)"))
         rec["userID"] = userID as CKRecordValue
         do {
             _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
-            Task { await FirebaseService.shared.saveProApproval(forUserID: userID) }
             return true
         } catch {
             return false
@@ -1845,11 +1865,13 @@ final class CloudKitService {
 
     /// Admin: revoke — deletes the ProApproval record.
     func revokePro(userID: String) async -> Bool {
+        if !userID.isEmpty {
+            Task { await FirebaseService.shared.deleteProApproval(forUserID: userID) }
+        }
         guard isAvailable, !userID.isEmpty else { return false }
         do {
             _ = try await publicDB.modifyRecords(
                 saving: [], deleting: [CKRecord.ID(recordName: "approval_\(userID)")], savePolicy: .allKeys)
-            Task { await FirebaseService.shared.deleteProApproval(forUserID: userID) }
             return true
         } catch {
             return false
@@ -1861,6 +1883,7 @@ final class CloudKitService {
     /// Submit a missing-restaurant suggestion (creates a user-owned record).
     func submitSuggestion(name: String, address: String, area: String,
                           cuisines: [String], description: String) async -> Bool {
+        Task { _ = await FirebaseService.shared.saveSuggestion(name: name, address: address, area: area, cuisines: cuisines, description: description) }
         guard isAvailable, let user = await userRecordName() else { return false }
         let rec = CKRecord(recordType: suggestionType)
         rec["name"] = name as CKRecordValue
@@ -1871,7 +1894,6 @@ final class CloudKitService {
         rec["submitterUserID"] = user as CKRecordValue
         do {
             _ = try await publicDB.save(rec)
-            Task { _ = await FirebaseService.shared.saveSuggestion(name: name, address: address, area: area, cuisines: cuisines, description: description) }
             return true
         }
         catch { return false }
@@ -1935,9 +1957,19 @@ final class CloudKitService {
     /// with the suggestion's data + geocoded coords. The app fetches LiveRestaurants
     /// at launch and merges them into the live restaurant list.
     func approveSuggestion(_ s: Suggestion, latitude: Double, longitude: Double) async -> Bool {
-        guard isAvailable else { return false }
         let restaurantUUID = UUID()
         let restaurantID = restaurantUUID.uuidString
+        // Firestore mirror fires independently of CloudKit, using the SAME
+        // restaurant UUID so both stores address the live restaurant identically.
+        Task {
+            await FirebaseService.shared.saveLiveRestaurant(
+                restaurantID: restaurantUUID, suggestionID: s.id, name: s.name,
+                latitude: latitude, longitude: longitude, area: s.area, address: s.address,
+                cuisines: s.cuisines.isEmpty ? ["other"] : s.cuisines, priceTier: "$$",
+                isFastFood: false,
+                description: s.description.isEmpty ? "Suggested by the community." : s.description)
+        }
+        guard isAvailable else { return false }
         let recID = CKRecord.ID(recordName: "live_\(restaurantID)")
         let rec = CKRecord(recordType: liveType, recordID: recID)
         rec["restaurantID"] = restaurantID as CKRecordValue
@@ -1954,14 +1986,6 @@ final class CloudKitService {
         rec["suggestionID"] = s.id as CKRecordValue
         do {
             _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
-            let cuisines = s.cuisines.isEmpty ? ["other"] : s.cuisines
-            let desc = s.description.isEmpty ? "Suggested by the community." : s.description
-            Task {
-                await FirebaseService.shared.saveLiveRestaurant(
-                    restaurantID: restaurantUUID, suggestionID: s.id, name: s.name,
-                    latitude: latitude, longitude: longitude, area: s.area, address: s.address,
-                    cuisines: cuisines, priceTier: "$$", isFastFood: false, description: desc)
-            }
             return true
         } catch {
             return false
