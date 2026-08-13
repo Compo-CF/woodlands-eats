@@ -33,14 +33,18 @@ final class FirebaseService {
     private(set) var isReady = false
     private(set) var userID: String?
 
-    private lazy var db = Firestore.firestore()
+    /// @ObservationIgnored is REQUIRED: the @Observable macro rewrites stored
+    /// properties into computed ones with init accessors, and `lazy` cannot be
+    /// applied to a computed property (build error). We never want to observe
+    /// the Firestore handle anyway — only isReady/userID drive UI.
+    @ObservationIgnored private lazy var db = Firestore.firestore()
 
     /// Forces the lazy singleton to initialize (kicking off anonymous
     /// sign-in). Call once from app launch after FirebaseApp.configure().
     func start() {}
 
     private init() {
-        Auth.auth().addStateDidChangeListener { [weak self] _, user in
+        _ = Auth.auth().addStateDidChangeListener { [weak self] _, user in
             DispatchQueue.main.async {
                 self?.userID = user?.uid
                 self?.isReady = user != nil
