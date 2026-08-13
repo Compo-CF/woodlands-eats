@@ -76,16 +76,37 @@ final class FirebaseService {
 
     // MARK: - Placements
 
-    func savePlacement(restaurantID: UUID, tier: Tier) async {
+    /// Upsert a placement. `note` mirrors CloudKit's read-modify-write: nil
+    /// leaves the existing note untouched, a non-empty string sets it, and an
+    /// empty/whitespace string clears it (FieldValue.delete()).
+    func savePlacement(restaurantID: UUID, tier: Tier, note: String? = nil) async {
         guard let userID else { return }
         let docID = "\(userID)_\(restaurantID.uuidString)"
+        var data: [String: Any] = [
+            "userID": userID,
+            "restaurantID": restaurantID.uuidString,
+            "tier": tier.rawValue,
+            "score": tier.score,
+            "updatedAt": FieldValue.serverTimestamp(),
+        ]
+        if let note {
+            let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
+            data["note"] = trimmed.isEmpty ? FieldValue.delete() : trimmed
+        }
         await tryWrite("savePlacement") {
+            try await self.db.collection("placements").document(docID).setData(data, merge: true)
+        }
+    }
+
+    /// Set/clear ONLY the note on an existing placement doc (mirrors
+    /// CloudKitService.saveMyNote). Empty string clears it.
+    func saveNote(restaurantID: UUID, note: String) async {
+        guard let userID else { return }
+        let docID = "\(userID)_\(restaurantID.uuidString)"
+        let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        await tryWrite("saveNote") {
             try await self.db.collection("placements").document(docID).setData([
-                "userID": userID,
-                "restaurantID": restaurantID.uuidString,
-                "tier": tier.rawValue,
-                "score": tier.score,
-                "updatedAt": FieldValue.serverTimestamp(),
+                "note": trimmed.isEmpty ? FieldValue.delete() : trimmed,
             ], merge: true)
         }
     }
@@ -298,6 +319,83 @@ final class FirebaseService {
                 "count": ids.count,
                 "updatedAt": FieldValue.serverTimestamp(),
             ], merge: true)
+        }
+    }
+
+    // MARK: - Dietary tags (mirrors CloudKitService.setDietaryTag)
+
+    /// One doc per (user, restaurant, tag): `<uid>_<restaurant>_<tag>` so
+    /// confirmations dedupe + count exactly like the CloudKit record.
+    func setDietaryTag(restaurantID: UUID, tag: String, on: Bool) async {
+        guard let userID else { return }
+        let docID = "\(userID)_\(restaurantID.uuidString)_\(tag)"
+        if on {
+            await tryWrite("setDietaryTag") {
+                try await self.db.collection("dietaryTags").document(docID).setData([
+                    "userID": userID,
+                    "restaurantID": restaurantID.uuidString,
+                    "tag": tag,
+                    "updatedAt": FieldValue.serverTimestamp(),
+                ], merge: true)
+            }
+        } else {
+            await tryWrite("removeDietaryTag") {
+                try await self.db.collection("dietaryTags").document(docID).delete()
+            }
+        }
+    }
+
+    // MARK: - Friends / follow graph (mirrors CloudKitService.saveFriendList)
+
+    /// Single doc per user holding the follow list, each entry encoded
+    /// "userID|displayName" — same wire format as the CloudKit array.
+    func saveFriendList(_ entries: [String]) async {
+        guard let userID else { return }
+        await tryWrite("saveFriendList") {
+            try await self.db.collection("friendLists").document(userID).setData([
+                "userID": userID,
+                "entries": entries,
+                "count": entries.count,
+                "updatedAt": FieldValue.serverTimestamp(),
+            ], merge: true)
+        }
+    }
+
+    // MARK: - Note reports (mirrors CloudKitService.reportNote)
+
+    func saveNoteReport(placementRecordName: String) async {
+        guard let userID else { return }
+        let docID = "\(userID)_\(placementRecordName)"
+        await tryWrite("saveNoteReport") {
+            try await self.db.collection("noteReports").document(docID).setData([
+                "placementName": placementRecordName,
+                "reporterID": userID,
+                "createdAt": FieldValue.serverTimestamp(),
+            ], merge: true)
+        }
+    }
+
+    // MARK: - Admin exclusions (mirrors ban/exclude/hide-note + their reversals)
+
+    /// kind ∈ {"user","placement","note"}; docID `<kind>_<target>` matches the
+    /// CloudKit recordName scheme so both stores stay addressable the same way.
+    func saveExclusion(kind: String, target: String) async {
+        guard let adminID = userID else { return }
+        let docID = "\(kind)_\(target)"
+        await tryWrite("saveExclusion(\(kind))") {
+            try await self.db.collection("adminExclusions").document(docID).setData([
+                "kind": kind,
+                "target": target,
+                "adminID": adminID,
+                "createdAt": FieldValue.serverTimestamp(),
+            ], merge: true)
+        }
+    }
+
+    func deleteExclusion(kind: String, target: String) async {
+        let docID = "\(kind)_\(target)"
+        await tryWrite("deleteExclusion(\(kind))") {
+            try await self.db.collection("adminExclusions").document(docID).delete()
         }
     }
 }

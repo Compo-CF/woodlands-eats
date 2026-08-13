@@ -202,6 +202,8 @@ final class CloudKitService {
             record["note"] = trimmed.isEmpty ? nil : (trimmed as CKRecordValue)
         }
         _ = try? await publicDB.modifyRecords(saving: [record], deleting: [], savePolicy: .allKeys)
+        // Android migration: mirror to Firestore (fire-and-forget).
+        Task { await FirebaseService.shared.savePlacement(restaurantID: restaurantID, tier: tier, note: note) }
     }
 
     /// v2.0 Feature 2: set/clear ONLY the note on the user's existing
@@ -215,6 +217,7 @@ final class CloudKitService {
         let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
         record["note"] = trimmed.isEmpty ? nil : (trimmed as CKRecordValue)
         _ = try? await publicDB.modifyRecords(saving: [record], deleting: [], savePolicy: .allKeys)
+        Task { await FirebaseService.shared.saveNote(restaurantID: restaurantID, note: note) }
     }
 
     func removePlacement(restaurantID: UUID) async {
@@ -223,6 +226,7 @@ final class CloudKitService {
             saving: [],
             deleting: [placementRecordID(user: user, restaurant: restaurantID)],
             savePolicy: .allKeys)
+        Task { await FirebaseService.shared.removePlacement(restaurantID: restaurantID) }
     }
 
     // MARK: - Dietary tags (v2.4)
@@ -246,6 +250,7 @@ final class CloudKitService {
         } else {
             _ = try? await publicDB.modifyRecords(saving: [], deleting: [id], savePolicy: .allKeys)
         }
+        Task { await FirebaseService.shared.setDietaryTag(restaurantID: restaurantID, tag: tag, on: on) }
     }
 
     /// Community dietary tags for a restaurant: count per tag, plus the set
@@ -366,6 +371,7 @@ final class CloudKitService {
         record["count"] = ids.count as CKRecordValue
         _ = try? await publicDB.modifyRecords(
             saving: [record], deleting: [], savePolicy: .allKeys)
+        Task { await FirebaseService.shared.saveVisitedList(ids) }
     }
 
     /// Fetch the user's visited-restaurant set from CloudKit. Used by
@@ -402,10 +408,12 @@ final class CloudKitService {
         guard isAvailable, let user = await userRecordName() else { return }
         let record = CKRecord(recordType: friendListType,
                               recordID: friendListRecordID(user: user))
-        record["entries"] = friends.map { "\($0.userID)|\($0.displayName)" } as CKRecordValue
+        let entries = friends.map { "\($0.userID)|\($0.displayName)" }
+        record["entries"] = entries as CKRecordValue
         record["count"] = friends.count as CKRecordValue
         _ = try? await publicDB.modifyRecords(
             saving: [record], deleting: [], savePolicy: .allKeys)
+        Task { await FirebaseService.shared.saveFriendList(entries) }
     }
 
     /// Fetch the user's follow list. Returns [] on any failure. Direct
@@ -854,6 +862,7 @@ final class CloudKitService {
         do {
             _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
             bannedUserIDs.insert(userID)
+            Task { await FirebaseService.shared.saveExclusion(kind: "user", target: userID) }
             return true
         } catch { return false }
     }
@@ -868,6 +877,7 @@ final class CloudKitService {
                 saving: [], deleting: [exclusionRecordID(kind: "user", target: userID)],
                 savePolicy: .allKeys)
             bannedUserIDs.remove(userID)
+            Task { await FirebaseService.shared.deleteExclusion(kind: "user", target: userID) }
             return true
         } catch { return false }
     }
@@ -883,6 +893,7 @@ final class CloudKitService {
         do {
             _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
             excludedPlacementNames.insert(recordName)
+            Task { await FirebaseService.shared.saveExclusion(kind: "placement", target: recordName) }
             return true
         } catch { return false }
     }
@@ -896,6 +907,7 @@ final class CloudKitService {
                 saving: [], deleting: [exclusionRecordID(kind: "placement", target: recordName)],
                 savePolicy: .allKeys)
             excludedPlacementNames.remove(recordName)
+            Task { await FirebaseService.shared.deleteExclusion(kind: "placement", target: recordName) }
             return true
         } catch { return false }
     }
@@ -970,6 +982,7 @@ final class CloudKitService {
         rec["reporterID"] = user as CKRecordValue
         do {
             _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
+            Task { await FirebaseService.shared.saveNoteReport(placementRecordName: placementRecordName) }
             return true
         } catch {
             return false
@@ -989,6 +1002,7 @@ final class CloudKitService {
         do {
             _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
             hiddenNoteNames.insert(placementRecordName)
+            Task { await FirebaseService.shared.saveExclusion(kind: "note", target: placementRecordName) }
             return true
         } catch { return false }
     }
@@ -1051,6 +1065,7 @@ final class CloudKitService {
                 deleting: [exclusionRecordID(kind: "note", target: placementRecordName)],
                 savePolicy: .allKeys)
             hiddenNoteNames.remove(placementRecordName)
+            Task { await FirebaseService.shared.deleteExclusion(kind: "note", target: placementRecordName) }
             return true
         } catch { return false }
     }
@@ -1076,6 +1091,12 @@ final class CloudKitService {
             record["image"] = CKAsset(fileURL: tmp)
             _ = try await publicDB.save(record)
             try? FileManager.default.removeItem(at: tmp)
+            // Android migration: NOT mirrored to Firestore. The photo is a
+            // binary CKAsset; Firestore holds only structured data, so
+            // cross-platform photos need Firebase Storage (upload the JPEG,
+            // store the download URL in a doc). Tracked as its own task —
+            // deferred out of the Phase 2 dual-write, which covers structured
+            // surfaces only.
             return true
         } catch {
             return false
@@ -1130,6 +1151,7 @@ final class CloudKitService {
         rec["reporterID"] = user as CKRecordValue
         do {
             _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
+            Task { await FirebaseService.shared.savePhotoReport(photoID: photoID) }
             return true
         } catch {
             return false
@@ -1240,6 +1262,7 @@ final class CloudKitService {
         rec["decision"] = decision as CKRecordValue
         do {
             _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
+            Task { await FirebaseService.shared.savePhotoModeration(photoID: photoID, decision: decision) }
             return true
         } catch {
             return false
@@ -1259,6 +1282,7 @@ final class CloudKitService {
         record["restaurantID"] = restaurantID.uuidString as CKRecordValue
         do {
             _ = try await publicDB.modifyRecords(saving: [record], deleting: [], savePolicy: .allKeys)
+            Task { await FirebaseService.shared.saveClosureReport(restaurantID: restaurantID) }
             return true
         } catch {
             return false
@@ -1272,6 +1296,7 @@ final class CloudKitService {
                 saving: [],
                 deleting: [closureRecordID(user: user, restaurant: restaurantID)],
                 savePolicy: .allKeys)
+            Task { await FirebaseService.shared.deleteClosureReport(restaurantID: restaurantID) }
             return true
         } catch {
             return false
@@ -1404,6 +1429,7 @@ final class CloudKitService {
                 saving: [],
                 deleting: [closureDecisionRecordID(restaurant: restaurantID)],
                 savePolicy: .allKeys)
+            Task { await FirebaseService.shared.deleteClosureDecision(restaurantID: restaurantID) }
             return true
         } catch {
             return false
@@ -1418,6 +1444,7 @@ final class CloudKitService {
         rec["decision"] = decision as CKRecordValue
         do {
             _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
+            Task { await FirebaseService.shared.saveClosureDecision(restaurantID: restaurantID, decision: decision) }
             return true
         } catch {
             return false
@@ -1531,6 +1558,8 @@ final class CloudKitService {
         record["isAppleVerified"] = (isAppleVerified ? 1 : 0) as CKRecordValue
         do {
             _ = try await publicDB.modifyRecords(saving: [record], deleting: [], savePolicy: .allKeys)
+            let mirroredStatus = status
+            Task { await FirebaseService.shared.saveProfile(displayName: displayName, status: mirroredStatus) }
             return true
         } catch {
             return false
@@ -1807,6 +1836,7 @@ final class CloudKitService {
         rec["userID"] = userID as CKRecordValue
         do {
             _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
+            Task { await FirebaseService.shared.saveProApproval(forUserID: userID) }
             return true
         } catch {
             return false
@@ -1819,6 +1849,7 @@ final class CloudKitService {
         do {
             _ = try await publicDB.modifyRecords(
                 saving: [], deleting: [CKRecord.ID(recordName: "approval_\(userID)")], savePolicy: .allKeys)
+            Task { await FirebaseService.shared.deleteProApproval(forUserID: userID) }
             return true
         } catch {
             return false
@@ -1838,7 +1869,11 @@ final class CloudKitService {
         rec["cuisines"] = cuisines as CKRecordValue
         rec["description"] = description as CKRecordValue
         rec["submitterUserID"] = user as CKRecordValue
-        do { _ = try await publicDB.save(rec); return true }
+        do {
+            _ = try await publicDB.save(rec)
+            Task { _ = await FirebaseService.shared.saveSuggestion(name: name, address: address, area: area, cuisines: cuisines, description: description) }
+            return true
+        }
         catch { return false }
     }
 
@@ -1901,7 +1936,8 @@ final class CloudKitService {
     /// at launch and merges them into the live restaurant list.
     func approveSuggestion(_ s: Suggestion, latitude: Double, longitude: Double) async -> Bool {
         guard isAvailable else { return false }
-        let restaurantID = UUID().uuidString
+        let restaurantUUID = UUID()
+        let restaurantID = restaurantUUID.uuidString
         let recID = CKRecord.ID(recordName: "live_\(restaurantID)")
         let rec = CKRecord(recordType: liveType, recordID: recID)
         rec["restaurantID"] = restaurantID as CKRecordValue
@@ -1918,6 +1954,14 @@ final class CloudKitService {
         rec["suggestionID"] = s.id as CKRecordValue
         do {
             _ = try await publicDB.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
+            let cuisines = s.cuisines.isEmpty ? ["other"] : s.cuisines
+            let desc = s.description.isEmpty ? "Suggested by the community." : s.description
+            Task {
+                await FirebaseService.shared.saveLiveRestaurant(
+                    restaurantID: restaurantUUID, suggestionID: s.id, name: s.name,
+                    latitude: latitude, longitude: longitude, area: s.area, address: s.address,
+                    cuisines: cuisines, priceTier: "$$", isFastFood: false, description: desc)
+            }
             return true
         } catch {
             return false
@@ -1926,6 +1970,12 @@ final class CloudKitService {
 
     /// Admin: reject a suggestion — creates an admin-owned SuggestionDismissed marker
     /// so the suggestion drops out of the pending queue.
+    ///
+    /// Android migration: NOT mirrored. The Firestore suggestion doc uses an
+    /// auto-generated ID (see FirebaseService.saveSuggestion), which does not
+    /// equal `s.id` (a CloudKit recordName), so we can't reliably target it to
+    /// flip its status. Suggestion approve/reject reconciliation is a Phase 3
+    /// (backfill) concern; the admin queue is still read from CloudKit.
     func rejectSuggestion(_ s: Suggestion) async -> Bool {
         guard isAvailable else { return false }
         let recID = CKRecord.ID(recordName: "reject_\(s.id)")

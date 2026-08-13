@@ -153,6 +153,49 @@ service cloud.firestore {
     }
 
     // ────────────────────────────────────────────────────────────
+    // dietaryTags — community dietary/needs confirmations (v2.4)
+    // ────────────────────────────────────────────────────────────
+    // Public read (drives per-restaurant counts). Owner-only write; the
+    // owning user is encoded in the doc's userID field.
+
+    match /dietaryTags/{docID} {
+      allow read:           if true;
+      allow create, update: if isOwner(request.resource.data.userID);
+      allow delete:         if isOwner(resource.data.userID);
+    }
+
+    // ────────────────────────────────────────────────────────────
+    // friendLists — per-user follow graph (v2.0 Feature 3)
+    // ────────────────────────────────────────────────────────────
+    // Public read so a shared tier list can resolve follower context;
+    // owner-only write.
+
+    match /friendLists/{userID} {
+      allow read:  if true;
+      allow write: if isOwner(userID);
+    }
+
+    // ────────────────────────────────────────────────────────────
+    // noteReports — user reports of objectionable placement notes
+    // ────────────────────────────────────────────────────────────
+    // Reads admin-only (no leaking who reported what).
+
+    match /noteReports/{docID} {
+      allow read:   if isAdmin();
+      allow create: if isOwner(request.resource.data.reporterID);
+    }
+
+    // ────────────────────────────────────────────────────────────
+    // adminExclusions — integrity markers (ban / exclude / hide-note)
+    // ────────────────────────────────────────────────────────────
+    // Public read so every client can filter aggregates; admin-only write.
+
+    match /adminExclusions/{docID} {
+      allow read:  if true;
+      allow write: if isAdmin();
+    }
+
+    // ────────────────────────────────────────────────────────────
     // users — admin flag store
     // ────────────────────────────────────────────────────────────
     // Read: signed-in users can check their own doc.

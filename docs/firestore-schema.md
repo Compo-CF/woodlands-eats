@@ -58,6 +58,8 @@ Fields:
   restaurantID   string
   tier           string    "S" | "A" | "B" | "C" | "F"
   score          number    5 | 4 | 3 | 2 | 1
+  note           string?   optional "why" behind the placement (v2.0), max 280 chars.
+                           Absent field = no note; cleared via FieldValue.delete().
   createdAt      timestamp
   updatedAt      timestamp
 ```
@@ -243,6 +245,76 @@ Fields:
   updatedAt      timestamp
 ```
 
+### 12. `dietaryTags` (v2.4)
+
+Community-confirmed dietary/needs tags per restaurant. One doc per
+(user, restaurant, tag) so confirmations dedupe and count.
+
+```
+Document ID:  {userID}_{restaurantID}_{tag}
+Fields:
+  userID         string
+  restaurantID   string
+  tag            string     DietaryTag rawValue: "glutenFree" | "vegetarian"
+                            | "vegan" | "allergyAware" | "halal" | "kidFriendly"
+                            | "kosher"
+  updatedAt      timestamp
+```
+
+**Read patterns:**
+- Per-restaurant tag counts: `where restaurantID == X`, group by `tag`.
+- "Did I confirm this tag?": existence check on the composite doc ID.
+
+### 13. `friendLists` (v2.0 Feature 3)
+
+Per-user follow graph. Single doc per user; each entry encodes
+`"userID|displayName"` (the display name is a cached snapshot for offline
+list rendering — the authoritative name still comes from the followee's
+`profiles` doc).
+
+```
+Document ID:  {userID}
+Fields:
+  userID         string
+  entries        array<string>    ["<uid>|<displayName>", ...]
+  count          number
+  updatedAt      timestamp
+```
+
+### 14. `noteReports` (v2.0 Feature 2)
+
+User reports a placement's note as objectionable. Idempotent per
+(reporter, placement). The reported note lives inside the owning
+placement doc (`placements.note`), so the report stores that placement's
+composite doc ID as `placementName`.
+
+```
+Document ID:  {reporterID}_{placementName}
+Fields:
+  placementName  string     the reported placement's doc ID / recordName
+  reporterID     string
+  createdAt      timestamp
+```
+
+### 15. `adminExclusions` (v1.8 integrity + v2.0 note-hide)
+
+Admin-owned integrity markers that every client filters against when
+computing community aggregates. Replaces CloudKit's `AdminExclusion`.
+
+```
+Document ID:  {kind}_{target}
+Fields:
+  kind           string     "user" | "placement" | "note"
+  target         string     userID (kind=user) | placement doc ID (placement/note)
+  adminID        string
+  createdAt      timestamp
+```
+
+- `kind == "user"`   → all of `target`'s placements stop counting (ban).
+- `kind == "placement"` → that single rating stops counting.
+- `kind == "note"`   → that placement's *note text* is suppressed
+  everywhere; its tier still counts.
+
 ### Auxiliary: `users` (admin flag store)
 
 Replaces the hardcoded `adminUserIDs: Set<String>` in the iOS
@@ -277,9 +349,22 @@ UID via the Firestore Console.
 | `SuggestionDismissed` | *(merged into `suggestions.status = "rejected"`)* | — |
 | `LiveRestaurant` | `liveRestaurants` | `{restaurantID}` |
 | `VisitedList` | `visitedLists` | `{userID}` |
+| `DietaryTag` | `dietaryTags` | `{userID}_{restaurantID}_{tag}` |
+| `FriendList` | `friendLists` | `{userID}` |
+| `NoteReport` | `noteReports` | `{reporterID}_{placementName}` |
+| `AdminExclusion` | `adminExclusions` | `{kind}_{target}` |
 
-12 CloudKit types → 11 Firestore collections + 1 auxiliary `users`
-collection.
+16 CloudKit types → 15 Firestore collections + 1 auxiliary `users`
+collection. (`SuggestionDismissed` merges into `suggestions.status`.)
+
+**Not mirrored (structured dual-write covers structured data only):**
+- `DishPhoto` **binary** — the CKAsset image needs Firebase Cloud Storage
+  (upload JPEG, store download URL). The `dishPhotos` metadata collection
+  exists in this schema but iOS does not yet write to it; tracked as its
+  own task. Photo *reports* and *moderation* ARE mirrored.
+- Suggestion approve/reject **status flips** — the Firestore `suggestions`
+  doc uses an auto-ID that doesn't equal the CloudKit recordName, so the
+  admin marker can't target it yet. Reconciled during Phase 3 backfill.
 
 ## Migration rollout plan
 
@@ -352,6 +437,14 @@ suggestions:   write if request.auth.uid == resource.data.submitterUserID
 liveRestaurants: write if isAdmin()
                  read  if true
 visitedLists:  read, write if request.auth.uid == resource.data.userID
+dietaryTags:   write if request.auth.uid == resource.data.userID
+               read  if true
+friendLists:   write if request.auth.uid == userID
+               read  if true
+noteReports:   write if request.auth.uid == resource.data.reporterID
+               read  if isAdmin()
+adminExclusions: write if isAdmin()
+                 read  if true
 
 function isAdmin() {
   return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
