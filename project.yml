@@ -19,6 +19,12 @@ packages:
   GoogleMobileAds:
     url: https://github.com/googleads/swift-package-manager-google-mobile-ads
     from: "11.0.0"
+  # v2.5 (Android migration, revived): Firebase SDK for the cross-platform
+  # data layer (Firestore) that iOS + Android both read/write. FirebaseCore
+  # (configure), FirebaseAuth (identity), FirebaseFirestore (data store).
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    from: "11.0.0"
 
 settings:
   base:
@@ -37,10 +43,22 @@ targets:
       - path: WoodlandsEats
         excludes:
           - "Info.plist"
+      # v2.5 (Android migration): xcodegen skips .plist files from build
+      # phases; GoogleService-Info.plist MUST be a bundled resource or
+      # FirebaseApp.configure() crashes at launch. Force it into resources.
+      - path: WoodlandsEats/GoogleService-Info.plist
+        buildPhase: resources
     dependencies:
       # v1.1: AdMob SDK for banner ads on the Browse tab.
       - package: GoogleMobileAds
         product: GoogleMobileAds
+      # v2.5 (Android migration): Firebase products for the Firestore layer.
+      - package: Firebase
+        product: FirebaseCore
+      - package: Firebase
+        product: FirebaseAuth
+      - package: Firebase
+        product: FirebaseFirestore
     info:
       path: WoodlandsEats/Info.plist
       properties:

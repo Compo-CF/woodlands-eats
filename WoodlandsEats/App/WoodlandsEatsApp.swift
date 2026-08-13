@@ -1,5 +1,8 @@
 import SwiftUI
 import UserNotifications
+// v2.5 (Android migration): Firebase Core to initialize the SDK before any
+// Firestore/Auth call. Reads GoogleService-Info.plist from the bundle.
+import FirebaseCore
 
 /// v1.9: minimal AppDelegate so SwiftUI can complete APNs registration
 /// and present CloudKit-driven notifications while the app is foreground.
@@ -86,6 +89,12 @@ struct WoodlandsEatsApp: App {
     private var hasCompletedOnboarding = false
 
     init() {
+        // v2.5 (Android migration): Firebase MUST be configured before any
+        // Firebase SDK call. Goes first so the FirebaseService singleton (and
+        // any dual-write) can safely touch Firestore/Auth. Idempotent.
+        FirebaseApp.configure()
+        FirebaseService.shared.start()   // trigger anon sign-in
+
         // v1.3 migration: existing pre-v1.3 users who already saw the
         // old tier-guide first-launch sheet shouldn't get the new
         // OnboardingView on upgrade. Do this in init via direct
