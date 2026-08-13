@@ -31,6 +31,9 @@ struct ProfileView: View {
     @State private var loading = true
     @State private var saving = false
     @State private var isAdmin = false
+    /// Phase 3 (Android migration): one-time full CloudKit → Firestore backfill.
+    @State private var migrationRunning = false
+    @State private var migrationResult: String?
     @State private var pending: [ProRequest] = []
     @State private var approvedPros: [ProRequest] = []
     @Environment(RestaurantStore.self) private var store
@@ -248,6 +251,38 @@ struct ProfileView: View {
                         }
                         NavigationLink(destination: AdminAuditView()) {
                             Label("Placement Audit", systemImage: "shield.checkered")
+                        }
+                        // Phase 3: full CloudKit → Firestore backfill for the
+                        // Android cross-platform migration. Idempotent — safe to
+                        // re-run; merge writes never clobber. Run once on device.
+                        Button {
+                            Task {
+                                migrationRunning = true
+                                migrationResult = nil
+                                let counts = await cloudKit.runFullBackfill()
+                                let total = counts.values.reduce(0, +)
+                                migrationResult = total == 0
+                                    ? "Nothing migrated — check admin status / rules."
+                                    : "Migrated \(total) docs:\n" + counts
+                                        .filter { $0.value > 0 }
+                                        .sorted { $0.key < $1.key }
+                                        .map { "  \($0.key): \($0.value)" }
+                                        .joined(separator: "\n")
+                                migrationRunning = false
+                            }
+                        } label: {
+                            if migrationRunning {
+                                Label { Text("Migrating…") } icon: { ProgressView() }
+                            } else {
+                                Label("Backfill to Firestore", systemImage: "arrow.triangle.2.circlepath")
+                            }
+                        }
+                        .disabled(migrationRunning)
+                        if let migrationResult {
+                            Text(migrationResult)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .textSelection(.enabled)
                         }
                     }
 

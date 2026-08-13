@@ -10,24 +10,30 @@ rules_version = '2';
 //
 // Schema reference: docs/firestore-schema.md
 //
-// Authentication model: anonymous Firebase Auth. Every signed-in user
-// has a stable UID (request.auth.uid). The admin flag lives on
-// /users/{uid}.isAdmin == true — bootstrap manually via the Console
-// after Anthony's first v1.6 launch creates his Firebase UID.
+// IDENTITY MODEL (Phase 3 — full-backfill decision):
+//   • AUTH is anonymous Firebase Auth: request.auth.uid is the Firebase anon
+//     UID. It proves "a real app instance is signed in," nothing more.
+//   • The CANONICAL user key on every user-owned doc is the iCloud user record
+//     name (so live dual-writes and the one-time CloudKit→Firestore backfill
+//     share one id and the same person never double-counts).
+//   • Because the doc's userID (iCloud id) is NOT the auth uid (Firebase id),
+//     rules CANNOT enforce "auth.uid == doc.userID". User-owned writes are
+//     therefore gated only on "signed in" (isAuthed). This mirrors the trust
+//     model CloudKit already uses today — the app parses a client-asserted
+//     userID out of each record name, and the admin audit / ban / exclusion
+//     tools police manipulation. (Minting a Firebase custom token whose uid ==
+//     the iCloud id would restore per-user authz, but needs a server / Blaze
+//     plan — out of scope for now.)
+//   • ADMIN authority still IS keyed by the Firebase uid: the /users/{uid}
+//     admin flag is looked up by request.auth.uid, so isAdmin() is real.
+//     Admin-only collections stay strict.
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ────────────────────────────────────────────────────────────
-    // Helpers
-    // ────────────────────────────────────────────────────────────
-
+    // ── Helpers ──────────────────────────────────────────────────
     function isAuthed() {
       return request.auth != null;
-    }
-
-    function isOwner(userID) {
-      return isAuthed() && request.auth.uid == userID;
     }
 
     function isAdmin() {
@@ -36,174 +42,117 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
 
-    // ────────────────────────────────────────────────────────────
-    // placements — user tier rankings
-    // ────────────────────────────────────────────────────────────
-    // Read: anyone (drives community consensus board)
-    // Write: only the owner (request.resource.data.userID must match auth.uid)
-
+    // ── placements — user tier rankings ──────────────────────────
+    // Public read (community consensus). Any signed-in user may write; the
+    // userID field is client-asserted (see identity model).
     match /placements/{docID} {
-      allow read: if true;
-      allow create, update: if isOwner(request.resource.data.userID);
-      allow delete:         if isOwner(resource.data.userID);
+      allow read:  if true;
+      allow write: if isAuthed();
     }
 
-    // ────────────────────────────────────────────────────────────
-    // closureReports — user reports of permanently closed
-    // ────────────────────────────────────────────────────────────
-
+    // ── closureReports — user "permanently closed" reports ────────
     match /closureReports/{docID} {
-      allow read:   if true;
-      allow create: if isOwner(request.resource.data.userID);
-      allow delete: if isOwner(resource.data.userID);
+      allow read:  if true;
+      allow write: if isAuthed();
     }
 
-    // ────────────────────────────────────────────────────────────
-    // closureDecisions — admin verdict on closure
-    // ────────────────────────────────────────────────────────────
-
+    // ── closureDecisions — admin verdict on closure ──────────────
     match /closureDecisions/{restaurantID} {
       allow read:  if true;
       allow write: if isAdmin();
     }
 
-    // ────────────────────────────────────────────────────────────
-    // profiles — user identity + Foodie Pro request status
-    // ────────────────────────────────────────────────────────────
-    // Owner can write any field EXCEPT setting status to "approved"
-    // (that path is admin-only). Status transitions like "" → "requested"
-    // are owner-allowed.
-
+    // ── profiles — identity + Foodie Pro request status ──────────
+    // Any signed-in user may write their card, but nobody can self-set
+    // status "approved" — that path stays admin-only. (In practice the
+    // profile status is only ever "" or "requested"; approval lives in the
+    // separate proApprovals collection.)
     match /profiles/{userID} {
       allow read: if true;
-      allow create, update: if isOwner(userID)
-        && (request.resource.data.status != 'approved' || isAdmin());
+      allow write: if isAuthed()
+        && (!('status' in request.resource.data)
+            || request.resource.data.status != 'approved'
+            || isAdmin());
     }
 
-    // ────────────────────────────────────────────────────────────
-    // proApprovals — admin-verified Foodie Pros
-    // ────────────────────────────────────────────────────────────
-
+    // ── proApprovals — admin-verified Foodie Pros ────────────────
     match /proApprovals/{userID} {
       allow read:  if true;
       allow write: if isAdmin();
     }
 
-    // ────────────────────────────────────────────────────────────
-    // dishPhotos — user-uploaded photo metadata
-    // ────────────────────────────────────────────────────────────
-    // (Photos in Cloud Storage governed by separate Storage Rules.)
-
+    // ── dishPhotos — user-uploaded photo metadata ────────────────
+    // (Binary lives in Cloud Storage; iOS does not yet write this collection
+    // — photo binary is deferred to the Firebase Storage task.)
     match /dishPhotos/{photoID} {
       allow read:   if true;
-      allow create: if isOwner(request.resource.data.submitterUserID);
-      // Admin can delete (moderation) OR the original uploader can.
-      allow delete: if isAdmin() || isOwner(resource.data.submitterUserID);
+      allow create: if isAuthed();
+      allow delete: if isAdmin();
     }
 
-    // ────────────────────────────────────────────────────────────
-    // photoReports — user reports of objectionable photos
-    // ────────────────────────────────────────────────────────────
-    // Reads admin-only (no leaking who reported what).
-
+    // ── photoReports — reports of objectionable photos ───────────
     match /photoReports/{docID} {
       allow read:   if isAdmin();
-      allow create: if isOwner(request.resource.data.reporterID);
+      allow create: if isAuthed();
     }
 
-    // ────────────────────────────────────────────────────────────
-    // photoModerated — admin verdict on reported photos
-    // ────────────────────────────────────────────────────────────
-    // Public read so clients can filter hidden photos out.
-
+    // ── photoModerated — admin verdict on reported photos ────────
     match /photoModerated/{photoID} {
       allow read:  if true;
       allow write: if isAdmin();
     }
 
-    // ────────────────────────────────────────────────────────────
-    // suggestions — user-submitted missing restaurants
-    // ────────────────────────────────────────────────────────────
-    // User creates with status "pending"; only admin updates status.
-
+    // ── suggestions — user-submitted missing restaurants ─────────
     match /suggestions/{suggestionID} {
       allow read:   if true;
-      allow create: if isOwner(request.resource.data.submitterUserID)
+      allow create: if isAuthed()
                     && request.resource.data.status == 'pending';
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }
 
-    // ────────────────────────────────────────────────────────────
-    // liveRestaurants — admin-approved community additions
-    // ────────────────────────────────────────────────────────────
-
+    // ── liveRestaurants — admin-approved community additions ─────
     match /liveRestaurants/{restaurantID} {
       allow read:  if true;
       allow write: if isAdmin();
     }
 
-    // ────────────────────────────────────────────────────────────
-    // visitedLists — per-user visited restaurant set
-    // ────────────────────────────────────────────────────────────
-    // Purely personal data — only the owner reads or writes.
-
+    // ── visitedLists — per-user visited set ──────────────────────
+    // Low-sensitivity personal data (which restaurants you've been to). Under
+    // the anon-auth model we can't scope to the owner, so it's readable/
+    // writable by any signed-in user, consistent with the rest.
     match /visitedLists/{userID} {
-      allow read, write: if isOwner(userID);
+      allow read, write: if isAuthed();
     }
 
-    // ────────────────────────────────────────────────────────────
-    // dietaryTags — community dietary/needs confirmations (v2.4)
-    // ────────────────────────────────────────────────────────────
-    // Public read (drives per-restaurant counts). Owner-only write; the
-    // owning user is encoded in the doc's userID field.
-
+    // ── dietaryTags — community dietary/needs confirmations ──────
     match /dietaryTags/{docID} {
-      allow read:           if true;
-      allow create, update: if isOwner(request.resource.data.userID);
-      allow delete:         if isOwner(resource.data.userID);
-    }
-
-    // ────────────────────────────────────────────────────────────
-    // friendLists — per-user follow graph (v2.0 Feature 3)
-    // ────────────────────────────────────────────────────────────
-    // Public read so a shared tier list can resolve follower context;
-    // owner-only write.
-
-    match /friendLists/{userID} {
       allow read:  if true;
-      allow write: if isOwner(userID);
+      allow write: if isAuthed();
     }
 
-    // ────────────────────────────────────────────────────────────
-    // noteReports — user reports of objectionable placement notes
-    // ────────────────────────────────────────────────────────────
-    // Reads admin-only (no leaking who reported what).
+    // ── friendLists — per-user follow graph ──────────────────────
+    match /friendLists/{userID} {
+      allow read, write: if isAuthed();
+    }
 
+    // ── noteReports — reports of objectionable placement notes ───
     match /noteReports/{docID} {
       allow read:   if isAdmin();
-      allow create: if isOwner(request.resource.data.reporterID);
+      allow create: if isAuthed();
     }
 
-    // ────────────────────────────────────────────────────────────
-    // adminExclusions — integrity markers (ban / exclude / hide-note)
-    // ────────────────────────────────────────────────────────────
-    // Public read so every client can filter aggregates; admin-only write.
-
+    // ── adminExclusions — integrity markers (ban/exclude/hide) ───
     match /adminExclusions/{docID} {
       allow read:  if true;
       allow write: if isAdmin();
     }
 
-    // ────────────────────────────────────────────────────────────
-    // users — admin flag store
-    // ────────────────────────────────────────────────────────────
-    // Read: signed-in users can check their own doc.
-    // Write: admin-only. Bootstrap by manually creating Anthony's
-    // doc with isAdmin: true via the Console after v1.6 first launch.
-
+    // ── users — admin flag store (keyed by Firebase auth uid) ────
+    // This collection alone is keyed by request.auth.uid, so ownership CAN be
+    // enforced. Bootstrap the first admin doc manually via the Console.
     match /users/{userID} {
-      allow read:  if isOwner(userID) || isAdmin();
+      allow read:  if isAuthed() && (request.auth.uid == userID || isAdmin());
       allow write: if isAdmin();
     }
   }

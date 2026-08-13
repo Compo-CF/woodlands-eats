@@ -9,20 +9,25 @@ import Observation
 /// Task alongside the CloudKit call. Reads still come from CloudKit
 /// through v1.7; Firestore reads turn on in v1.7's cutover.
 ///
-/// Identity model:
-///   - Anonymous Firebase Auth on first launch (each install gets
-///     a unique Firebase UID).
-///   - Cross-device sync via iCloud KVS is a follow-up — for now
-///     each device's Firebase UID is independent.
-///   - The Firebase UID is the user identifier on the Firestore side
-///     (replaces CloudKit's iCloud userRecordName).
+/// Identity model (Phase 3 — full-backfill decision):
+///   - Anonymous Firebase Auth provides the AUTH session (request.auth.uid),
+///     satisfying "must be signed in" security rules. Each install gets a
+///     unique Firebase UID.
+///   - The CANONICAL Firestore user key is the iCloud user record name
+///     (`linkedUserID`), set by CloudKitService once it resolves the signed-in
+///     iCloud account. This makes live dual-writes key by the SAME id the full
+///     CloudKit→Firestore backfill uses, so the same person never double-counts
+///     under two ids.
+///   - When there's no iCloud account (simulator, or a future Android user),
+///     `effectiveUserID` falls back to the Firebase anon UID. Apple users who
+///     switch to Android start fresh — an accepted tradeoff (they rarely do).
 ///
 /// Schema reference: docs/firestore-schema.md
 /// Security rules: docs/firestore.rules
 ///
 /// Every write here is fire-and-forget. Failures log to the console
 /// but don't propagate to the UI — CloudKit is still authoritative
-/// through the v1.7 read-cutover.
+/// through the read-cutover.
 @Observable
 final class FirebaseService {
     /// Lazy singleton so it's created (and touches the Firebase SDK) only
@@ -31,7 +36,40 @@ final class FirebaseService {
     static let shared = FirebaseService()
 
     private(set) var isReady = false
+    /// The Firebase anonymous auth UID (the AUTH identity / request.auth.uid).
     private(set) var userID: String?
+
+    /// The signed-in iCloud user record name, once CloudKitService resolves it.
+    /// This is the CANONICAL Firestore document key (see the identity model
+    /// above). @ObservationIgnored — nothing observes it.
+    @ObservationIgnored private var linkedUserID: String?
+
+    /// The id every user-scoped Firestore doc is keyed by: the iCloud user
+    /// record name when available, else the Firebase anon UID.
+    var effectiveUserID: String? { linkedUserID ?? userID }
+
+    /// Called by CloudKitService once the signed-in iCloud user record name is
+    /// known, so live dual-writes align with the full backfill's keying. No-op
+    /// when there's no iCloud account (falls back to the Firebase anon UID).
+    func linkUser(_ cloudKitUserID: String?) {
+        guard let cloudKitUserID, !cloudKitUserID.isEmpty else { return }
+        linkedUserID = cloudKitUserID
+    }
+
+    /// Generic idempotent writer for the Phase 3 backfill (MigrationService).
+    /// The caller composes the exact collection, doc id, and field map to match
+    /// the schema, so historical CloudKit records land under the same doc ids
+    /// the live dual-write uses. merge:true so re-running never clobbers.
+    @discardableResult
+    func backfillSet(collection: String, docID: String, data: [String: Any]) async -> Bool {
+        do {
+            try await db.collection(collection).document(docID).setData(data, merge: true)
+            return true
+        } catch {
+            print("[Firebase] backfill \(collection)/\(docID) failed: \(error.localizedDescription)")
+            return false
+        }
+    }
 
     /// @ObservationIgnored is REQUIRED: the @Observable macro rewrites stored
     /// properties into computed ones with init accessors, and `lazy` cannot be
@@ -80,7 +118,7 @@ final class FirebaseService {
     /// leaves the existing note untouched, a non-empty string sets it, and an
     /// empty/whitespace string clears it (FieldValue.delete()).
     func savePlacement(restaurantID: UUID, tier: Tier, note: String? = nil) async {
-        guard let userID else { return }
+        guard let userID = effectiveUserID else { return }
         let docID = "\(userID)_\(restaurantID.uuidString)"
         var data: [String: Any] = [
             "userID": userID,
@@ -101,7 +139,7 @@ final class FirebaseService {
     /// Set/clear ONLY the note on an existing placement doc (mirrors
     /// CloudKitService.saveMyNote). Empty string clears it.
     func saveNote(restaurantID: UUID, note: String) async {
-        guard let userID else { return }
+        guard let userID = effectiveUserID else { return }
         let docID = "\(userID)_\(restaurantID.uuidString)"
         let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
         await tryWrite("saveNote") {
@@ -112,7 +150,7 @@ final class FirebaseService {
     }
 
     func removePlacement(restaurantID: UUID) async {
-        guard let userID else { return }
+        guard let userID = effectiveUserID else { return }
         let docID = "\(userID)_\(restaurantID.uuidString)"
         await tryWrite("removePlacement") {
             try await self.db.collection("placements").document(docID).delete()
@@ -122,7 +160,7 @@ final class FirebaseService {
     // MARK: - Closure reports (user-side)
 
     func saveClosureReport(restaurantID: UUID) async {
-        guard let userID else { return }
+        guard let userID = effectiveUserID else { return }
         let docID = "\(userID)_\(restaurantID.uuidString)"
         await tryWrite("saveClosureReport") {
             try await self.db.collection("closureReports").document(docID).setData([
@@ -134,7 +172,7 @@ final class FirebaseService {
     }
 
     func deleteClosureReport(restaurantID: UUID) async {
-        guard let userID else { return }
+        guard let userID = effectiveUserID else { return }
         let docID = "\(userID)_\(restaurantID.uuidString)"
         await tryWrite("deleteClosureReport") {
             try await self.db.collection("closureReports").document(docID).delete()
@@ -144,7 +182,7 @@ final class FirebaseService {
     // MARK: - Closure decisions (admin-side)
 
     func saveClosureDecision(restaurantID: UUID, decision: String) async {
-        guard let userID else { return }
+        guard let userID = effectiveUserID else { return }
         await tryWrite("saveClosureDecision") {
             try await self.db.collection("closureDecisions")
                 .document(restaurantID.uuidString)
@@ -171,7 +209,7 @@ final class FirebaseService {
     /// (used when CloudKit is unavailable so we can't read the current value —
     /// avoids downgrading an already-approved pro back to "" on a name edit).
     func saveProfile(displayName: String, status: String?) async {
-        guard let userID else { return }
+        guard let userID = effectiveUserID else { return }
         var data: [String: Any] = [
             "userID": userID,
             "displayName": displayName,
@@ -205,7 +243,7 @@ final class FirebaseService {
     // MARK: - Photo reports (UGC moderation)
 
     func savePhotoReport(photoID: String) async {
-        guard let userID else { return }
+        guard let userID = effectiveUserID else { return }
         let docID = "\(userID)_\(photoID)"
         await tryWrite("savePhotoReport") {
             try await self.db.collection("photoReports").document(docID).setData([
@@ -242,7 +280,7 @@ final class FirebaseService {
         cuisines: [String],
         description: String
     ) async -> String? {
-        guard let userID else { return nil }
+        guard let userID = effectiveUserID else { return nil }
         let docRef = db.collection("suggestions").document()
         do {
             try await docRef.setData([
@@ -314,7 +352,7 @@ final class FirebaseService {
     // MARK: - Visited list (per-user, single-doc-per-user)
 
     func saveVisitedList(_ restaurantIDs: Set<UUID>) async {
-        guard let userID else { return }
+        guard let userID = effectiveUserID else { return }
         let ids = restaurantIDs.map { $0.uuidString }
         await tryWrite("saveVisitedList") {
             try await self.db.collection("visitedLists").document(userID).setData([
@@ -331,7 +369,7 @@ final class FirebaseService {
     /// One doc per (user, restaurant, tag): `<uid>_<restaurant>_<tag>` so
     /// confirmations dedupe + count exactly like the CloudKit record.
     func setDietaryTag(restaurantID: UUID, tag: String, on: Bool) async {
-        guard let userID else { return }
+        guard let userID = effectiveUserID else { return }
         let docID = "\(userID)_\(restaurantID.uuidString)_\(tag)"
         if on {
             await tryWrite("setDietaryTag") {
@@ -354,7 +392,7 @@ final class FirebaseService {
     /// Single doc per user holding the follow list, each entry encoded
     /// "userID|displayName" — same wire format as the CloudKit array.
     func saveFriendList(_ entries: [String]) async {
-        guard let userID else { return }
+        guard let userID = effectiveUserID else { return }
         await tryWrite("saveFriendList") {
             try await self.db.collection("friendLists").document(userID).setData([
                 "userID": userID,
@@ -368,7 +406,7 @@ final class FirebaseService {
     // MARK: - Note reports (mirrors CloudKitService.reportNote)
 
     func saveNoteReport(placementRecordName: String) async {
-        guard let userID else { return }
+        guard let userID = effectiveUserID else { return }
         let docID = "\(userID)_\(placementRecordName)"
         await tryWrite("saveNoteReport") {
             try await self.db.collection("noteReports").document(docID).setData([

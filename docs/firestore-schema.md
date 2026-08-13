@@ -26,10 +26,20 @@ sees a sign-in flow, but each device gets a stable identifier.
 
 | Concept | CloudKit | Firestore |
 |---|---|---|
-| User identifier | iCloud user record name (opaque hash) | Firebase Anonymous Auth UID |
-| Per-device or per-account? | Per-account (iCloud-shared) | Per-installation by default; we override to be per-account |
-| Cross-device sync | Automatic via iCloud | Manual via iCloud Key-Value Store as broker for the Firebase UID |
-| Admin recognition | Hardcoded `adminUserIDs: Set<String>` in iOS | `users/{uid}.isAdmin = true` field in Firestore + security rules |
+| User identifier | iCloud user record name (opaque hash) | **iCloud user record name** (canonical doc key) — Firebase anon UID is only the auth session |
+| Per-device or per-account? | Per-account (iCloud-shared) | Per-account via the linked iCloud id; Android users key by their Firebase UID |
+| Write authorization | CloudKit creator-owns | "Signed in" only (auth uid ≠ doc key, so per-user authz isn't enforceable without a custom-token backend) |
+| Admin recognition | Hardcoded `adminUserIDs: Set<String>` in iOS | `users/{firebaseUID}.isAdmin = true` (keyed by the auth uid, so it IS enforceable) |
+
+> **Phase 3 identity decision (2026-08-13):** chose the FULL-BACKFILL model —
+> key all iOS-originated docs by the iCloud user record name so the live
+> dual-write and the one-time backfill share one id (no double-counting), and
+> Android launches with the complete community history. `FirebaseService.linkUser()`
+> sets the canonical key from CloudKit; `effectiveUserID = linkedUserID ?? firebaseAnonUID`.
+> The cost is that write rules relax to "any signed-in user" (parity with the
+> client-asserted-id trust model CloudKit already uses; admin audit/ban tools
+> still police manipulation). Apple users who move to Android start fresh —
+> accepted, since that's rare.
 
 **Cross-device identity flow:**
 1. App launches, checks iCloud KVS for an existing `firebaseUID` key.
@@ -410,44 +420,31 @@ scale).
 
 ## Security rules (sketch — implementation in `firestore.rules`)
 
+The deployed rules live in `docs/firestore.rules`. Under the Phase 3
+identity decision, user-owned collections gate on `isAuthed()` (signed in)
+rather than per-user ownership — because the doc's userID is the iCloud id,
+not the Firebase auth uid, so `auth.uid == doc.userID` can't hold. Admin
+collections and the `users` admin-flag store (keyed by the auth uid) stay
+strict.
+
 ```javascript
-// Pseudo-rules. Real implementation goes in firestore.rules deployed
-// via Firebase CLI.
-
-placements:    write if request.auth.uid == resource.data.userID
-               read  if true
-closureReports: write if request.auth.uid == resource.data.userID
-                read  if request.auth.uid == resource.data.userID || isAdmin()
-closureDecisions: write if isAdmin()
-                  read  if true
-profiles:      write if request.auth.uid == resource.data.userID
-                      && (request.resource.data.status != "approved" || isAdmin())
-               read  if true
-proApprovals:  write if isAdmin()
-               read  if true
-dishPhotos:    write if request.auth.uid == resource.data.submitterUserID
-               read  if true
-photoReports:  write if request.auth.uid == resource.data.reporterID
-               read  if isAdmin()
-photoModerated: write if isAdmin()
-                read  if true
-suggestions:   write if request.auth.uid == resource.data.submitterUserID
-                      && (request.resource.data.status == "pending" || isAdmin())
-               read  if true
-liveRestaurants: write if isAdmin()
+// Summary — full rules in docs/firestore.rules.
+placements, closureReports, dietaryTags, visitedLists,
+friendLists, photoReports(create), noteReports(create):
+                 write if isAuthed()          // signed-in; userID client-asserted
+                 read  if true (noteReports/photoReports read: isAdmin)
+profiles:        write if isAuthed() && (status != "approved" || isAdmin())
+suggestions:     create if isAuthed() && status == "pending"; update/delete if isAdmin()
+closureDecisions, proApprovals, photoModerated,
+liveRestaurants, adminExclusions:
+                 write if isAdmin()
                  read  if true
-visitedLists:  read, write if request.auth.uid == resource.data.userID
-dietaryTags:   write if request.auth.uid == resource.data.userID
-               read  if true
-friendLists:   write if request.auth.uid == userID
-               read  if true
-noteReports:   write if request.auth.uid == resource.data.reporterID
-               read  if isAdmin()
-adminExclusions: write if isAdmin()
-                 read  if true
+users:           read  if auth.uid == userID || isAdmin()   // keyed by auth uid
+                 write if isAdmin()
 
-function isAdmin() {
-  return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+function isAdmin() {  // keyed by the Firebase auth uid — enforceable
+  return exists(/databases/$(database)/documents/users/$(request.auth.uid))
+    && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
 }
 ```
 

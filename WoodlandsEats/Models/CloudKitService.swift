@@ -160,7 +160,14 @@ final class CloudKitService {
     private(set) var confirmedClosedIDs: Set<UUID> = []
 
     init() {
-        Task { await refreshAvailability() }
+        Task {
+            await refreshAvailability()
+            // Resolve + link the iCloud user record name into FirebaseService
+            // early (before the user can trigger a write), so live dual-writes
+            // key Firestore docs by the SAME canonical id the full backfill
+            // uses. No-op when there's no iCloud account.
+            _ = await userRecordName()
+        }
     }
 
     @MainActor
@@ -173,9 +180,14 @@ final class CloudKitService {
     }
 
     private func userRecordName() async -> String? {
-        if let cachedUserRecordName { return cachedUserRecordName }
+        if let cachedUserRecordName {
+            FirebaseService.shared.linkUser(cachedUserRecordName)
+            return cachedUserRecordName
+        }
         let name = try? await container.userRecordID().recordName
         cachedUserRecordName = name
+        // Link the canonical Firestore key (no-op if nil / no iCloud account).
+        FirebaseService.shared.linkUser(name)
         return name
     }
 
@@ -2055,5 +2067,219 @@ final class CloudKitService {
             description: desc,
             signatureDishes: rec["signatureDishes"] as? [String] ?? []
         )
+    }
+
+    // MARK: - Phase 3: full CloudKit → Firestore backfill (MigrationService)
+    //
+    // One-time, admin-run, idempotent copy of ALL public CloudKit records into
+    // Firestore, keyed by the SAME document ids the live dual-write uses (see
+    // FirebaseService's identity model). This gives Android the complete
+    // community history on day one rather than only data created after the
+    // dual-write shipped. Safe to re-run — every write is setData(merge:true).
+    //
+    // Reads are public-DB TRUEPREDICATE page-throughs (each type needs its
+    // recordName / field Queryable index, all already deployed). Writes go
+    // through FirebaseService.backfillSet. NOT mirrored: DishPhoto binary
+    // (needs Firebase Storage) and RestaurantSuggestion (auto-id, admin-only
+    // workflow — its approved result lands via liveRestaurants).
+
+    /// Parse the owner userID out of a "prefix_<userID>_<uuid>" record name
+    /// (e.g. ClosureReport's "closure_<user>_<uuid>").
+    private func ownerID(from recordName: String, prefix: String) -> String? {
+        guard recordName.hasPrefix(prefix) else { return nil }
+        let body = recordName.dropFirst(prefix.count)   // "<userID>_<uuid>"
+        guard body.count > 37 else { return nil }        // 36-char UUID + "_"
+        let userID = String(body.dropLast(37))
+        return userID.isEmpty ? nil : userID
+    }
+
+    /// Page one record type and mirror each record into a Firestore collection.
+    /// `transform` maps a CloudKit record to (docID, data) or nil to skip.
+    private func backfillType(
+        _ recordType: String,
+        desiredKeys: [CKRecord.FieldKey]?,
+        into collection: String,
+        transform: (CKRecord.ID, CKRecord) -> (docID: String, data: [String: Any])?
+    ) async -> Int {
+        var count = 0
+        func handle(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) async {
+            for (id, result) in matches {
+                guard case .success(let rec) = result,
+                      let out = transform(id, rec) else { continue }
+                if await FirebaseService.shared.backfillSet(
+                    collection: collection, docID: out.docID, data: out.data) {
+                    count += 1
+                }
+            }
+        }
+        do {
+            let q = CKQuery(recordType: recordType, predicate: NSPredicate(value: true))
+            var (matches, cursor) = try await publicDB.records(
+                matching: q, desiredKeys: desiredKeys, resultsLimit: 200)
+            await handle(matches)
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(
+                    continuingMatchFrom: c, desiredKeys: desiredKeys, resultsLimit: 200)
+                await handle(matches)
+            }
+        } catch {
+            // Partial result acceptable — merge writes make a later re-run safe.
+        }
+        return count
+    }
+
+    /// Run the full backfill. Admin-gated. Returns per-collection write counts.
+    func runFullBackfill() async -> [String: Int] {
+        await refreshAvailability()
+        guard isAvailable, await isAdmin() else { return [:] }
+        var out: [String: Int] = [:]
+
+        // 1. Placements (+ embedded notes) — the community-consensus core.
+        out["placements"] = await backfillType(
+            placementType, desiredKeys: ["restaurantID", "tier", "score", "note"],
+            into: "placements") { id, rec in
+            guard let owner = self.placementOwnerID(from: id.recordName),
+                  let rid = rec["restaurantID"] as? String,
+                  let tier = rec["tier"] as? String,
+                  let score = rec["score"] as? Int else { return nil }
+            var data: [String: Any] = ["userID": owner, "restaurantID": rid,
+                                       "tier": tier, "score": score]
+            if let note = (rec["note"] as? String)?
+                .trimmingCharacters(in: .whitespacesAndNewlines), !note.isEmpty {
+                data["note"] = note
+            }
+            return ("\(owner)_\(rid)", data)
+        }
+
+        // 2. Foodie profiles.
+        out["profiles"] = await backfillType(
+            profileType, desiredKeys: ["userID", "displayName", "status", "isAppleVerified"],
+            into: "profiles") { _, rec in
+            guard let uid = rec["userID"] as? String, !uid.isEmpty else { return nil }
+            return (uid, [
+                "userID": uid,
+                "displayName": rec["displayName"] as? String ?? "",
+                "status": rec["status"] as? String ?? "",
+                "isAppleVerified": (rec["isAppleVerified"] as? Int64) == 1,
+            ])
+        }
+
+        // 3. Pro approvals (admin-owned).
+        out["proApprovals"] = await backfillType(
+            approvalType, desiredKeys: ["userID"], into: "proApprovals") { id, rec in
+            let uid = (rec["userID"] as? String)
+                ?? String(id.recordName.dropFirst("approval_".count))
+            guard !uid.isEmpty else { return nil }
+            return (uid, ["userID": uid])
+        }
+
+        // 4. Visited lists (single doc per user, recordName "visited_<user>").
+        out["visitedLists"] = await backfillType(
+            visitedType, desiredKeys: ["restaurantIDs", "count"],
+            into: "visitedLists") { id, rec in
+            let owner = String(id.recordName.dropFirst("visited_".count))
+            guard !owner.isEmpty, let ids = rec["restaurantIDs"] as? [String] else { return nil }
+            return (owner, ["userID": owner, "restaurantIDs": ids, "count": ids.count])
+        }
+
+        // 5. Friend lists (recordName "friends_<user>").
+        out["friendLists"] = await backfillType(
+            friendListType, desiredKeys: ["entries", "count"],
+            into: "friendLists") { id, rec in
+            let owner = String(id.recordName.dropFirst("friends_".count))
+            guard !owner.isEmpty, let entries = rec["entries"] as? [String] else { return nil }
+            return (owner, ["userID": owner, "entries": entries, "count": entries.count])
+        }
+
+        // 6. Dietary tags (docID from fields to match the live scheme).
+        out["dietaryTags"] = await backfillType(
+            dietaryTagType, desiredKeys: ["restaurantID", "tag", "userID"],
+            into: "dietaryTags") { _, rec in
+            guard let uid = rec["userID"] as? String,
+                  let rid = rec["restaurantID"] as? String,
+                  let tag = rec["tag"] as? String else { return nil }
+            return ("\(uid)_\(rid)_\(tag)",
+                    ["userID": uid, "restaurantID": rid, "tag": tag])
+        }
+
+        // 7. Closure reports (recordName "closure_<user>_<uuid>").
+        out["closureReports"] = await backfillType(
+            closureType, desiredKeys: ["restaurantID"],
+            into: "closureReports") { id, rec in
+            guard let owner = self.ownerID(from: id.recordName, prefix: "closure_"),
+                  let rid = rec["restaurantID"] as? String else { return nil }
+            return ("\(owner)_\(rid)", ["userID": owner, "restaurantID": rid])
+        }
+
+        // 8. Closure decisions (admin, one per restaurant).
+        out["closureDecisions"] = await backfillType(
+            closureDecisionType, desiredKeys: ["restaurantID", "decision"],
+            into: "closureDecisions") { _, rec in
+            guard let rid = rec["restaurantID"] as? String,
+                  let decision = rec["decision"] as? String else { return nil }
+            return (rid, ["restaurantID": rid, "decision": decision])
+        }
+
+        // 9. Admin exclusions (ban / exclude / hide-note).
+        out["adminExclusions"] = await backfillType(
+            exclusionType, desiredKeys: ["kind", "target"],
+            into: "adminExclusions") { _, rec in
+            guard let kind = rec["kind"] as? String,
+                  let target = rec["target"] as? String else { return nil }
+            return ("\(kind)_\(target)", ["kind": kind, "target": target])
+        }
+
+        // 10. Note reports (admin queue).
+        out["noteReports"] = await backfillType(
+            noteReportType, desiredKeys: ["placementName", "reporterID"],
+            into: "noteReports") { _, rec in
+            guard let name = rec["placementName"] as? String,
+                  let reporter = rec["reporterID"] as? String else { return nil }
+            return ("\(reporter)_\(name)",
+                    ["placementName": name, "reporterID": reporter])
+        }
+
+        // 11. Photo reports (admin queue). Binary is NOT migrated.
+        out["photoReports"] = await backfillType(
+            photoReportType, desiredKeys: ["photoID", "reporterID"],
+            into: "photoReports") { _, rec in
+            guard let pid = rec["photoID"] as? String,
+                  let reporter = rec["reporterID"] as? String else { return nil }
+            return ("\(reporter)_\(pid)", ["photoID": pid, "reporterID": reporter])
+        }
+
+        // 12. Photo moderation decisions.
+        out["photoModerated"] = await backfillType(
+            photoModType, desiredKeys: ["photoID", "decision"],
+            into: "photoModerated") { _, rec in
+            guard let pid = rec["photoID"] as? String,
+                  let decision = rec["decision"] as? String else { return nil }
+            return (pid, ["photoID": pid, "decision": decision])
+        }
+
+        // 13. Live (community-approved) restaurants — full field set.
+        out["liveRestaurants"] = await backfillType(
+            liveType, desiredKeys: nil, into: "liveRestaurants") { _, rec in
+            guard let rid = rec["restaurantID"] as? String,
+                  let name = rec["name"] as? String,
+                  let lat = rec["latitude"] as? Double,
+                  let lon = rec["longitude"] as? Double else { return nil }
+            var data: [String: Any] = [
+                "name": name, "latitude": lat, "longitude": lon,
+                "area": rec["area"] as? String ?? "",
+                "address": rec["address"] as? String ?? "",
+                "cuisines": rec["cuisines"] as? [String] ?? [],
+                "priceTier": rec["priceTier"] as? String ?? "$$",
+                "isFastFood": ((rec["isFastFood"] as? Int) ?? 0) != 0,
+                "description": rec["description"] as? String ?? "",
+                "signatureDishes": rec["signatureDishes"] as? [String] ?? [],
+            ]
+            if let sid = rec["suggestionID"] as? String { data["originalSuggestionID"] = sid }
+            if let web = rec["website"] as? String { data["website"] = web }
+            if let phone = rec["phone"] as? String { data["phone"] = phone }
+            return (rid, data)
+        }
+
+        return out
     }
 }
