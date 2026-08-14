@@ -34,6 +34,9 @@ struct ProfileView: View {
     /// Phase 3 (Android migration): one-time full CloudKit → Firestore backfill.
     @State private var migrationRunning = false
     @State private var migrationResult: String?
+    /// Phase 4 read-cutover kill-switch (admin A/B). CloudKitService reads the
+    /// same UserDefaults key to route per-restaurant community reads.
+    @AppStorage("WoodlandsEats.useFirestoreReads") private var useFirestoreReads = false
     @State private var pending: [ProRequest] = []
     @State private var approvedPros: [ProRequest] = []
     @Environment(RestaurantStore.self) private var store
@@ -284,6 +287,16 @@ struct ProfileView: View {
                                 .foregroundStyle(.secondary)
                                 .textSelection(.enabled)
                         }
+                        // Phase 4: read-cutover kill-switch. Routes the detail-
+                        // view community tier + dietary tags from Firestore
+                        // instead of CloudKit so you can A/B the two on-device.
+                        // Default OFF (CloudKit). Full board is Part 2.
+                        Toggle(isOn: $useFirestoreReads) {
+                            Label("Read from Firestore", systemImage: "arrow.down.circle")
+                        }
+                        Text("Detail-screen community tier + dietary tags read from Firestore. Compare a restaurant with this on vs. off — they should match. Admin A/B for the Android migration.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
 
                     Section(header: Text("Pending Pro requests")) {

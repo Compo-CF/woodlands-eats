@@ -440,4 +440,100 @@ final class FirebaseService {
             try await self.db.collection("adminExclusions").document(docID).delete()
         }
     }
+
+    // MARK: - Reads (Phase 4 read-cutover, Part 1)
+    //
+    // Per-restaurant reads only — bounded and cheap on Firestore's per-doc
+    // pricing (a restaurant's placements/tags, not the whole collection). The
+    // full Community-board aggregate (all ~5.4K placements) is deliberately NOT
+    // here: scanning every placement per board load is expensive, and Part 2
+    // will back it with a maintained per-restaurant consensus doc (or a Cloud
+    // Function) before that read is cut over. These are gated behind an
+    // admin-only kill-switch in CloudKitService; default is CloudKit reads.
+
+    /// Coerce a Firestore numeric (Int64 / NSNumber / Double) to Int.
+    private func intOf(_ v: Any?) -> Int? {
+        if let i = v as? Int { return i }
+        if let i = v as? Int64 { return Int(i) }
+        if let n = v as? NSNumber { return n.intValue }
+        if let d = v as? Double { return Int(d) }
+        return nil
+    }
+
+    @ObservationIgnored private var exclBannedUsers: Set<String> = []
+    @ObservationIgnored private var exclPlacementNames: Set<String> = []
+    @ObservationIgnored private var exclLoaded = false
+
+    /// Load the admin-exclusion sets once (banned users + individually excluded
+    /// placements) so community aggregates filter identically to CloudKit.
+    /// Placement exclusions target the CloudKit placement recordName
+    /// ("placement_<user>_<restaurant>"), which we reconstruct from each
+    /// Firestore doc's userID + restaurantID.
+    func loadExclusionsIfNeeded(force: Bool = false) async {
+        guard force || !exclLoaded else { return }
+        do {
+            let snap = try await db.collection("adminExclusions").getDocuments()
+            var banned: Set<String> = []
+            var placements: Set<String> = []
+            for doc in snap.documents {
+                guard let kind = doc.get("kind") as? String,
+                      let target = doc.get("target") as? String else { continue }
+                if kind == "user" { banned.insert(target) }
+                else if kind == "placement" { placements.insert(target) }
+            }
+            exclBannedUsers = banned
+            exclPlacementNames = placements
+            exclLoaded = true
+        } catch {
+            // Leave caches as-is; aggregates fall back to unfiltered.
+        }
+    }
+
+    /// Consensus tier for one restaurant from everyone's placements. Applies the
+    /// same admin exclusions as CloudKit. nil if no one has ranked it.
+    func fetchCommunityTier(restaurantID: UUID) async -> CommunityTier? {
+        await loadExclusionsIfNeeded()
+        let rid = restaurantID.uuidString
+        do {
+            let snap = try await db.collection("placements")
+                .whereField("restaurantID", isEqualTo: rid)
+                .getDocuments()
+            var total = 0
+            var count = 0
+            for doc in snap.documents {
+                guard let score = intOf(doc.get("score")) else { continue }
+                let owner = doc.get("userID") as? String ?? ""
+                if exclBannedUsers.contains(owner) { continue }
+                if exclPlacementNames.contains("placement_\(owner)_\(rid)") { continue }
+                total += score
+                count += 1
+            }
+            guard count > 0 else { return nil }
+            let avg = Double(total) / Double(count)
+            return CommunityTier(tier: .from(averageScore: avg), count: count, average: avg)
+        } catch {
+            return nil
+        }
+    }
+
+    /// Community dietary-tag counts for one restaurant + the tags the current
+    /// user confirmed. Keyed by DietaryTag raw value (matches CloudKit).
+    func fetchDietaryTags(restaurantID: UUID) async -> (counts: [String: Int], mine: Set<String>) {
+        let me = effectiveUserID
+        do {
+            let snap = try await db.collection("dietaryTags")
+                .whereField("restaurantID", isEqualTo: restaurantID.uuidString)
+                .getDocuments()
+            var counts: [String: Int] = [:]
+            var mine: Set<String> = []
+            for doc in snap.documents {
+                guard let tag = doc.get("tag") as? String else { continue }
+                counts[tag, default: 0] += 1
+                if let uid = doc.get("userID") as? String, uid == me { mine.insert(tag) }
+            }
+            return (counts, mine)
+        } catch {
+            return ([:], [])
+        }
+    }
 }

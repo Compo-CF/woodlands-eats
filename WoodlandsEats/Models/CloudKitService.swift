@@ -159,6 +159,14 @@ final class CloudKitService {
     /// admin actively verifies. Refreshed alongside closureCounts.
     private(set) var confirmedClosedIDs: Set<UUID> = []
 
+    /// Phase 4 read-cutover kill-switch. When true, per-restaurant community
+    /// reads (community tier + dietary tags) come from Firestore instead of
+    /// CloudKit. Admin-only toggle in ProfileView; default OFF (CloudKit). Read
+    /// straight from UserDefaults since CloudKitService isn't a View.
+    private var useFirestoreReads: Bool {
+        UserDefaults.standard.bool(forKey: "WoodlandsEats.useFirestoreReads")
+    }
+
     init() {
         Task {
             await refreshAvailability()
@@ -272,6 +280,10 @@ final class CloudKitService {
     /// of tags the current user has personally confirmed. Both keyed by the
     /// DietaryTag raw value. Returns empties on any failure path.
     func fetchDietaryTags(restaurantID: UUID) async -> (counts: [String: Int], mine: Set<String>) {
+        // Phase 4: read-cutover (see fetchCommunityTier).
+        if useFirestoreReads {
+            return await FirebaseService.shared.fetchDietaryTags(restaurantID: restaurantID)
+        }
         guard isAvailable else { return ([:], []) }
         let me = await userRecordName()
         var counts: [String: Int] = [:]
@@ -632,6 +644,11 @@ final class CloudKitService {
     /// Average everyone's placements for a restaurant into a consensus tier.
     /// Returns nil if no one has ranked it yet (or CloudKit is unavailable).
     func fetchCommunityTier(restaurantID: UUID) async -> CommunityTier? {
+        // Phase 4: read-cutover. When enabled, serve from Firestore (pure
+        // cutover, no CloudKit fallback — so the admin A/B is a true test).
+        if useFirestoreReads {
+            return await FirebaseService.shared.fetchCommunityTier(restaurantID: restaurantID)
+        }
         guard isAvailable else { return nil }
         await loadExclusionsIfNeeded()
         let predicate = NSPredicate(format: "restaurantID == %@", restaurantID.uuidString)
