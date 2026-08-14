@@ -536,4 +536,77 @@ final class FirebaseService {
             return ([:], [])
         }
     }
+
+    // MARK: - Community board reads (Phase 4 Part 2)
+    //
+    // ⚠️ COST: each of these scans the ENTIRE placements collection (~5.4K docs
+    // = ~5.4K reads) per board load. Fine for admin A/B and low traffic, but at
+    // scale this burns Firestore's 50K-reads/day free tier fast. The production
+    // fix (before an all-users cutover) is a maintained per-restaurant consensus
+    // doc updated with FieldValue.increment on each placement write — turning a
+    // board load into ~1 read/restaurant. Tracked as the Part 2 follow-up; the
+    // client-side board cache (Community tab) softens this in the meantime.
+
+    /// Aggregate placement docs into per-restaurant consensus tiers, applying
+    /// the same admin exclusions as CloudKit and an owner filter (for the
+    /// Everyone / Pros / Friends variants).
+    private func aggregate(_ docs: [QueryDocumentSnapshot],
+                           keepOwner: (String) -> Bool) -> [UUID: CommunityTier] {
+        var sums: [UUID: (total: Int, count: Int)] = [:]
+        for doc in docs {
+            guard let ridStr = doc.get("restaurantID") as? String,
+                  let rid = UUID(uuidString: ridStr),
+                  let score = intOf(doc.get("score")) else { continue }
+            let owner = doc.get("userID") as? String ?? ""
+            if !keepOwner(owner) { continue }
+            if exclBannedUsers.contains(owner) { continue }
+            if exclPlacementNames.contains("placement_\(owner)_\(ridStr)") { continue }
+            var e = sums[rid] ?? (0, 0)
+            e.total += score; e.count += 1
+            sums[rid] = e
+        }
+        var out: [UUID: CommunityTier] = [:]
+        for (rid, e) in sums where e.count > 0 {
+            let avg = Double(e.total) / Double(e.count)
+            out[rid] = CommunityTier(tier: .from(averageScore: avg), count: e.count, average: avg)
+        }
+        return out
+    }
+
+    /// The "Everyone" board — consensus across all users.
+    func fetchAllCommunityTiers() async -> [UUID: CommunityTier] {
+        await loadExclusionsIfNeeded()
+        do {
+            let snap = try await db.collection("placements").getDocuments()
+            return aggregate(snap.documents, keepOwner: { _ in true })
+        } catch {
+            return [:]
+        }
+    }
+
+    /// The "Pros" board — consensus across approved Foodie Pros only.
+    func fetchProCommunityTiers() async -> [UUID: CommunityTier] {
+        await loadExclusionsIfNeeded()
+        do {
+            let proSnap = try await db.collection("proApprovals").getDocuments()
+            let pros = Set(proSnap.documents.compactMap { $0.get("userID") as? String })
+            guard !pros.isEmpty else { return [:] }
+            let snap = try await db.collection("placements").getDocuments()
+            return aggregate(snap.documents, keepOwner: { pros.contains($0) })
+        } catch {
+            return [:]
+        }
+    }
+
+    /// The "Friends" board — consensus across the given followed user ids.
+    func fetchFriendsCommunityTiers(friendIDs: Set<String>) async -> [UUID: CommunityTier] {
+        guard !friendIDs.isEmpty else { return [:] }
+        await loadExclusionsIfNeeded()
+        do {
+            let snap = try await db.collection("placements").getDocuments()
+            return aggregate(snap.documents, keepOwner: { friendIDs.contains($0) })
+        } catch {
+            return [:]
+        }
+    }
 }

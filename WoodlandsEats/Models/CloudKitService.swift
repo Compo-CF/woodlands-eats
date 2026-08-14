@@ -462,6 +462,10 @@ final class CloudKitService {
     /// only if its owner is in `friendIDs`. Admin exclusions still apply.
     /// Returns [:] if the friend set is empty or CloudKit is unavailable.
     func fetchFriendsCommunityTiers(friendIDs: Set<String>) async -> [UUID: CommunityTier] {
+        // Phase 4 Part 2: read-cutover for the Friends board.
+        if useFirestoreReads {
+            return await FirebaseService.shared.fetchFriendsCommunityTiers(friendIDs: friendIDs)
+        }
         guard isAvailable, !friendIDs.isEmpty else { return [:] }
         await loadExclusionsIfNeeded()
         var sums: [UUID: (total: Int, count: Int)] = [:]
@@ -676,6 +680,10 @@ final class CloudKitService {
     /// Queryable index on the Placement record's `recordName` (for the fetch-all
     /// TRUEPREDICATE query); returns [:] gracefully until that exists.
     func fetchAllCommunityTiers() async -> [UUID: CommunityTier] {
+        // Phase 4 Part 2: read-cutover for the Everyone board.
+        if useFirestoreReads {
+            return await FirebaseService.shared.fetchAllCommunityTiers()
+        }
         guard isAvailable else { return [:] }
         await loadExclusionsIfNeeded()
         var sums: [UUID: (total: Int, count: Int)] = [:]
@@ -1780,6 +1788,10 @@ final class CloudKitService {
     /// Owner is parsed from each placement's recordName (robust), then each unique
     /// owner's approval is checked directly — no extra index, no creator-field quirk.
     func fetchProCommunityTiers() async -> [UUID: CommunityTier] {
+        // Phase 4 Part 2: read-cutover for the Pros board.
+        if useFirestoreReads {
+            return await FirebaseService.shared.fetchProCommunityTiers()
+        }
         guard isAvailable else { return [:] }
 
         await loadExclusionsIfNeeded()

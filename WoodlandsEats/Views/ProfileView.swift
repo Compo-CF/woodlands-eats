@@ -294,7 +294,7 @@ struct ProfileView: View {
                         Toggle(isOn: $useFirestoreReads) {
                             Label("Read from Firestore", systemImage: "arrow.down.circle")
                         }
-                        Text("Detail-screen community tier + dietary tags read from Firestore. Compare a restaurant with this on vs. off — they should match. Admin A/B for the Android migration.")
+                        Text("Community boards (Everyone/Pros/Friends) + detail-screen tier & dietary tags read from Firestore instead of CloudKit. Toggle on vs. off on the same restaurant/board — they should match. Admin A/B for the Android migration.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
