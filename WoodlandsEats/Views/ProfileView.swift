@@ -64,6 +64,10 @@ struct ProfileView: View {
     /// awaiting a Confirm/Reject decision.
     @State private var pendingClosures: [(restaurant: Restaurant, count: Int)] = []
     @State private var actingClosureID: UUID?
+    /// Closure reports whose restaurantID is no longer in the seed (e.g. a
+    /// reseed changed the UUID) — they can't surface in the normal queue, so
+    /// list them here with a one-tap Clear.
+    @State private var orphanedClosures: [(id: UUID, count: Int)] = []
     /// v1.5: session-local set of restaurants the admin has just
     /// decided this session. CloudKit's TRUEPREDICATE queries can
     /// take 10-30s to surface freshly-written ClosureDecision records,
@@ -420,6 +424,43 @@ struct ProfileView: View {
                         } else {
                             ForEach(pendingClosures, id: \.restaurant.id) { item in
                                 closureReportRow(item)
+                            }
+                        }
+                    }
+
+                    if !orphanedClosures.isEmpty {
+                        Section(
+                            header: Text("Orphaned closure reports"),
+                            footer: Text("Closure reports pointing at a restaurant ID that's no longer in the catalog (usually after a reseed changed the ID). They can't be actioned normally — clear them here.")
+                        ) {
+                            ForEach(orphanedClosures, id: \.id) { item in
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("\(item.count) \(item.count == 1 ? "report" : "reports")")
+                                            .font(.subheadline)
+                                        Text(item.id.uuidString)
+                                            .font(.caption2.monospaced())
+                                            .foregroundStyle(.secondary)
+                                            .lineLimit(1).truncationMode(.middle)
+                                    }
+                                    Spacer()
+                                    if actingClosureID == item.id {
+                                        ProgressView()
+                                    } else {
+                                        Button("Clear") {
+                                            Task {
+                                                actingClosureID = item.id
+                                                defer { actingClosureID = nil }
+                                                if await cloudKit.clearClosureData(restaurantID: item.id) {
+                                                    orphanedClosures.removeAll { $0.id == item.id }
+                                                    store.confirmedClosedIDs = cloudKit.confirmedClosedIDs
+                                                }
+                                            }
+                                        }
+                                        .buttonStyle(.bordered)
+                                        .tint(.orange)
+                                    }
+                                }
                             }
                         }
                     }
@@ -791,6 +832,13 @@ struct ProfileView: View {
             guard let r = byID[item.restaurantID] else { return nil }
             return (r, item.count)
         }
+        // Orphaned: any restaurant with closure reports whose UUID is no longer
+        // in the current seed (fetchPendingClosureReports refreshed closureCounts).
+        // These can't render a normal row, so surface them for cleanup.
+        orphanedClosures = cloudKit.closureCounts
+            .filter { $0.value > 0 && byID[$0.key] == nil && !recentlyDecidedClosureIDs.contains($0.key) }
+            .map { (id: $0.key, count: $0.value) }
+            .sorted { $0.count > $1.count }
     }
 
     @ViewBuilder

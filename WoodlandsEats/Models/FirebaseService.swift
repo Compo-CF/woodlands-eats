@@ -203,6 +203,20 @@ final class FirebaseService {
         }
     }
 
+    /// Admin cleanup: delete every closureReport for a restaurant + its
+    /// closureDecision (mirrors CloudKitService.clearClosureData).
+    func clearClosureData(restaurantID: UUID) async {
+        let rid = restaurantID.uuidString
+        await tryWrite("clearClosureData.reports") {
+            let snap = try await self.db.collection("closureReports")
+                .whereField("restaurantID", isEqualTo: rid).getDocuments()
+            for doc in snap.documents { try await doc.reference.delete() }
+        }
+        await tryWrite("clearClosureData.decision") {
+            try await self.db.collection("closureDecisions").document(rid).delete()
+        }
+    }
+
     // MARK: - Profiles (Foodie Pro request identity)
 
     /// `status` is optional: nil means "leave the existing status untouched"

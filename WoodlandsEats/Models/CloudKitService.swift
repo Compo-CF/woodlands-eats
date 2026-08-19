@@ -1488,6 +1488,40 @@ final class CloudKitService {
         }
     }
 
+    /// Admin: wipe ALL closure state for a restaurant — every user's
+    /// ClosureReport plus any ClosureDecision. The escape hatch for stuck or
+    /// orphaned reports (e.g. a reseed changed the restaurant's UUID, so the
+    /// report can no longer surface in the normal pending queue). Mirrors the
+    /// deletes to Firestore.
+    @discardableResult
+    func clearClosureData(restaurantID: UUID) async -> Bool {
+        guard isAvailable, await isAdmin() else { return false }
+        var toDelete: [CKRecord.ID] = []
+        // 1. Every ClosureReport for this restaurant (field predicate — the
+        //    restaurantID index already exists / is used by fetchClosureInfo).
+        do {
+            let pred = NSPredicate(format: "restaurantID == %@", restaurantID.uuidString)
+            let q = CKQuery(recordType: closureType, predicate: pred)
+            var (matches, cursor) = try await publicDB.records(
+                matching: q, desiredKeys: [], resultsLimit: 200)
+            for (id, _) in matches { toDelete.append(id) }
+            while let c = cursor {
+                (matches, cursor) = try await publicDB.records(
+                    continuingMatchFrom: c, desiredKeys: [], resultsLimit: 200)
+                for (id, _) in matches { toDelete.append(id) }
+            }
+        } catch { /* best-effort */ }
+        // 2. The admin ClosureDecision, if any (known recordName).
+        toDelete.append(closureDecisionRecordID(restaurant: restaurantID))
+
+        _ = try? await publicDB.modifyRecords(saving: [], deleting: toDelete, savePolicy: .allKeys)
+        confirmedClosedIDs.remove(restaurantID)
+        closureCounts[restaurantID] = nil
+        await refreshClosureCounts()
+        Task { await FirebaseService.shared.clearClosureData(restaurantID: restaurantID) }
+        return true
+    }
+
     private func setClosureDecision(restaurantID: UUID, decision: String) async -> Bool {
         Task { await FirebaseService.shared.saveClosureDecision(restaurantID: restaurantID, decision: decision) }
         guard isAvailable else { return false }

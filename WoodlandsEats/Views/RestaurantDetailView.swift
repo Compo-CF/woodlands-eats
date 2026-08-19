@@ -22,6 +22,9 @@ struct RestaurantDetailView: View {
     @State private var photosLoaded = false
     @State private var closureCount = 0
     @State private var reportedByMe = false
+    /// Admin-only: enables the "Clear closure reports" cleanup button.
+    @State private var isAdmin = false
+    @State private var clearingClosure = false
     @State private var reportingPhotoID: String?
     @State private var reportConfirmation: String?
     @State private var showDeliveryPicker = false
@@ -80,6 +83,9 @@ struct RestaurantDetailView: View {
                 aboutSection
                 actionsSection
                 closedReportButton
+                if isAdmin && (closureCount > 0 || cloudKit.confirmedClosedIDs.contains(restaurant.id)) {
+                    adminClearClosureButton
+                }
             }
             .padding()
         }
@@ -105,6 +111,7 @@ struct RestaurantDetailView: View {
             let closure = await cloudKit.fetchClosureInfo(restaurantID: restaurant.id)
             closureCount = closure.count
             reportedByMe = closure.reportedByMe
+            isAdmin = await cloudKit.isAdmin()
             // v2.0 Feature 2: load my note + the community's notes.
             if let mine = await cloudKit.fetchMyNote(restaurantID: restaurant.id) {
                 myNote = mine
@@ -817,6 +824,33 @@ struct RestaurantDetailView: View {
         }
         .buttonStyle(.bordered)
         .tint(reportedByMe ? .gray : .red)
+    }
+
+    /// Admin-only: wipe every closure report + any decision for this
+    /// restaurant. Clears stuck/decided/orphaned reports that the normal
+    /// pending queue can't action.
+    private var adminClearClosureButton: some View {
+        Button(role: .destructive) {
+            Task {
+                clearingClosure = true
+                _ = await cloudKit.clearClosureData(restaurantID: restaurant.id)
+                let closure = await cloudKit.fetchClosureInfo(restaurantID: restaurant.id)
+                closureCount = closure.count
+                reportedByMe = closure.reportedByMe
+                store.confirmedClosedIDs = cloudKit.confirmedClosedIDs
+                clearingClosure = false
+            }
+        } label: {
+            if clearingClosure {
+                ProgressView().frame(maxWidth: .infinity)
+            } else {
+                Label("Clear closure reports (admin)", systemImage: "trash")
+                    .frame(maxWidth: .infinity)
+            }
+        }
+        .buttonStyle(.bordered)
+        .tint(.orange)
+        .disabled(clearingClosure)
     }
 
     private func openInMaps() {
