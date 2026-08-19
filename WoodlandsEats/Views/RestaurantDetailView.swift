@@ -837,7 +837,9 @@ struct RestaurantDetailView: View {
                 let closure = await cloudKit.fetchClosureInfo(restaurantID: restaurant.id)
                 closureCount = closure.count
                 reportedByMe = closure.reportedByMe
-                store.confirmedClosedIDs = cloudKit.confirmedClosedIDs
+                // Banner/notice here read cloudKit.confirmedClosedIDs directly
+                // (clearClosureData already removed this restaurant from it).
+                // Map/Browse pick up the change on their next store refresh.
                 clearingClosure = false
             }
         } label: {
