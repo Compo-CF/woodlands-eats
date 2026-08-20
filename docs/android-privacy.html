@@ -66,13 +66,21 @@
 <h2>Maps</h2>
 <p>The App displays a map using the <strong>Google Maps SDK for Android</strong>. When the map loads, Google receives standard request data (such as device IP address and basic device characteristics) to render the map tiles, governed by <a href="https://policies.google.com/privacy">Google's privacy policy</a>. This release does <strong>not</strong> request access to your device location — the map is centered on the coverage area, and there is no "near me" feature. If a location feature is added in a future version, this policy and the App's permissions will be updated first.</p>
 
+<h2>Advertising</h2>
+<p>The App displays a single small banner advertisement at the bottom of the Map and Browse screens, supplied by <strong>Google AdMob</strong>. Ads are configured in <em>non-personalized</em> mode (the standard <code>npa=1</code> setting) and capped to a General content rating. This means:</p>
+<ul>
+  <li>AdMob does <strong>not</strong> use your data to personalize the ads you see.</li>
+  <li>AdMob does still receive standard request data when the banner loads — a device/advertising identifier, device characteristics, and coarse region (from IP) — which it uses for showing the ad, frequency capping, and fraud prevention. This is governed by <a href="https://policies.google.com/privacy">Google's privacy policy</a>.</li>
+  <li>This advertising data is not joined to your account, rankings, or any of the data described above, and the developer's only access to AdMob is an aggregate revenue dashboard.</li>
+  <li>The tier boards (Community, My Tiers) are ad-free.</li>
+</ul>
+
 <h2>What the App does not do</h2>
 <ul>
   <li>Does not access your device location, contacts, photos, or files</li>
-  <li>Does not contain third-party analytics or ad-tracking SDKs, and does not perform cross-app tracking</li>
+  <li>Does not contain analytics SDKs and does not perform cross-app tracking (the AdMob banner above runs in non-personalized mode)</li>
   <li>Does not collect your email, phone number, or payment information</li>
-  <li>Does not sell, rent, or share your data with third parties for their own purposes</li>
-  <li>Does not display advertising in this release</li>
+  <li>Does not sell or rent your personal data, and does not share it with third parties for their own purposes (aside from the AdMob advertising identifier described above)</li>
 </ul>
 
 <h2>External links</h2>
