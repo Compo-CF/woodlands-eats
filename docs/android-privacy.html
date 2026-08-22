@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — S-Tier Eats for Android</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    max-width: 720px;
+    margin: 48px auto;
+    padding: 0 24px 64px;
+    line-height: 1.6;
+    color: #1a1a1a;
+    background: #fafafa;
+  }
+  h1 { font-size: 2rem; margin: 0 0 0.25rem; letter-spacing: -0.02em; }
+  .updated { color: #6b6b70; font-size: 0.9rem; margin-bottom: 2.5rem; }
+  h2 { margin-top: 2.25rem; font-size: 1.2rem; letter-spacing: -0.01em; }
+  a { color: #0a6b73; }
+  ul { padding-left: 1.2rem; }
+  li { margin: 0.35rem 0; }
+  .contact {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e5ea;
+    font-size: 0.95rem;
+    color: #444;
+  }
+</style>
+</head>
+<body>
+
+<h1>Privacy Policy — Android</h1>
+<div class="updated">Effective date: August 14, 2026</div>
+
+<p>S-Tier Eats ("the App") is a small, independent application that helps you discover restaurants in The Woodlands, Texas area, place them on a personal S/A/B/C/F tier list, and (optionally) contribute to a community consensus ranking. This policy describes exactly what the Android version of the App accesses, what it stores, and what it never does. (A separate policy covers the iOS version, which uses Apple iCloud instead of the Google services described here.)</p>
+
+<h2>Sign-in and identity</h2>
+<p>Browsing restaurants, the map, and the community rankings requires no account. To rank restaurants or contribute to the community boards, you sign in with <strong>Google Sign-In</strong>, handled by <strong>Firebase Authentication</strong> (a Google service). When you sign in:</p>
+<ul>
+  <li>The App receives a stable, opaque <strong>user identifier</strong> and your Google account <strong>display name</strong>, which it uses to attribute your rankings and (optionally) show a name you choose on your profile.</li>
+  <li>Firebase Authentication, operated by Google, manages the underlying account credential. The App itself does not store your Google password and does not use your email address for any purpose.</li>
+</ul>
+<p>You can sign out at any time from the Profile tab.</p>
+
+<h2>Information stored in the cloud (Google Firestore)</h2>
+<p>The App uses <strong>Google Cloud Firestore</strong> to power its community features. The following data is stored, attributed to your opaque user identifier:</p>
+<ul>
+  <li><strong>Tier placements:</strong> when you place a restaurant in S/A/B/C/F, that placement (restaurant + tier) is saved so it can be averaged into the community consensus and re-loaded on your other devices.</li>
+  <li><strong>Dietary/needs tags:</strong> if you confirm a tag (e.g. "gluten-free," "vegetarian") for a restaurant, that confirmation is saved so it can be counted toward the community tally shown on that restaurant.</li>
+  <li><strong>Visited list:</strong> restaurants you mark as visited, stored so the list syncs to your other devices.</li>
+  <li><strong>"Permanently closed" reports:</strong> if you mark a restaurant as closed, that report is saved as a count toward the closed flag shown to other users.</li>
+  <li><strong>Display name (optional):</strong> a name you enter on the Profile tab. In this version it is not publicly shown next to your rankings.</li>
+</ul>
+<p>This data is transmitted over encrypted connections (HTTPS/TLS). Google's handling of Firestore and Firebase Authentication data is governed by <a href="https://firebase.google.com/support/privacy">Firebase's privacy and security information</a> and <a href="https://policies.google.com/privacy">Google's privacy policy</a>.</p>
+
+<h2>How the data is used</h2>
+<ul>
+  <li>Showing you and other users a community consensus tier list and per-restaurant rankings and dietary tallies</li>
+  <li>Re-syncing your own placements and visited list across your devices</li>
+  <li>Basic app functionality only</li>
+</ul>
+<p>None of this data is used for advertising, marketing, profiling, or analytics, and none of it is sold or shared with any third party for their own use.</p>
+
+<h2>Maps</h2>
+<p>The App displays a map using the <strong>Google Maps SDK for Android</strong>. When the map loads, Google receives standard request data (such as device IP address and basic device characteristics) to render the map tiles, governed by <a href="https://policies.google.com/privacy">Google's privacy policy</a>. This release does <strong>not</strong> request access to your device location — the map is centered on the coverage area, and there is no "near me" feature. If a location feature is added in a future version, this policy and the App's permissions will be updated first.</p>
+
+<h2>Advertising</h2>
+<p>The App displays a single small banner advertisement at the bottom of the Map and Browse screens, supplied by <strong>Google AdMob</strong>. Ads are configured in <em>non-personalized</em> mode (the standard <code>npa=1</code> setting) and capped to a General content rating. This means:</p>
+<ul>
+  <li>AdMob does <strong>not</strong> use your data to personalize the ads you see.</li>
+  <li>AdMob does still receive standard request data when the banner loads — a device/advertising identifier, device characteristics, and coarse region (from IP) — which it uses for showing the ad, frequency capping, and fraud prevention. This is governed by <a href="https://policies.google.com/privacy">Google's privacy policy</a>.</li>
+  <li>This advertising data is not joined to your account, rankings, or any of the data described above, and the developer's only access to AdMob is an aggregate revenue dashboard.</li>
+  <li>The tier boards (Community, My Tiers) are ad-free.</li>
+</ul>
+
+<h2>What the App does not do</h2>
+<ul>
+  <li>Does not access your device location, contacts, photos, or files</li>
+  <li>Does not contain analytics SDKs and does not perform cross-app tracking (the AdMob banner above runs in non-personalized mode)</li>
+  <li>Does not collect your email, phone number, or payment information</li>
+  <li>Does not sell or rent your personal data, and does not share it with third parties for their own purposes (aside from the AdMob advertising identifier described above)</li>
+</ul>
+
+<h2>External links</h2>
+<p>Restaurant detail pages may hand off to other apps you have installed (for example, a website or a maps/directions app). Tapping such a link sends only the restaurant's name or coordinates to the destination app, whose own privacy policy then applies.</p>
+
+<h2>Deleting your account and data</h2>
+<p>You can request deletion of your account and all associated data at any time. See our <a href="https://compo-cf.github.io/woodlands-eats/android-account-deletion.html">account &amp; data deletion page</a> for details, or email the address below. Deletion requests are honored within 30 days.</p>
+
+<h2>Children's privacy</h2>
+<p>The App is not directed at children under 13 and does not knowingly collect information from anyone under that age.</p>
+
+<h2>Changes to this policy</h2>
+<p>If this policy changes, the updated version will be posted at this URL with a new effective date.</p>
+
+<div class="contact">
+  Questions, concerns, or data-deletion requests? Email <a href="mailto:acompofelice@outlook.com">acompofelice@outlook.com</a>.
+</div>
+
+</body>
+</html>
