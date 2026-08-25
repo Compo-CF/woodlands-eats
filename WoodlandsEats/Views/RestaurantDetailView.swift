@@ -70,7 +70,10 @@ struct RestaurantDetailView: View {
                 // hint when there are user reports but no admin verdict.
                 if cloudKit.confirmedClosedIDs.contains(restaurant.id) {
                     closedBanner
-                } else if closureCount > 0 {
+                } else if closureCount > 0 && !cloudKit.confirmedOpenIDs.contains(restaurant.id) {
+                    // v2.6: an admin "open" decision suppresses the pending
+                    // notice even when foreign ClosureReports (which the admin
+                    // can't delete in the public DB) keep closureCount > 0.
                     pendingClosureNotice
                 }
                 header
@@ -83,7 +86,9 @@ struct RestaurantDetailView: View {
                 aboutSection
                 actionsSection
                 closedReportButton
-                if isAdmin && (closureCount > 0 || cloudKit.confirmedClosedIDs.contains(restaurant.id)) {
+                if isAdmin
+                    && (closureCount > 0 || cloudKit.confirmedClosedIDs.contains(restaurant.id))
+                    && !cloudKit.confirmedOpenIDs.contains(restaurant.id) {
                     adminClearClosureButton
                 }
             }

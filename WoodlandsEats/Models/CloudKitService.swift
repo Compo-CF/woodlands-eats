@@ -158,6 +158,15 @@ final class CloudKitService {
     /// raw closureCounts, so user reports stay informational until the
     /// admin actively verifies. Refreshed alongside closureCounts.
     private(set) var confirmedClosedIDs: Set<UUID> = []
+    /// v2.6: admin-confirmed-OPEN restaurant IDs (ClosureDecision decision=="open").
+    /// The durable suppression signal for the "possible closure — pending review"
+    /// notice. Needed because in the CloudKit PUBLIC DB an admin CANNOT delete
+    /// another user's ClosureReport (you can only delete records you created), so
+    /// deleting foreign reports silently no-ops and the raw closureCount stays > 0.
+    /// An admin-OWNED "open" decision is the record we CAN write, and every client
+    /// suppresses the notice when the restaurant is in this set. Refreshed
+    /// alongside closureCounts.
+    private(set) var confirmedOpenIDs: Set<UUID> = []
 
     /// Phase 4 read-cutover kill-switch. When true, per-restaurant community
     /// reads (community tier + dietary tags) come from Firestore instead of
@@ -1425,13 +1434,17 @@ final class CloudKitService {
         //    silent markers — they don't affect display, just remove the
         //    restaurant from the admin pending queue.
         var confirmed: Set<UUID> = []
-        func accumulateConfirmed(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
+        var open: Set<UUID> = []
+        func accumulateDecisions(_ matches: [(CKRecord.ID, Result<CKRecord, Error>)]) {
             for (_, result) in matches {
                 if case .success(let rec) = result,
-                   (rec["decision"] as? String) == "closed",
                    let s = rec["restaurantID"] as? String,
                    let id = UUID(uuidString: s) {
-                    confirmed.insert(id)
+                    switch rec["decision"] as? String {
+                    case "closed": confirmed.insert(id)
+                    case "open":   open.insert(id)   // v2.6: admin cleared it
+                    default:       break
+                    }
                 }
             }
         }
@@ -1439,13 +1452,14 @@ final class CloudKitService {
             let query = CKQuery(recordType: closureDecisionType, predicate: NSPredicate(value: true))
             var (matches, cursor) = try await publicDB.records(
                 matching: query, desiredKeys: ["restaurantID", "decision"], resultsLimit: 200)
-            accumulateConfirmed(matches)
+            accumulateDecisions(matches)
             while let c = cursor {
                 (matches, cursor) = try await publicDB.records(
                     continuingMatchFrom: c, desiredKeys: ["restaurantID", "decision"], resultsLimit: 200)
-                accumulateConfirmed(matches)
+                accumulateDecisions(matches)
             }
             confirmedClosedIDs = confirmed
+            confirmedOpenIDs = open
         } catch {
             // leave the existing set as-is on failure
         }
@@ -1511,15 +1525,25 @@ final class CloudKitService {
                 for (id, _) in matches { toDelete.append(id) }
             }
         } catch { /* best-effort */ }
-        // 2. The admin ClosureDecision, if any (known recordName).
-        toDelete.append(closureDecisionRecordID(restaurant: restaurantID))
-
+        // 2. Best-effort delete of any ClosureReport records we're allowed to
+        //    delete. NOTE: the CloudKit public DB only lets us delete records we
+        //    CREATED, so foreign users' reports here will NOT delete — that's
+        //    exactly why the durable fix below (an admin-owned "open" decision)
+        //    is what actually clears the notice for everyone.
         _ = try? await publicDB.modifyRecords(saving: [], deleting: toDelete, savePolicy: .allKeys)
+
+        // 3. Durable suppression: write an admin-OWNED ClosureDecision "open".
+        //    Every client reads confirmedOpenIDs and hides the pending-closure
+        //    notice, regardless of who filed the underlying report(s). This is
+        //    the record we CAN write (recordName is admin-owned), so it always
+        //    lands even when the deletes above no-op on foreign reports.
+        let wroteOpen = await setClosureDecision(restaurantID: restaurantID, decision: "open")
+
         confirmedClosedIDs.remove(restaurantID)
-        closureCounts[restaurantID] = nil
+        confirmedOpenIDs.insert(restaurantID)
         await refreshClosureCounts()
         Task { await FirebaseService.shared.clearClosureData(restaurantID: restaurantID) }
-        return true
+        return wroteOpen
     }
 
     private func setClosureDecision(restaurantID: UUID, decision: String) async -> Bool {
