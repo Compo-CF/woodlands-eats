@@ -436,21 +436,6 @@
       "signatureDishes": []
     },
     {
-      "id": "7aa17acf-9c0f-5075-9b17-ea16df46b70f",
-      "name": "Dolce Niente Ristorante Italiano",
-      "latitude": 30.09863,
-      "longitude": -95.36556,
-      "area": "atascocita",
-      "address": "3784 Rayford Rd Suite 600, Spring, TX 77386, USA",
-      "cuisines": ["italian"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.dolceniente.com/",
-      "phone": "(832) 810-7499",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
       "id": "bac55d47-49b5-5c1d-b6cc-36e853fbfd99",
       "name": "Dolce Niente Ristorante Italiano",
       "latitude": 30.09856,
@@ -1183,21 +1168,6 @@
       "website": "https://artaviatx.com/palate-cafe/",
       "phone": "(936) 206-3955",
       "description": "Sourced from Google Places (atascocita).",
-      "signatureDishes": []
-    },
-    {
-      "id": "99ea56ed-b602-58a8-952c-7a32a8b69751",
-      "name": "Palette Indian Kitchen",
-      "latitude": 30.10735,
-      "longitude": -95.38443,
-      "area": "atascocita",
-      "address": "3559 Rayford Rd Suite 200, Spring, TX 77386, USA",
-      "cuisines": ["indian"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.paletteindian.com/",
-      "phone": "(281) 362-5999",
-      "description": "Sourced from Google Places (spring).",
       "signatureDishes": []
     },
     {
@@ -2157,21 +2127,6 @@
       "isFastFood": false,
       "website": null,
       "phone": "(281) 430-4160",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
-      "id": "a0fb26e0-7dc2-5554-8648-6d9723b5e696",
-      "name": "The Toasted Yolk Cafe",
-      "latitude": 30.1244,
-      "longitude": -95.40884,
-      "area": "atascocita",
-      "address": "2211 Rayford Rd #119, Spring, TX 77386, USA",
-      "cuisines": ["breakfastBrunch", "cafeBakery"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://thetoastedyolk.com/locations/rayford-road/",
-      "phone": "(832) 246-5885",
       "description": "Sourced from Google Places (spring).",
       "signatureDishes": []
     },
@@ -10737,36 +10692,6 @@
       "isFastFood": false,
       "website": null,
       "phone": "(832) 960-7396",
-      "description": "Sourced from Google Places (champions).",
-      "signatureDishes": []
-    },
-    {
-      "id": "de19317d-5339-5d2f-8683-beccb01030d6",
-      "name": "Tikka Munch (Food Truck)",
-      "latitude": 30.00299,
-      "longitude": -95.5573,
-      "area": "champions",
-      "address": "9610 Louetta Rd, Spring, TX 77379, USA",
-      "cuisines": ["indian"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://www.tikkamunch.com/",
-      "phone": "(281) 636-5673",
-      "description": "Sourced from Google Places (klein).",
-      "signatureDishes": []
-    },
-    {
-      "id": "de19317d-5339-5d2f-8683-beccb01030d6",
-      "name": "Tikka Munch - Vegan & Vegetarian (Food Truck)",
-      "latitude": 30.00299,
-      "longitude": -95.5573,
-      "area": "champions",
-      "address": "9610 Louetta Rd, Spring, TX 77379, USA",
-      "cuisines": ["indian"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://www.tikkamunch.com/",
-      "phone": "(281) 636-5673",
       "description": "Sourced from Google Places (champions).",
       "signatureDishes": []
     },
@@ -33241,21 +33166,6 @@
       "signatureDishes": []
     },
     {
-      "id": "43271705-5a6a-5f56-aac6-f6ec8ec36be2",
-      "name": "Belly of the Beast",
-      "latitude": 30.07447,
-      "longitude": -95.4982,
-      "area": "klein",
-      "address": "5200 FM 2920, Spring, TX 77388",
-      "cuisines": ["mexican"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.botbfood.com",
-      "phone": "+1-281-466-2040",
-      "description": "Mexican restaurant in Klein.",
-      "signatureDishes": []
-    },
-    {
       "id": "48a2f896-65eb-5e94-bd8f-6d5f3ae4ccca",
       "name": "Best Donuts",
       "latitude": 30.01254,
@@ -33388,21 +33298,6 @@
       "website": "https://bluewaterseafoodonline.com/",
       "phone": "+1 281-288-9222",
       "description": "Seafood restaurant in Klein.",
-      "signatureDishes": []
-    },
-    {
-      "id": "8e922c13-d220-530a-ac5e-3191fe6251e2",
-      "name": "Blōōfin Sushi & Bar - Spring",
-      "latitude": 30.08859,
-      "longitude": -95.52108,
-      "area": "klein",
-      "address": "6615 Grand Pkwy #325, Spring, TX 77389, USA",
-      "cuisines": ["sushi", "japanese", "seafood"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://bloofinsushi.com/",
-      "phone": "(281) 651-2573",
-      "description": "Sourced from Google Places (klein).",
       "signatureDishes": []
     },
     {
@@ -34002,21 +33897,6 @@
       "isFastFood": false,
       "website": null,
       "phone": "(832) 258-4688",
-      "description": "Sourced from Google Places (klein).",
-      "signatureDishes": []
-    },
-    {
-      "id": "c99e9512-8ff9-5e86-b6cd-cb1be2e4cac7",
-      "name": "Cinco de Mayo Taqueria (Food Truck)",
-      "latitude": 30.0318,
-      "longitude": -95.50558,
-      "area": "klein",
-      "address": "5838 Louetta Rd, Spring, TX 77379, USA",
-      "cuisines": ["mexican"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://cincodemayotaqueriatx.com/",
-      "phone": "(346) 332-1085",
       "description": "Sourced from Google Places (klein).",
       "signatureDishes": []
     },
@@ -34771,21 +34651,6 @@
       "signatureDishes": []
     },
     {
-      "id": "faf1d92c-0d68-56ae-b93b-36dfbac7e804",
-      "name": "El Chaparro Mexican Bar & Grill- Spring",
-      "latitude": 30.06817,
-      "longitude": -95.50494,
-      "area": "klein",
-      "address": "20444 Kuykendahl Rd, Spring, TX 77379, USA",
-      "cuisines": ["mexican"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.elchaparromex.com/",
-      "phone": "(281) 719-5964",
-      "description": "Sourced from Google Places (klein).",
-      "signatureDishes": []
-    },
-    {
       "id": "35669038-59d8-5aab-8e84-855af4251552",
       "name": "El Chaparro Mexican Bar and Grill",
       "latitude": 30.06831,
@@ -35326,21 +35191,6 @@
       "signatureDishes": []
     },
     {
-      "id": "7fc78c76-1059-5b00-9979-9364227a72d1",
-      "name": "Hasta La Pasta",
-      "latitude": 30.01113,
-      "longitude": -95.51254,
-      "area": "klein",
-      "address": "6915 Cypresswood Dr, Klein, TX",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.hastalapasta.com/champions",
-      "phone": "+1-832-717-7676",
-      "description": "Restaurant in Klein.",
-      "signatureDishes": []
-    },
-    {
       "id": "C1D2E3F4-0000-4000-A000-000000000044",
       "name": "Hasta La Pasta - Champions",
       "latitude": 30.01119,
@@ -35532,21 +35382,6 @@
       "isFastFood": false,
       "website": "https://restaurants.ihop.com/en-us/tx/houston/breakfast-1414-cypress-station.-1444?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=1444&utm_content=website",
       "phone": "(281) 893-0063",
-      "description": "Sourced from Google Places (klein).",
-      "signatureDishes": []
-    },
-    {
-      "id": "1cf3fa32-2507-5902-aaeb-0c7746e59315",
-      "name": "Inka Brasas",
-      "latitude": 30.07016,
-      "longitude": -95.47456,
-      "area": "klein",
-      "address": "3835 Suite A Farm to Market 2920, Spring, TX 77388, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://inkabrasas.com/",
-      "phone": "(346) 581-7760",
       "description": "Sourced from Google Places (klein).",
       "signatureDishes": []
     },
@@ -37846,21 +37681,6 @@
       "signatureDishes": []
     },
     {
-      "id": "4633a964-a108-50f2-8a3d-a8efd3910755",
-      "name": "Senor Burrito Company",
-      "latitude": 30.02096,
-      "longitude": -95.52475,
-      "area": "klein",
-      "address": "16803 Stuebner Airline Rd Suite C, Spring, TX 77379, USA",
-      "cuisines": ["texMex", "breakfastBrunch", "american"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://senorburritocompany.com/",
-      "phone": "(832) 843-4133",
-      "description": "Sourced from Google Places (klein).",
-      "signatureDishes": []
-    },
-    {
       "id": "56fc664b-0778-5e97-a8d1-4c598f79472a",
       "name": "Shades Bar & Grill",
       "latitude": 30.00885,
@@ -37948,21 +37768,6 @@
       "website": "https://qmenu.us/#/shogun-spring",
       "phone": "+1 281-288-0996",
       "description": "Japanese restaurant in Klein.",
-      "signatureDishes": []
-    },
-    {
-      "id": "cd8c6b93-c984-5d16-bab2-4c00f2bbdfd5",
-      "name": "Slice of Venice",
-      "latitude": 30.03621,
-      "longitude": -95.49497,
-      "area": "klein",
-      "address": "5275 Louetta Rd, Spring, TX 77379, USA",
-      "cuisines": ["italian", "american", "pizza"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.sliceofvenice.com/",
-      "phone": "(832) 559-1658",
-      "description": "Sourced from Google Places (klein).",
       "signatureDishes": []
     },
     {
@@ -38427,21 +38232,6 @@
       "isFastFood": false,
       "website": "http://www.sugarfootsdelivery.com/",
       "phone": "(832) 856-2253",
-      "description": "Sourced from Google Places (klein).",
-      "signatureDishes": []
-    },
-    {
-      "id": "2eef32f8-648c-5be2-8a15-130abf248a42",
-      "name": "Susanita's Tex-Mex Y Ritas",
-      "latitude": 30.07322,
-      "longitude": -95.49409,
-      "area": "klein",
-      "address": "4915 Farm to Market 2920, Spring, TX 77388, USA",
-      "cuisines": ["texMex", "american", "mexican"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.susanitas.com/",
-      "phone": "(281) 698-9271",
       "description": "Sourced from Google Places (klein).",
       "signatureDishes": []
     },
@@ -39747,21 +39537,6 @@
       "isFastFood": false,
       "website": "https://locations.whataburger.com/tx/tomball/22603-tomball-pkwy.html/?utm_source=yextpages&utm_medium=locallistings&utm_campaign=yextpages",
       "phone": "(832) 717-5357",
-      "description": "Sourced from Google Places (klein).",
-      "signatureDishes": []
-    },
-    {
-      "id": "793674e6-0353-5093-99dc-095d085359aa",
-      "name": "Willie's Grill & Icehouse",
-      "latitude": 30.08705,
-      "longitude": -95.52376,
-      "area": "klein",
-      "address": "6815 N Grand Pkwy, Spring, TX 77389, USA",
-      "cuisines": ["american", "seafood"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://williesgrillandicehouse.com/",
-      "phone": "(281) 547-8604",
       "description": "Sourced from Google Places (klein).",
       "signatureDishes": []
     },
@@ -45931,21 +45706,6 @@
       "signatureDishes": []
     },
     {
-      "id": "d2845094-9825-5fb3-8a93-f352071dd109",
-      "name": "3rd Coast BBQ",
-      "latitude": 30.12982,
-      "longitude": -95.44063,
-      "area": "oakRidgeNorth",
-      "address": "Oak Ridge North, TX",
-      "cuisines": ["bbq"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.3rdcoastbbq.com/",
-      "phone": "+1 281-699-8883",
-      "description": "BBQ restaurant in Oak Ridge North.",
-      "signatureDishes": []
-    },
-    {
       "id": "3832a9cf-fee7-535e-97ac-388a7a0f8374",
       "name": "Acqua",
       "latitude": 30.16095,
@@ -46426,21 +46186,6 @@
       "signatureDishes": []
     },
     {
-      "id": "6a09d54e-3bb3-5671-81f5-9cb5a17c7719",
-      "name": "Chi's Japanese Cuisine",
-      "latitude": 30.1589,
-      "longitude": -95.4488,
-      "area": "oakRidgeNorth",
-      "address": "27100 Interstate 45 N, Oak Ridge North, TX 77385, USA",
-      "cuisines": ["japanese", "sushi"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://pos.chowbus.com/online-ordering/store/chis-japanese-cuisine/21284",
-      "phone": "(281) 419-1166",
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
-    },
-    {
       "id": "c44d292a-3126-5645-a6c2-b843d78b2345",
       "name": "Chick-fil-A",
       "latitude": 30.12739,
@@ -46846,36 +46591,6 @@
       "signatureDishes": []
     },
     {
-      "id": "acc4fea8-8514-5647-9cc8-a7a5fa2aef35",
-      "name": "Dosey Doe - The Big Barn",
-      "latitude": 30.13846,
-      "longitude": -95.44654,
-      "area": "oakRidgeNorth",
-      "address": "25911 Interstate 45 N, Spring, TX 77380, USA",
-      "cuisines": ["cafeBakery"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.doseydoetickets.com/",
-      "phone": "(281) 367-3774",
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
-    },
-    {
-      "id": "2ea42c87-2464-5d3a-a7c2-b08204d1f7c4",
-      "name": "Dragon Bowl C Boba and Noodle Bar 2",
-      "latitude": 30.12693,
-      "longitude": -95.43267,
-      "area": "oakRidgeNorth",
-      "address": "610 Rayford Rd #642, Spring, TX 77386, USA",
-      "cuisines": ["other"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "http://www.dragonbowltx.com/",
-      "phone": "(832) 791-5918",
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
-    },
-    {
       "id": "7f50d815-488d-5a3d-97d6-81619e50868e",
       "name": "Dubai Bites",
       "latitude": 30.12729,
@@ -47262,21 +46977,6 @@
       "isFastFood": false,
       "website": "https://www.greatamericancookies.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ",
       "phone": "(281) 363-4410",
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
-    },
-    {
-      "id": "6ee15113-7cd9-579b-a201-797829d241e6",
-      "name": "Grimaldi's Pizzeria",
-      "latitude": 30.16025,
-      "longitude": -95.4589,
-      "area": "oakRidgeNorth",
-      "address": "20 Waterway Ave Ste 100, The Woodlands, TX 77380, USA",
-      "cuisines": ["pizza", "italian"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.grimaldispizzeria.com/locations/the-woodlands/",
-      "phone": "(281) 465-3500",
       "description": "Sourced from Google Places (oakRidgeNorth).",
       "signatureDishes": []
     },
@@ -48241,21 +47941,6 @@
       "signatureDishes": []
     },
     {
-      "id": "45fa1965-d273-509b-8710-6f92940d9627",
-      "name": "Midnight Cravingz",
-      "latitude": 30.1263,
-      "longitude": -95.43659,
-      "area": "oakRidgeNorth",
-      "address": "440 Rayford Rd Suite 135, The Woodlands, TX 77386, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://midnightcravingz.com/",
-      "phone": "(346) 584-4187",
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
-    },
-    {
       "id": "767fa8a3-ab7d-53f6-a132-d7ff2b945942",
       "name": "Millbend Coffeehouse",
       "latitude": 30.15253,
@@ -48554,21 +48239,6 @@
       "phone": "+1-281-364-9555",
       "description": "A family-owned and operated Italian restaurant serving generous portions of classic Italian-American dishes since 1994.",
       "signatureDishes": ["Chicken Parmesan", "Lasagna", "Fettuccine Alfredo"]
-    },
-    {
-      "id": "f6a1e288-44b2-5a9b-9c14-e117239e4bfa",
-      "name": "Pallotta's Italian Grill",
-      "latitude": 30.16243,
-      "longitude": -95.44908,
-      "area": "oakRidgeNorth",
-      "address": "27606 I-45, Oak Ridge North, TX 77385, USA",
-      "cuisines": ["italian"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://pallottasitaliangrill.com/",
-      "phone": "(281) 364-9555",
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
     },
     {
       "id": "a926aa07-231a-5f42-83e9-ac145d7ea615",
@@ -48942,21 +48612,6 @@
       "isFastFood": false,
       "website": "http://www.thegranplaza.com/",
       "phone": null,
-      "description": "Sourced from Google Places (oakRidgeNorth).",
-      "signatureDishes": []
-    },
-    {
-      "id": "7dabc2bb-7482-5db4-a870-6739003d8c75",
-      "name": "Sitar Cuisine of India",
-      "latitude": 30.13598,
-      "longitude": -95.44601,
-      "area": "oakRidgeNorth",
-      "address": "25701 Interstate Hwy 45 #12, Spring, TX 77380, USA",
-      "cuisines": ["indian"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://sitarcuisineofindia.net/",
-      "phone": "(281) 364-0200",
       "description": "Sourced from Google Places (oakRidgeNorth).",
       "signatureDishes": []
     },
@@ -51691,21 +51346,6 @@
       "signatureDishes": ["Chicken Shawarma", "Hummus", "Mixed Grill Platter"]
     },
     {
-      "id": "655df336-8db9-51a4-9b4e-85338a8f575f",
-      "name": "Lama Mediterranean Cuisine",
-      "latitude": 30.1783,
-      "longitude": -95.46063,
-      "area": "shenandoah",
-      "address": "1644 Research Forest Dr #100, Shenandoah, TX 77381, USA",
-      "cuisines": ["mediterranean"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.lamamediterraneancuisine.com/",
-      "phone": "(281) 292-5262",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
       "id": "88d4aa21-9678-5e38-8901-fc09360e7ebb",
       "name": "Lennys Grill & Subs",
       "latitude": 30.17836,
@@ -51912,21 +51552,6 @@
       "isFastFood": false,
       "website": "https://www.masalaoutlaws.com/",
       "phone": "(281) 466-9853",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
-      "id": "6fd85b42-f02e-5be6-8bed-855111e5afb0",
-      "name": "Mastro's Ocean Club",
-      "latitude": 30.16434,
-      "longitude": -95.46143,
-      "area": "shenandoah",
-      "address": "9595 Six Pines Dr Suite 100, The Woodlands, TX 77380, USA",
-      "cuisines": ["seafood", "steakhouse"],
-      "priceTier": "$$$$",
-      "isFastFood": false,
-      "website": "https://www.mastrosrestaurants.com/",
-      "phone": "(346) 298-3958",
       "description": "Sourced from Google Places (shenandoah).",
       "signatureDishes": []
     },
@@ -52273,21 +51898,6 @@
       "website": "https://locations.papajohns.com/united-states/tx/77385/conroe/10161-sh-242?utm_source=gmb&utm_medium=organic&y_source=1_MjgxMTcxNDMtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
       "phone": "(936) 235-2222",
       "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
-      "id": "e2446d7c-aeaa-53f6-b202-5a3d11c3028a",
-      "name": "Pappadeaux",
-      "latitude": 30.19235,
-      "longitude": -95.45255,
-      "area": "shenandoah",
-      "address": "Shenandoah, TX",
-      "cuisines": ["seafood"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://pappadeaux.com/",
-      "phone": "+1 936-321-4200",
-      "description": "Seafood restaurant in Shenandoah.",
       "signatureDishes": []
     },
     {
@@ -53566,21 +53176,6 @@
       "signatureDishes": []
     },
     {
-      "id": "f729b1cd-9f86-5a0e-bdeb-b244b54d4043",
-      "name": "Whiskey Cake Kitchen & Bar",
-      "latitude": 30.16468,
-      "longitude": -95.44965,
-      "area": "shenandoah",
-      "address": "27800 Interstate 45 N, Oak Ridge North, TX 77385, USA",
-      "cuisines": ["american"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.whiskeycake.com/",
-      "phone": "(346) 209-5577",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
       "id": "1b1e42b5-1fcc-5325-9b84-86ddcd70ff97",
       "name": "Willie's",
       "latitude": 30.20965,
@@ -54013,21 +53608,6 @@
       "website": "https://www.facebook.com/share/16xGBzqoeX/",
       "phone": "+1 325-370-3640",
       "description": "Coffee & bakery quick-service spot in Spring.",
-      "signatureDishes": []
-    },
-    {
-      "id": "5dd9c719-397c-5bd7-a0b5-b55475faab2b",
-      "name": "Bamburger",
-      "latitude": 30.07114,
-      "longitude": -95.47258,
-      "area": "spring",
-      "address": "3624 Farm to Market 2920 Suite 6, Spring, TX 77388, USA",
-      "cuisines": ["burgers", "american"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "http://bamburger.online/",
-      "phone": "(281) 323-4188",
-      "description": "Sourced from Google Places (spring).",
       "signatureDishes": []
     },
     {
@@ -55891,21 +55471,6 @@
       "signatureDishes": []
     },
     {
-      "id": "a43adaae-41e2-5fbe-a0bc-1a6403dcb95f",
-      "name": "El Mana' Taqueria",
-      "latitude": 30.02123,
-      "longitude": -95.41947,
-      "area": "spring",
-      "address": "22424 Imperial Valley Dr Ste 700, Houston, TX 77073, USA",
-      "cuisines": ["mexican"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "http://taqueriaelmana.com/",
-      "phone": "(281) 645-8481",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
       "id": "cc530329-53dc-5cfb-b362-55642876b76d",
       "name": "El Maná Taqueria",
       "latitude": 30.02127,
@@ -56549,21 +56114,6 @@
       "phone": "+1-832-381-3345",
       "description": "A Houston-based Tex-Mex chain known for consistent fajitas, fresh tortillas and a festive family atmosphere.",
       "signatureDishes": ["Fajitas", "Beto's Wedge", "Margaritas"]
-    },
-    {
-      "id": "779cdfd6-6cf7-51a7-96eb-cf9f4df2124c",
-      "name": "Gringo's Mexican Kitchen {Spring}",
-      "latitude": 30.04801,
-      "longitude": -95.42983,
-      "area": "spring",
-      "address": "19330 I-45, Spring, TX 77373, USA",
-      "cuisines": ["texMex", "mexican", "american"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.gringostexmex.com/",
-      "phone": "(832) 381-3345",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
     },
     {
       "id": "3caad4e6-68be-5fcb-a605-090aa901855e",
@@ -57331,21 +56881,6 @@
       "signatureDishes": []
     },
     {
-      "id": "87a2819b-47c1-5b32-8373-bf3c0f6b3c66",
-      "name": "La Cabana",
-      "latitude": 30.01902,
-      "longitude": -95.3757,
-      "area": "spring",
-      "address": "3390 FM 1960, Humble, TX 77338, USA",
-      "cuisines": ["mexican"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.vivalacabana.com/",
-      "phone": "(281) 209-1585",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
       "id": "1bbb0d15-cacb-5524-ac62-5323b439a828",
       "name": "La Cabaña",
       "latitude": 30.01895,
@@ -57582,21 +57117,6 @@
       "isFastFood": true,
       "website": "https://littlecaesars.com/en-us/store/20851",
       "phone": "(346) 351-1091",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
-      "id": "e17c6024-7067-5ed7-8bfd-a4164eb5a20e",
-      "name": "Little Caesars Pizza",
-      "latitude": 30.04297,
-      "longitude": -95.38238,
-      "area": "spring",
-      "address": "22616-A Aldine Westfield Rd, Spring, TX 77373, USA",
-      "cuisines": ["pizza", "burgers"],
-      "priceTier": "$",
-      "isFastFood": true,
-      "website": "https://littlecaesars.com/en-us/store/776",
-      "phone": "(281) 350-1911",
       "description": "Sourced from Google Places (spring).",
       "signatureDishes": []
     },
@@ -58306,21 +57826,6 @@
       "signatureDishes": []
     },
     {
-      "id": "ca4252d5-5a96-5cda-b70e-582ad3b088ae",
-      "name": "No 1 Great Wall Inc",
-      "latitude": 30.04382,
-      "longitude": -95.3828,
-      "area": "spring",
-      "address": "22626 Aldine Westfield Rd, Spring, TX 77373, USA",
-      "cuisines": ["chinese"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://www.no1greatwallspring.com/",
-      "phone": "(281) 528-8001",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
       "id": "14d97222-8260-5299-878d-07383ace705d",
       "name": "Noe's Cafe",
       "latitude": 30.08361,
@@ -58876,21 +58381,6 @@
       "signatureDishes": []
     },
     {
-      "id": "15d09997-eab7-5ee7-b718-6c1b86c7cde8",
-      "name": "Puffabelly's Restaurant",
-      "latitude": 30.07994,
-      "longitude": -95.41812,
-      "area": "spring",
-      "address": "100 Main St, Spring, TX 77373, USA",
-      "cuisines": ["american"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://www.puffabellys.com/",
-      "phone": "(281) 350-3376",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
       "id": "3fad76d0-35ee-51f9-905b-b915af433fcf",
       "name": "Pukara Peruvian Kitchen",
       "latitude": 30.12684,
@@ -59116,21 +58606,6 @@
       "signatureDishes": []
     },
     {
-      "id": "442bfd06-2564-5a1b-8960-2c076cfafef4",
-      "name": "Rosemeyer Bar-B-Q (Food Truck)",
-      "latitude": 30.10323,
-      "longitude": -95.39685,
-      "area": "spring",
-      "address": "2111 Riley Fuzzel Rd, Spring, TX 77386, USA",
-      "cuisines": ["bbq"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://rosemeyerbbq.square.site/",
-      "phone": "(281) 205-0625",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
       "id": "81f7a929-ae63-515d-afeb-330cf340a1fd",
       "name": "Rowdys Spring",
       "latitude": 30.05665,
@@ -59157,21 +58632,6 @@
       "isFastFood": false,
       "website": null,
       "phone": "(346) 370-4650",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
-    },
-    {
-      "id": "2c392848-39ee-569a-a767-6476c6df2a60",
-      "name": "Rudy's \"Country Store\" and Bar-B-Q",
-      "latitude": 30.0682,
-      "longitude": -95.43357,
-      "area": "spring",
-      "address": "20806 Interstate 45 N, Spring, TX 77373, USA",
-      "cuisines": ["bbq"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://rudysbbq.com/location/detail/houston-i45n-spring-tx",
-      "phone": "(281) 288-0916",
       "description": "Sourced from Google Places (spring).",
       "signatureDishes": []
     },
@@ -59360,21 +58820,6 @@
       "name": "Shipley Do-Nuts",
       "latitude": 30.06322,
       "longitude": -95.44125,
-      "area": "spring",
-      "address": "Spring, TX",
-      "cuisines": ["cafeBakery"],
-      "priceTier": "$",
-      "isFastFood": true,
-      "website": "https://shipleydonuts.com/locations/1800-louetta",
-      "phone": "+1 281-907-0009",
-      "description": "Coffee & bakery quick-service spot in Spring.",
-      "signatureDishes": []
-    },
-    {
-      "id": "5d47a92a-5d1d-5e45-81e5-a5e29bd3b531",
-      "name": "Shipley Do-Nuts",
-      "latitude": 30.06323,
-      "longitude": -95.4413,
       "area": "spring",
       "address": "Spring, TX",
       "cuisines": ["cafeBakery"],
@@ -59806,21 +59251,6 @@
       "signatureDishes": []
     },
     {
-      "id": "3cd99820-5d4e-5c03-a2c4-5744481ddcc0",
-      "name": "Starbucks",
-      "latitude": 30.05097,
-      "longitude": -95.4299,
-      "area": "spring",
-      "address": "Spring, TX",
-      "cuisines": ["cafeBakery"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://www.starbucks.com/store-locator/store/10885/",
-      "phone": "+1 281-528-7424",
-      "description": "Coffee & bakery cafe in Spring.",
-      "signatureDishes": []
-    },
-    {
       "id": "3a2add48-a5e1-50ef-9424-c514ebaad9a1",
       "name": "Starbucks",
       "latitude": 30.06513,
@@ -60179,21 +59609,6 @@
       "phone": "+1-346-351-2608",
       "description": "A casual sushi bar near Sawdust Road serving creative specialty rolls, nigiri and Japanese plates.",
       "signatureDishes": ["Specialty Rolls", "Nigiri", "Poke"]
-    },
-    {
-      "id": "d25c91ab-e323-5472-bd2a-827458e36d07",
-      "name": "Sweet Bee'z x Mr Fricklz Shaved Ice & Pickles",
-      "latitude": 30.05629,
-      "longitude": -95.39259,
-      "area": "spring",
-      "address": "23806 Aldine Westfield Rd, Spring, TX 77373, USA",
-      "cuisines": ["dessert"],
-      "priceTier": "$",
-      "isFastFood": false,
-      "website": "https://sweetbeezshavedice.com/rewards",
-      "phone": "(346) 484-5822",
-      "description": "Sourced from Google Places (spring).",
-      "signatureDishes": []
     },
     {
       "id": "b22f6f02-15d2-5cb1-a1e7-878e8277c392",
@@ -60658,21 +60073,6 @@
       "website": null,
       "phone": "+1 346-796-4438",
       "description": "Mexican-Salvadoran trailer; pizzabirria, fajitas, fried plantains",
-      "signatureDishes": []
-    },
-    {
-      "id": "36f1abaf-3144-537e-8743-36adb64d0e49",
-      "name": "Taqueria Maverick ( Food Truck)",
-      "latitude": 30.0688,
-      "longitude": -95.37089,
-      "area": "spring",
-      "address": "25502 Cypresswood Dr, Spring, TX 77373, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": null,
-      "phone": "(346) 796-4438",
-      "description": "Sourced from Google Places (spring).",
       "signatureDishes": []
     },
     {
@@ -62757,21 +62157,6 @@
       "isFastFood": false,
       "website": "http://www.craftgrillrestaurants.com/",
       "phone": "+1 832-400-9800",
-      "description": "Restaurant in The Woodlands.",
-      "signatureDishes": []
-    },
-    {
-      "id": "6fad8249-215e-596b-87bd-4410c84bc1f0",
-      "name": "Craft Grill - Breakfast Club",
-      "latitude": 30.12798,
-      "longitude": -95.55449,
-      "area": "tomball",
-      "address": "Kuykendahl Road, The Woodlands, TX",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://craftgrillrestaurants.com/",
-      "phone": "+1 281-255-2396",
       "description": "Restaurant in The Woodlands.",
       "signatureDishes": []
     },
@@ -66811,21 +66196,6 @@
       "signatureDishes": []
     },
     {
-      "id": "89044484-5a02-50d3-b2fe-426e3cb56254",
-      "name": "Coco Crepes & Coffee",
-      "latitude": 30.18028,
-      "longitude": -95.5393,
-      "area": "woodlands",
-      "address": "6777 Woodlands Pkwy, Spring, TX 77382, USA",
-      "cuisines": ["breakfastBrunch", "cafeBakery", "dessert"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.cococrepes.com/location/coco-crepes-the-woodlands",
-      "phone": "(281) 719-9906",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
       "id": "C1D2E3F4-0000-4000-A000-000000000028",
       "name": "Coco Crepes, Waffles & Coffee",
       "latitude": 30.17981,
@@ -67004,21 +66374,6 @@
       "phone": "+1-281-475-1500",
       "description": "A family-friendly pizzeria in Creekside Park serving signature specialty pies, salads and Italian favorites. The original location of a growing local chain.",
       "signatureDishes": ["The Woodlands Pizza", "Margherita Pizza", "Garlic Knots"]
-    },
-    {
-      "id": "c77cc44c-1032-5734-bc7a-8e7be68f6748",
-      "name": "Crust Pizza Co. - Creekside",
-      "latitude": 30.14389,
-      "longitude": -95.5483,
-      "area": "woodlands",
-      "address": "26400 Kuykendahl Rd a120, Spring, TX 77389, USA",
-      "cuisines": ["pizza"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.crustpizzaco.com/locations/TX/creekside",
-      "phone": "(281) 516-7707",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
     },
     {
       "id": "54785a4e-0f6c-5549-8ae3-30898e099c00",
@@ -67543,21 +66898,6 @@
       "website": null,
       "phone": null,
       "description": "Steakhouse restaurant in The Woodlands.",
-      "signatureDishes": []
-    },
-    {
-      "id": "48324f51-5d66-56ca-bd25-450a462dd704",
-      "name": "Fogo de Chao Brazilian Steakhouse",
-      "latitude": 30.17102,
-      "longitude": -95.47144,
-      "area": "woodlands",
-      "address": "1900 Hughes Landing Blvd, The Woodlands, TX 77380",
-      "cuisines": ["latin", "steakhouse"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://fogodechao.com/location/the-woodlands/",
-      "phone": "+1 281-298-4200",
-      "description": "Brazilian churrascaria",
       "signatureDishes": []
     },
     {
@@ -68926,21 +68266,6 @@
       "signatureDishes": ["Josper-grilled steak", "Tacos"]
     },
     {
-      "id": "1dda533e-1da5-5382-a267-39876c6277c6",
-      "name": "Monarca Modern Mexican Cocina",
-      "latitude": 30.1434,
-      "longitude": -95.54857,
-      "area": "woodlands",
-      "address": "26400 Kuykendahl Rd Suite 100, The Woodlands, TX 77375, USA",
-      "cuisines": ["other"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "http://monarcarest.com/",
-      "phone": "(832) 559-3855",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
       "id": "ba799072-36ae-57d3-98a7-b34a28743b86",
       "name": "Moonshine Deck Icehouse",
       "latitude": 30.22125,
@@ -69721,21 +69046,6 @@
       "signatureDishes": []
     },
     {
-      "id": "c9ac9c5b-5d7b-59d3-964a-02d41e3f2f5d",
-      "name": "Sakekawa Japanese Steakhouse & Sushi Bar",
-      "latitude": 30.18008,
-      "longitude": -95.53888,
-      "area": "woodlands",
-      "address": "6777 Woodlands Pkwy Space 200, Spring, TX 77382, USA",
-      "cuisines": ["japanese", "sushi"],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.sakekawa.com/",
-      "phone": "(281) 419-5988",
-      "description": "Sourced from Google Places (woodlands).",
-      "signatureDishes": []
-    },
-    {
       "id": "C1D2E3F4-0000-4000-A000-000000000020",
       "name": "Sakekawa Japanese Sushi & Steakhouse",
       "latitude": 30.17981,
@@ -69988,21 +69298,6 @@
       "website": "https://shipleydonuts.com/locations/24345-gosling-rd",
       "phone": "+1 832-698-1542",
       "description": "Coffee & bakery quick-service spot in The Woodlands.",
-      "signatureDishes": []
-    },
-    {
-      "id": "02a35c69-5005-53e8-ad50-6e0166ff92b3",
-      "name": "Shipley Do-Nuts",
-      "latitude": 30.11852,
-      "longitude": -95.50719,
-      "area": "woodlands",
-      "address": "24345 Gosling Rd Ste 240, Spring, TX 77389, USA",
-      "cuisines": ["dessert", "breakfastBrunch", "cafeBakery"],
-      "priceTier": "$",
-      "isFastFood": true,
-      "website": "https://shipleydonuts.com/locations/24345-gosling-rd",
-      "phone": "(832) 698-1542",
-      "description": "Sourced from Google Places (woodlands).",
       "signatureDishes": []
     },
     {
