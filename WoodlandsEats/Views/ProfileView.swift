@@ -34,6 +34,9 @@ struct ProfileView: View {
     /// Phase 3 (Android migration): one-time full CloudKit → Firestore backfill.
     @State private var migrationRunning = false
     @State private var migrationResult: String?
+    /// Part 2: one-time consensus-doc rebuild (Everyone-board optimization).
+    @State private var consensusRunning = false
+    @State private var consensusResult: String?
     /// Phase 4 read-cutover kill-switch (admin A/B). CloudKitService reads the
     /// same UserDefaults key to route per-restaurant community reads.
     @AppStorage("WoodlandsEats.useFirestoreReads") private var useFirestoreReads = false
@@ -301,6 +304,32 @@ struct ProfileView: View {
                         Text("Community boards (Everyone/Pros/Friends) + detail-screen tier & dietary tags read from Firestore instead of CloudKit. Toggle on vs. off on the same restaurant/board — they should match. Admin A/B for the Android migration.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
+
+                        // Part 2: build the maintained consensus docs so the
+                        // Everyone board reads ~1 doc/restaurant instead of
+                        // scanning all placements. Run once; recompute-on-write
+                        // keeps them fresh afterward.
+                        Button {
+                            Task {
+                                consensusRunning = true
+                                consensusResult = nil
+                                let n = await FirebaseService.shared.rebuildAllConsensus()
+                                consensusResult = "Built consensus for \(n) restaurants."
+                                consensusRunning = false
+                            }
+                        } label: {
+                            if consensusRunning {
+                                Label { Text("Building…") } icon: { ProgressView() }
+                            } else {
+                                Label("Rebuild consensus docs", systemImage: "sum")
+                            }
+                        }
+                        .disabled(consensusRunning)
+                        if let consensusResult {
+                            Text(consensusResult)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
 
                     Section(header: Text("Pending Pro requests")) {

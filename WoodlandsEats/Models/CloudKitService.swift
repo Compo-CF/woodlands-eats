@@ -689,9 +689,14 @@ final class CloudKitService {
     /// Queryable index on the Placement record's `recordName` (for the fetch-all
     /// TRUEPREDICATE query); returns [:] gracefully until that exists.
     func fetchAllCommunityTiers() async -> [UUID: CommunityTier] {
-        // Phase 4 Part 2: read-cutover for the Everyone board.
+        // Phase 4 Part 2: read-cutover for the Everyone board. Read the cheap
+        // maintained consensus docs (~1/restaurant); if they haven't been built
+        // yet (empty), fall back to the live full-scan so the board still works.
         if useFirestoreReads {
-            return await FirebaseService.shared.fetchAllCommunityTiers()
+            let consensus = await FirebaseService.shared.fetchAllCommunityTiersFromConsensus()
+            return consensus.isEmpty
+                ? await FirebaseService.shared.fetchAllCommunityTiers()
+                : consensus
         }
         guard isAvailable else { return [:] }
         await loadExclusionsIfNeeded()

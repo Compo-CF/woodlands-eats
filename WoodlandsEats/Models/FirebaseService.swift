@@ -134,6 +134,11 @@ final class FirebaseService {
         await tryWrite("savePlacement") {
             try await self.db.collection("placements").document(docID).setData(data, merge: true)
         }
+        // Part 2: keep the Everyone-board consensus doc fresh for this one
+        // restaurant so board loads read ~1 doc/restaurant instead of scanning
+        // every placement. Recompute (not increment) so it's always correct and
+        // handles tier CHANGES + exclusions. Cheap: one restaurant's placements.
+        await recomputeConsensus(restaurantID: restaurantID)
     }
 
     /// Set/clear ONLY the note on an existing placement doc (mirrors
@@ -155,6 +160,7 @@ final class FirebaseService {
         await tryWrite("removePlacement") {
             try await self.db.collection("placements").document(docID).delete()
         }
+        await recomputeConsensus(restaurantID: restaurantID)
     }
 
     // MARK: - Closure reports (user-side)
@@ -446,6 +452,7 @@ final class FirebaseService {
                 "createdAt": FieldValue.serverTimestamp(),
             ], merge: true)
         }
+        await recomputeConsensusAfterExclusion(kind: kind, target: target)
     }
 
     func deleteExclusion(kind: String, target: String) async {
@@ -453,6 +460,7 @@ final class FirebaseService {
         await tryWrite("deleteExclusion(\(kind))") {
             try await self.db.collection("adminExclusions").document(docID).delete()
         }
+        await recomputeConsensusAfterExclusion(kind: kind, target: target)
     }
 
     // MARK: - Reads (Phase 4 read-cutover, Part 1)
@@ -621,6 +629,135 @@ final class FirebaseService {
             return aggregate(snap.documents, keepOwner: { friendIDs.contains($0) })
         } catch {
             return [:]
+        }
+    }
+
+    // MARK: - Consensus docs (Part 2 — cheap Everyone-board reads)
+    //
+    // `consensus/{restaurantID}` = { total, count, average, tier, updatedAt }.
+    // Maintained by recompute-on-write (savePlacement/removePlacement) + on any
+    // admin exclusion change. This is the EVERYONE board only; Pros/Friends still
+    // aggregate live (they're owner-filtered subsets). Reading the consensus
+    // collection is ~1 doc/ranked-restaurant vs. scanning all ~5.4K placements.
+    // Both platforms MUST recompute on their writes or this goes stale — the
+    // Android FirestoreRepository mirrors this.
+
+    /// Recompute + write the consensus doc for ONE restaurant from its own
+    /// placements (a small query), honoring admin exclusions. Deletes the doc
+    /// when no valid placements remain. Best-effort; the board read falls back
+    /// to the live scan if a consensus doc is ever missing.
+    func recomputeConsensus(restaurantID: UUID) async {
+        await loadExclusionsIfNeeded()
+        let rid = restaurantID.uuidString
+        do {
+            let snap = try await db.collection("placements")
+                .whereField("restaurantID", isEqualTo: rid)
+                .getDocuments()
+            var total = 0, count = 0
+            for doc in snap.documents {
+                guard let score = intOf(doc.get("score")) else { continue }
+                let owner = doc.get("userID") as? String ?? ""
+                if exclBannedUsers.contains(owner) { continue }
+                if exclPlacementNames.contains("placement_\(owner)_\(rid)") { continue }
+                total += score; count += 1
+            }
+            let ref = db.collection("consensus").document(rid)
+            if count == 0 {
+                try await ref.delete()
+            } else {
+                let avg = Double(total) / Double(count)
+                try await ref.setData([
+                    "restaurantID": rid,
+                    "total": total,
+                    "count": count,
+                    "average": avg,
+                    "tier": Tier.from(averageScore: avg).rawValue,
+                    "updatedAt": FieldValue.serverTimestamp(),
+                ])
+            }
+        } catch {
+            // best-effort — leave the doc as-is; next write self-heals
+        }
+    }
+
+    /// After an admin ban/exclude (or its removal), refresh the consensus of the
+    /// affected restaurant(s). Forces an exclusion reload first so the recompute
+    /// reflects the change just made.
+    private func recomputeConsensusAfterExclusion(kind: String, target: String) async {
+        await loadExclusionsIfNeeded(force: true)
+        if kind == "placement" {
+            // target = "placement_<user>_<restaurantUUID>"; UUID has no "_",
+            // so the last underscore-delimited token is the restaurant id.
+            if let last = target.split(separator: "_").last,
+               let rid = UUID(uuidString: String(last)) {
+                await recomputeConsensus(restaurantID: rid)
+            }
+        } else if kind == "user" {
+            // Recompute every restaurant the banned user had placed.
+            do {
+                let snap = try await db.collection("placements")
+                    .whereField("userID", isEqualTo: target)
+                    .getDocuments()
+                var rids = Set<UUID>()
+                for doc in snap.documents {
+                    if let s = doc.get("restaurantID") as? String,
+                       let u = UUID(uuidString: s) { rids.insert(u) }
+                }
+                for rid in rids { await recomputeConsensus(restaurantID: rid) }
+            } catch { }
+        }
+    }
+
+    /// The "Everyone" board, read from the maintained consensus docs — cheap.
+    /// Falls back to nothing (caller keeps its cache) on error.
+    func fetchAllCommunityTiersFromConsensus() async -> [UUID: CommunityTier] {
+        do {
+            let snap = try await db.collection("consensus").getDocuments()
+            var out: [UUID: CommunityTier] = [:]
+            for doc in snap.documents {
+                guard let rid = UUID(uuidString: doc.documentID),
+                      let count = intOf(doc.get("count")), count > 0,
+                      let avg = doc.get("average") as? Double else { continue }
+                out[rid] = CommunityTier(tier: .from(averageScore: avg), count: count, average: avg)
+            }
+            return out
+        } catch {
+            return [:]
+        }
+    }
+
+    /// Admin one-time: (re)build every consensus doc from the full placements
+    /// collection. One expensive scan; after this, incremental recompute-on-write
+    /// keeps them fresh. Returns the number of restaurants written.
+    func rebuildAllConsensus() async -> Int {
+        await loadExclusionsIfNeeded(force: true)
+        do {
+            let snap = try await db.collection("placements").getDocuments()
+            var sums: [String: (total: Int, count: Int)] = [:]
+            for doc in snap.documents {
+                guard let ridStr = doc.get("restaurantID") as? String,
+                      let score = intOf(doc.get("score")) else { continue }
+                let owner = doc.get("userID") as? String ?? ""
+                if exclBannedUsers.contains(owner) { continue }
+                if exclPlacementNames.contains("placement_\(owner)_\(ridStr)") { continue }
+                var e = sums[ridStr] ?? (0, 0)
+                e.total += score; e.count += 1
+                sums[ridStr] = e
+            }
+            for (ridStr, e) in sums {
+                let avg = Double(e.total) / Double(e.count)
+                try? await db.collection("consensus").document(ridStr).setData([
+                    "restaurantID": ridStr,
+                    "total": e.total,
+                    "count": e.count,
+                    "average": avg,
+                    "tier": Tier.from(averageScore: avg).rawValue,
+                    "updatedAt": FieldValue.serverTimestamp(),
+                ])
+            }
+            return sums.count
+        } catch {
+            return 0
         }
     }
 }

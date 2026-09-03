@@ -56,6 +56,16 @@ service cloud.firestore {
       allow write: if isAuthed();
     }
 
+    // ── consensus — maintained per-restaurant Everyone-board aggregate ──
+    // { total, count, average, tier, updatedAt }. Written by any signed-in
+    // user's client on each placement write (recompute-on-write), same
+    // client-asserted-aggregate trust model as placements. Public read so
+    // the board loads ~1 doc/restaurant instead of scanning all placements.
+    match /consensus/{restaurantID} {
+      allow read:  if true;
+      allow write: if isAuthed();
+    }
+
     // ── closureDecisions — admin verdict on closure ──────────────
     match /closureDecisions/{restaurantID} {
       allow read:  if true;
