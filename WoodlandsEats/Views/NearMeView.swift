@@ -36,8 +36,7 @@ struct NearMeView: View {
         NavigationStack {
             Group {
                 if loading {
-                    ProgressView("Finding top spots near you…")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    RestaurantListSkeleton()
                 } else if store.userLocation == nil {
                     ContentUnavailableView {
                         Label("Location needed", systemImage: "location.slash")

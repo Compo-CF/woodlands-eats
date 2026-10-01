@@ -24,8 +24,7 @@ struct CommunityTiersView: View {
         NavigationStack {
             Group {
                 if loading {
-                    ProgressView("Loading community rankings…")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    CommunityBoardSkeleton()
                 } else if tiers.isEmpty {
                     emptyState
                 } else {
