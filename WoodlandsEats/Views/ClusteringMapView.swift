@@ -37,11 +37,13 @@ struct ClusteringMapView: UIViewRepresentable {
         let map = MKMapView()
         map.delegate = context.coordinator
         map.showsUserLocation = true
-        map.mapType = mapType
-        map.pointOfInterestFilter = .excludingAll   // hide Apple POIs so our pins read clean
+        // v2.7: a muted standard map (no loud green/POIs) so the tier pins are
+        // the only color on screen — reads far more "designed" than the default.
+        map.preferredConfiguration = Self.configuration(for: mapType)
+        context.coordinator.appliedMapType = mapType
         map.register(RestaurantAnnotationView.self,
                      forAnnotationViewWithReuseIdentifier: RestaurantAnnotationView.reuseID)
-        map.register(MKMarkerAnnotationView.self,
+        map.register(ClusterAnnotationView.self,
                      forAnnotationViewWithReuseIdentifier:
                         MKMapViewDefaultClusterAnnotationViewReuseIdentifier)
 
@@ -71,9 +73,12 @@ struct ClusteringMapView: UIViewRepresentable {
     func updateUIView(_ map: MKMapView, context: Context) {
         let coordinator = context.coordinator
 
-        // Apply the current map style if it's changed.
-        if map.mapType != mapType {
-            map.mapType = mapType
+        // Apply the current map style if it's changed (muted standard /
+        // imagery / hybrid), tracked via the coordinator so we don't rebuild
+        // the configuration on every SwiftUI update.
+        if coordinator.appliedMapType != mapType {
+            coordinator.appliedMapType = mapType
+            map.preferredConfiguration = Self.configuration(for: mapType)
         }
 
         // Diff annotations: remove ones no longer in the filtered set, add new ones.
@@ -122,9 +127,30 @@ struct ClusteringMapView: UIViewRepresentable {
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
+    /// Translate the persisted MKMapType into a modern MKMapConfiguration.
+    /// Standard uses the muted emphasis + POIs hidden so our tier pins are the
+    /// only thing with color; satellite/hybrid keep imagery.
+    static func configuration(for type: MKMapType) -> MKMapConfiguration {
+        switch type {
+        case .satellite, .satelliteFlyover:
+            return MKImageryMapConfiguration(elevationStyle: .flat)
+        case .hybrid, .hybridFlyover:
+            let c = MKHybridMapConfiguration(elevationStyle: .flat)
+            c.pointOfInterestFilter = .excludingAll
+            return c
+        default:
+            let c = MKStandardMapConfiguration(elevationStyle: .flat, emphasisStyle: .muted)
+            c.pointOfInterestFilter = .excludingAll
+            return c
+        }
+    }
+
     final class Coordinator: NSObject, MKMapViewDelegate {
         let parent: ClusteringMapView
         var didInitialFit = false
+        /// The map type currently applied as a configuration, so updateUIView
+        /// only rebuilds the configuration when the user actually switches it.
+        var appliedMapType: MKMapType?
         init(_ parent: ClusteringMapView) { self.parent = parent }
 
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
@@ -139,12 +165,12 @@ struct ClusteringMapView: UIViewRepresentable {
                 return view
             }
             if let cluster = annotation as? MKClusterAnnotation {
-                let view = mapView.dequeueReusableAnnotationView(
+                // v2.7: custom circular badge (see ClusterAnnotationView) instead
+                // of the default black marker balloon — prepareForDisplay sizes
+                // and labels it from the member count.
+                return mapView.dequeueReusableAnnotationView(
                     withIdentifier: MKMapViewDefaultClusterAnnotationViewReuseIdentifier,
-                    for: cluster) as! MKMarkerAnnotationView
-                view.markerTintColor = .label
-                view.glyphText = "\(cluster.memberAnnotations.count)"
-                return view
+                    for: cluster)
             }
             return nil
         }
@@ -214,4 +240,56 @@ final class RestaurantAnnotationView: MKMarkerAnnotationView {
         collisionMode = .circle
     }
     required init?(coder aDecoder: NSCoder) { fatalError("not implemented") }
+}
+
+/// v2.7: a flat circular cluster badge — brand purple fill, white count, thin
+/// white ring + soft shadow — replacing the default black marker balloon. Sized
+/// by member count so dense areas read heavier. Much more "designed" than the
+/// stock cluster and keeps the muted map uncluttered.
+final class ClusterAnnotationView: MKAnnotationView {
+    /// Brand accent (matches Color.nightOut).
+    private static let fill = UIColor(red: 0.42, green: 0.36, blue: 0.96, alpha: 1)
+
+    private let circle = UIView()
+    private let countLabel = UILabel()
+
+    override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
+        super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
+        collisionMode = .circle
+        backgroundColor = .clear
+
+        circle.backgroundColor = Self.fill
+        circle.layer.borderColor = UIColor.white.cgColor
+        circle.layer.borderWidth = 2
+        circle.layer.shadowColor = UIColor.black.cgColor
+        circle.layer.shadowOpacity = 0.22
+        circle.layer.shadowRadius = 3
+        circle.layer.shadowOffset = CGSize(width: 0, height: 1)
+        circle.isUserInteractionEnabled = false
+        addSubview(circle)
+
+        countLabel.textColor = .white
+        countLabel.textAlignment = .center
+        countLabel.isUserInteractionEnabled = false
+        addSubview(countLabel)
+    }
+
+    required init?(coder: NSCoder) { fatalError("not implemented") }
+
+    override func prepareForDisplay() {
+        super.prepareForDisplay()
+        guard let cluster = annotation as? MKClusterAnnotation else { return }
+        let count = cluster.memberAnnotations.count
+        countLabel.text = count > 999 ? "999+" : "\(count)"
+
+        // Diameter scales with density so a 5-pin cluster and a 500-pin cluster
+        // don't look identical.
+        let d: CGFloat = count < 10 ? 34 : count < 50 ? 40 : count < 200 ? 44 : 50
+        bounds = CGRect(x: 0, y: 0, width: d, height: d)
+        circle.frame = bounds
+        circle.layer.cornerRadius = d / 2
+        countLabel.frame = bounds
+        countLabel.font = .systemFont(ofSize: count > 99 ? 12 : 14, weight: .bold)
+        centerOffset = .zero
+    }
 }
