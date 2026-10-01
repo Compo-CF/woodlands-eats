@@ -817,7 +817,7 @@ private struct ChipCloud<Item: Hashable>: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 8)
                         .padding(.horizontal, 6)
-                        .background(on ? Tier.s.color : Color(.secondarySystemBackground),
+                        .background(on ? Color.nightOut : Color(.secondarySystemBackground),
                                     in: Capsule())
                         .foregroundStyle(on ? .white : .primary)
                 }
