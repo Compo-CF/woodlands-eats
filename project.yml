@@ -63,7 +63,7 @@ targets:
       path: WoodlandsEats/Info.plist
       properties:
         CFBundleDisplayName: S-Tier Eats
-        CFBundleShortVersionString: "2.7"
+        CFBundleShortVersionString: "2.7.1"
         CFBundleVersion: "92"
         CFBundleIconName: AppIcon
         # v2.1: register the stier:// custom URL scheme so friend-tier deep
