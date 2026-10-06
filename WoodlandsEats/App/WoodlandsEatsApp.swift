@@ -71,6 +71,8 @@ struct WoodlandsEatsApp: App {
     /// v1.9: push notifications (CloudKit CKQuerySubscriptions).
     /// Opt-in via Profile toggle; re-syncs subscriptions on launch.
     @State private var notifications = NotificationService()
+    /// v2.8: animated splash on cold launch, dismissed after a short beat.
+    @State private var showSplash = true
     /// v1.7 Feature C: User ID parsed out of an incoming friend-tier
     /// universal link. When non-nil, FriendTierView is presented as a
     /// sheet over ContentView. Cleared when the user dismisses.
@@ -115,6 +117,8 @@ struct WoodlandsEatsApp: App {
 
     var body: some Scene {
         WindowGroup {
+            ZStack {
+            Group {
             if hasAcceptedEULA {
                 ContentView()
                     .environment(store)
@@ -179,6 +183,19 @@ struct WoodlandsEatsApp: App {
                     }
             } else {
                 EULAView(hasAccepted: $hasAcceptedEULA)
+            }
+            } // Group — the app content
+            if showSplash {
+                SplashView()
+                    .transition(.opacity)
+                    .zIndex(1)
+            }
+            } // ZStack
+            .task {
+                // Hold the splash for a short beat so the badge animation plays,
+                // then cross-fade to the app.
+                try? await Task.sleep(nanoseconds: 1_500_000_000)
+                withAnimation(.easeInOut(duration: 0.45)) { showSplash = false }
             }
         }
     }
