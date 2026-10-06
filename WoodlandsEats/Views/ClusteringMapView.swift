@@ -282,13 +282,17 @@ final class ClusterAnnotationView: MKAnnotationView {
         let count = cluster.memberAnnotations.count
         countLabel.text = count > 999 ? "999+" : "\(count)"
 
-        // Diameter scales with density so a 5-pin cluster and a 500-pin cluster
-        // don't look identical.
-        let d: CGFloat = count < 10 ? 34 : count < 50 ? 40 : count < 200 ? 44 : 50
-        bounds = CGRect(x: 0, y: 0, width: d, height: d)
-        circle.frame = bounds
+        // IMPORTANT: the annotation view's own bounds stay FIXED. Resizing
+        // `self` here would change the collision footprint MapKit uses for
+        // clustering → it re-clusters → the count changes → it resizes again,
+        // an endless shift-and-recount loop (the v2.7 jitter bug). Only the
+        // inner circle scales with density, inside a constant 60pt box.
+        let box: CGFloat = 60
+        bounds = CGRect(x: 0, y: 0, width: box, height: box)
+        let d: CGFloat = count < 10 ? 38 : count < 50 ? 44 : count < 200 ? 48 : 52
+        circle.frame = CGRect(x: (box - d) / 2, y: (box - d) / 2, width: d, height: d)
         circle.layer.cornerRadius = d / 2
-        countLabel.frame = bounds
+        countLabel.frame = circle.frame
         countLabel.font = .systemFont(ofSize: count > 99 ? 12 : 14, weight: .bold)
         centerOffset = .zero
     }
