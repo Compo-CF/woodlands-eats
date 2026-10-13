@@ -10,6 +10,10 @@ struct MyStatsView: View {
     @Environment(RestaurantStore.self) private var store
     @Environment(TierListStore.self) private var tierStore
     @Environment(VisitedStore.self) private var visitedStore
+    @Environment(\.displayScale) private var displayScale
+    @AppStorage("WoodlandsEats.cachedDisplayName") private var cachedDisplayName = ""
+    /// v3.0 "Food Wrapped": rendered shareable stats card.
+    @State private var shareImage: UIImage?
 
     private var visitedCount: Int { visitedStore.visited.count }
     private var totalCount: Int { store.restaurants.count }
@@ -77,6 +81,38 @@ struct MyStatsView: View {
         .background(Color(.systemGroupedBackground))
         .navigationTitle("My Stats")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                if let img = shareImage {
+                    ShareLink(
+                        item: ShareableStatsImage(uiImage: img),
+                        preview: SharePreview("My Food Stats", image: Image(uiImage: img))
+                    ) { Image(systemName: "square.and.arrow.up") }
+                }
+            }
+        }
+        .onAppear { rebuildShareImage() }
+        .onChange(of: rankedCount) { _, _ in rebuildShareImage() }
+        .onChange(of: visitedCount) { _, _ in rebuildShareImage() }
+    }
+
+    /// Render the off-screen StatsShareCard (Food Wrapped) to a UIImage.
+    @MainActor private func rebuildShareImage() {
+        guard rankedCount > 0 || visitedCount > 0 else { shareImage = nil; return }
+        let rank = FoodieRank.from(placementCount: rankedCount)?.displayName ?? "Newcomer"
+        let card = StatsShareCard(
+            displayName: cachedDisplayName,
+            headline: "My Food Stats",
+            rankName: rank,
+            rankedCount: rankedCount,
+            visitedCount: visitedCount,
+            sTierCount: tierDistribution[.s] ?? 0,
+            topCuisine: topCuisines.first?.cuisine.displayName,
+            topArea: areaActivity.first?.area.displayName
+        )
+        let renderer = ImageRenderer(content: card)
+        renderer.scale = displayScale
+        shareImage = renderer.uiImage
     }
 
     /// v1.4: prominent rank card at the top of My Stats. Shows the
