@@ -7,7 +7,7 @@ struct TierBadge: View {
 
     var body: some View {
         Text(tier.label)
-            .font(.system(size: size * 0.6, weight: .heavy, design: .rounded))
+            .font(.grotesk(size * 0.58, .bold))
             .foregroundStyle(.white)
             .frame(width: size, height: size)
             .background(tier.color, in: RoundedRectangle(cornerRadius: size * 0.28))
@@ -28,7 +28,7 @@ struct TierPicker: View {
                     if current == tier { onClear() } else { onSelect(tier) }
                 } label: {
                     Text(tier.label)
-                        .font(.system(size: 20, weight: .heavy, design: .rounded))
+                        .font(.grotesk(20, .bold))
                         .foregroundStyle(current == tier ? .white : tier.color)
                         .frame(maxWidth: .infinity)
                         .frame(height: 48)

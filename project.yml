@@ -63,9 +63,16 @@ targets:
       path: WoodlandsEats/Info.plist
       properties:
         CFBundleDisplayName: S-Tier Eats
-        CFBundleShortVersionString: "2.8"
-        CFBundleVersion: "93"
+        CFBundleShortVersionString: "3.0"
+        CFBundleVersion: "94"
         CFBundleIconName: AppIcon
+        # v3.0: bundled Space Grotesk (static instances from the Google Fonts
+        # variable TTF). Referenced by PostScript name in DesignSystem.swift.
+        UIAppFonts:
+          - SpaceGrotesk-Regular.ttf
+          - SpaceGrotesk-Medium.ttf
+          - SpaceGrotesk-SemiBold.ttf
+          - SpaceGrotesk-Bold.ttf
         # v2.1: register the stier:// custom URL scheme so friend-tier deep
         # links resolve even when Universal Links don't (the web 404 page's
         # "open in app" fallback uses stier://tier/<id>). parseFriendTierID
