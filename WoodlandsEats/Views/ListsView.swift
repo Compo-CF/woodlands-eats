@@ -82,3 +82,37 @@ struct ListsView: View {
         await load()
     }
 }
+
+/// v3.0: loads a shared list by id (from a `list/<id>` deep link) and shows it
+/// read-only. Presented as a sheet from WoodlandsEatsApp.
+struct SharedListView: View {
+    let listID: String
+    @Environment(\.dismiss) private var dismiss
+    @State private var loaded: RestaurantList?
+    @State private var loading = true
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                if loading {
+                    ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if let list = loaded {
+                    ListDetailView(list: list, readOnly: true)
+                } else {
+                    ContentUnavailableView {
+                        Label("List not found", systemImage: "questionmark.folder")
+                    } description: {
+                        Text("This list may be private or no longer exists.")
+                    }
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) { Button("Done") { dismiss() } }
+            }
+        }
+        .task {
+            loaded = await FirebaseService.shared.fetchList(listID)
+            loading = false
+        }
+    }
+}

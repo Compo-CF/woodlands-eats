@@ -13,6 +13,8 @@ struct ListDetailView: View {
     @State private var showRename = false
     @State private var editTitle = ""
     @State private var editEmoji = ""
+    @Environment(\.displayScale) private var displayScale
+    @State private var shareImage: UIImage?
 
     init(list: RestaurantList, readOnly: Bool = false, onChange: @escaping () -> Void = {}) {
         _list = State(initialValue: list)
@@ -60,6 +62,23 @@ struct ListDetailView: View {
         .navigationTitle(list.emoji.isEmpty ? list.title : "\(list.emoji) \(list.title)")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                if let img = shareImage, !list.restaurantIDs.isEmpty {
+                    Menu {
+                        ShareLink(
+                            item: ShareableListImage(uiImage: img),
+                            preview: SharePreview(list.title, image: Image(uiImage: img))
+                        ) { Label("Share as image", systemImage: "photo") }
+                        if list.isPublic,
+                           let url = URL(string: "https://compo-cf.github.io/woodlands-eats/list/\(list.id)") {
+                            ShareLink(item: url, subject: Text(list.title),
+                                      message: Text("Check out my list on S-Tier Eats:")) {
+                                Label("Share link", systemImage: "link")
+                            }
+                        }
+                    } label: { Image(systemName: "square.and.arrow.up") }
+                }
+            }
             if !readOnly {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
@@ -73,6 +92,10 @@ struct ListDetailView: View {
                 }
             }
         }
+        .onAppear { rebuildShareImage() }
+        .onChange(of: list.restaurantIDs) { _, _ in rebuildShareImage() }
+        .onChange(of: list.title) { _, _ in rebuildShareImage() }
+        .onChange(of: list.emoji) { _, _ in rebuildShareImage() }
         .sheet(isPresented: $showAdd) {
             AddToListSheet(existing: Set(list.restaurantIDs)) { picked in
                 list.restaurantIDs.append(picked)
@@ -120,6 +143,15 @@ struct ListDetailView: View {
             )
             onChange()
         }
+    }
+
+    /// Render the off-screen ListShareCard to a UIImage for ShareLink.
+    @MainActor private func rebuildShareImage() {
+        let names = list.restaurantIDs.compactMap { byID[$0]?.name }
+        guard !names.isEmpty else { shareImage = nil; return }
+        let renderer = ImageRenderer(content: ListShareCard(title: list.title, emoji: list.emoji, names: names))
+        renderer.scale = displayScale
+        shareImage = renderer.uiImage
     }
 }
 

@@ -77,6 +77,9 @@ struct WoodlandsEatsApp: App {
     /// universal link. When non-nil, FriendTierView is presented as a
     /// sheet over ContentView. Cleared when the user dismisses.
     @State private var friendTierUserID: String?
+    /// v3.0: list id parsed from an incoming `list/<id>` deep link → presents
+    /// SharedListView (read-only) as a sheet.
+    @State private var listLinkID: String?
     /// App Review Guideline 1.2 (UGC) requires an EULA gate that the user must
     /// accept before using the app. Persisted in @AppStorage so it survives
     /// launches but resets on uninstall — the latter is intentional so a fresh
@@ -156,9 +159,18 @@ struct WoodlandsEatsApp: App {
                     //     (Universal Link — preferred for sharing)
                     //   - stier://tier/<id> (custom-scheme fallback)
                     .onOpenURL { url in
-                        if let id = parseFriendTierID(from: url) {
+                        if let lid = parseListID(from: url) {
+                            listLinkID = lid
+                        } else if let id = parseFriendTierID(from: url) {
                             friendTierUserID = id
                         }
+                    }
+                    .sheet(item: Binding<ListLinkID?>(
+                        get: { listLinkID.map(ListLinkID.init) },
+                        set: { listLinkID = $0?.value }
+                    )) { link in
+                        SharedListView(listID: link.value)
+                            .environment(store)
                     }
                     .sheet(item: Binding<FriendTierLinkID?>(
                         get: { friendTierUserID.map(FriendTierLinkID.init) },
@@ -219,11 +231,33 @@ struct WoodlandsEatsApp: App {
         }
         return nil
     }
+
+    /// v3.0: pull the list id out of a `list/<id>` deep link.
+    ///   https://compo-cf.github.io/woodlands-eats/list/<id>  |  stier://list/<id>
+    private func parseListID(from url: URL) -> String? {
+        if url.scheme == "stier", url.host == "list" {
+            return url.pathComponents.filter { $0 != "/" }.first
+        }
+        if url.scheme == "https" || url.scheme == "http" {
+            let parts = url.pathComponents
+            if let idx = parts.firstIndex(of: "list"), idx + 1 < parts.count {
+                let id = parts[idx + 1]
+                return id.isEmpty ? nil : id
+            }
+        }
+        return nil
+    }
 }
 
 /// Identifiable wrapper so the friend-tier-user-id string can drive a
 /// SwiftUI .sheet(item:) binding. (Plain Strings aren't Identifiable.)
 private struct FriendTierLinkID: Identifiable {
+    let value: String
+    var id: String { value }
+}
+
+/// v3.0: Identifiable wrapper for the shared-list id sheet binding.
+private struct ListLinkID: Identifiable {
     let value: String
     var id: String { value }
 }
