@@ -158,6 +158,15 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // ── lists — user-made shareable restaurant collections (v3.0) ─
+    // { ownerId, title, emoji, restaurantIDs[], isPublic, createdAt, updatedAt }.
+    // Public read (shared via deep link + the my-lists query); any signed-in
+    // user may write (client-asserted ownerId, same model as placements).
+    match /lists/{listID} {
+      allow read:  if true;
+      allow write: if isAuthed();
+    }
+
     // ── users — admin flag store (keyed by Firebase auth uid) ────
     // This collection alone is keyed by request.auth.uid, so ownership CAN be
     // enforced. Bootstrap the first admin doc manually via the Console.

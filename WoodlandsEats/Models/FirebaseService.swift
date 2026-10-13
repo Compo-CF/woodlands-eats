@@ -320,6 +320,89 @@ final class FirebaseService {
         }
     }
 
+    // MARK: - Lists (v3.0 — shareable restaurant collections)
+
+    /// Create an empty list; returns the new document id.
+    func createList(title: String, emoji: String, isPublic: Bool) async -> String? {
+        guard let userID = effectiveUserID else { return nil }
+        let ref = db.collection("lists").document()
+        do {
+            try await ref.setData([
+                "ownerId": userID,
+                "title": title,
+                "emoji": emoji,
+                "restaurantIDs": [String](),
+                "isPublic": isPublic,
+                "createdAt": FieldValue.serverTimestamp(),
+                "updatedAt": FieldValue.serverTimestamp(),
+            ])
+            return ref.documentID
+        } catch {
+            print("[Firebase] createList failed: \(error.localizedDescription)")
+            return nil
+        }
+    }
+
+    /// Patch any subset of a list's fields (only non-nil args are written).
+    func updateList(_ id: String, title: String? = nil, emoji: String? = nil,
+                    restaurantIDs: [UUID]? = nil, isPublic: Bool? = nil) async {
+        var data: [String: Any] = ["updatedAt": FieldValue.serverTimestamp()]
+        if let title { data["title"] = title }
+        if let emoji { data["emoji"] = emoji }
+        if let restaurantIDs { data["restaurantIDs"] = restaurantIDs.map { $0.uuidString } }
+        if let isPublic { data["isPublic"] = isPublic }
+        await tryWrite("updateList") {
+            try await self.db.collection("lists").document(id).setData(data, merge: true)
+        }
+    }
+
+    func deleteList(_ id: String) async {
+        await tryWrite("deleteList") {
+            try await self.db.collection("lists").document(id).delete()
+        }
+    }
+
+    /// The signed-in user's own lists, newest-updated first.
+    func fetchMyLists() async -> [RestaurantList] {
+        guard let userID = effectiveUserID else { return [] }
+        do {
+            let snap = try await db.collection("lists")
+                .whereField("ownerId", isEqualTo: userID).getDocuments()
+            return snap.documents
+                .compactMap { Self.parseList(id: $0.documentID, $0.data()) }
+                .sorted { $0.updatedAt > $1.updatedAt }
+        } catch {
+            print("[Firebase] fetchMyLists failed: \(error.localizedDescription)")
+            return []
+        }
+    }
+
+    /// Fetch one list by id (for a shared deep link).
+    func fetchList(_ id: String) async -> RestaurantList? {
+        do {
+            let doc = try await db.collection("lists").document(id).getDocument()
+            guard let data = doc.data() else { return nil }
+            return Self.parseList(id: doc.documentID, data)
+        } catch {
+            print("[Firebase] fetchList failed: \(error.localizedDescription)")
+            return nil
+        }
+    }
+
+    private static func parseList(id: String, _ data: [String: Any]) -> RestaurantList? {
+        guard let ownerId = data["ownerId"] as? String,
+              let title = data["title"] as? String else { return nil }
+        let ids = (data["restaurantIDs"] as? [String] ?? []).compactMap { UUID(uuidString: $0) }
+        let ts = (data["updatedAt"] as? Timestamp)?.dateValue() ?? Date.distantPast
+        return RestaurantList(
+            id: id, ownerId: ownerId, title: title,
+            emoji: data["emoji"] as? String ?? "",
+            restaurantIDs: ids,
+            isPublic: data["isPublic"] as? Bool ?? false,
+            updatedAt: ts
+        )
+    }
+
     /// Admin updates a suggestion's status — "approved" or "rejected".
     /// When approving, also creates the liveRestaurants doc.
     func updateSuggestionStatus(suggestionID: String, status: String) async {

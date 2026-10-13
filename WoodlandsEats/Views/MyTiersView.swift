@@ -115,6 +115,12 @@ struct MyTiersView: View {
     ///   - Share friend link: universal link to a read-only friend view
     @ToolbarContentBuilder
     private var shareToolbar: some ToolbarContent {
+        // v3.0: entry into shareable Lists (lives with your personal rankings).
+        ToolbarItem(placement: .topBarLeading) {
+            NavigationLink { ListsView() } label: {
+                Image(systemName: "list.star")
+            }
+        }
         ToolbarItem(placement: .topBarTrailing) {
             if tierStore.rankedCount > 0 {
                 Menu { shareMenuContent } label: {
