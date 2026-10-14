@@ -170,10 +170,17 @@ final class CloudKitService {
 
     /// Phase 4 read-cutover kill-switch. When true, per-restaurant community
     /// reads (community tier + dietary tags) come from Firestore instead of
-    /// CloudKit. Admin-only toggle in ProfileView; default OFF (CloudKit). Read
-    /// straight from UserDefaults since CloudKitService isn't a View.
+    /// CloudKit. Admin-only toggle in ProfileView. Read straight from
+    /// UserDefaults since CloudKitService isn't a View.
+    ///
+    /// v3.0 cutover: default flipped ON — when the key is UNSET (every normal
+    /// user, who never sees the admin toggle), read from Firestore. `bool(forKey:)`
+    /// returns false for an absent key, so we check presence explicitly to make
+    /// the absent-key default `true`. A/B verified matching on-device 2026-10-14.
     private var useFirestoreReads: Bool {
-        UserDefaults.standard.bool(forKey: "WoodlandsEats.useFirestoreReads")
+        let defaults = UserDefaults.standard
+        guard defaults.object(forKey: "WoodlandsEats.useFirestoreReads") != nil else { return true }
+        return defaults.bool(forKey: "WoodlandsEats.useFirestoreReads")
     }
 
     init() {

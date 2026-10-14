@@ -39,7 +39,10 @@ struct ProfileView: View {
     @State private var consensusResult: String?
     /// Phase 4 read-cutover kill-switch (admin A/B). CloudKitService reads the
     /// same UserDefaults key to route per-restaurant community reads.
-    @AppStorage("WoodlandsEats.useFirestoreReads") private var useFirestoreReads = false
+    // v3.0: cutover default flipped ON — Firestore is now the read path for all
+    // users (CloudKit reads retained only as the admin A/B's "off" position).
+    // Verified matching on-device 2026-10-14 before flipping.
+    @AppStorage("WoodlandsEats.useFirestoreReads") private var useFirestoreReads = true
     @State private var pending: [ProRequest] = []
     @State private var approvedPros: [ProRequest] = []
     @Environment(RestaurantStore.self) private var store
