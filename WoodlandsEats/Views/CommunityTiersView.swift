@@ -19,6 +19,8 @@ struct CommunityTiersView: View {
     @State private var cuisineFilter: Cuisine?
     /// v2.1: presents the Friend Activity feed (Friends board only).
     @State private var showFriendActivity = false
+    /// v3.0 Phase 2b: presents the Taste Match leaderboard (Friends board only).
+    @State private var showLeaderboard = false
 
     var body: some View {
         NavigationStack {
@@ -103,6 +105,12 @@ struct CommunityTiersView: View {
                         }
                         .accessibilityLabel("Recent friend activity")
                     }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button { showLeaderboard = true } label: {
+                            Image(systemName: "trophy")
+                        }
+                        .accessibilityLabel("Taste match leaderboard")
+                    }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -124,6 +132,9 @@ struct CommunityTiersView: View {
             }
             .sheet(isPresented: $showFriendActivity) {
                 FriendActivityView()
+            }
+            .sheet(isPresented: $showLeaderboard) {
+                TasteMatchLeaderboardView()
             }
         }
     }
