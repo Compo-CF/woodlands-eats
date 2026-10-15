@@ -64,7 +64,8 @@ targets:
       properties:
         CFBundleDisplayName: S-Tier Eats
         CFBundleShortVersionString: "3.0"
-        CFBundleVersion: "94"
+        # Build number comes from CURRENT_PROJECT_VERSION (scripts/testflight.sh passes the git commit count).
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         CFBundleIconName: AppIcon
         # v3.0: bundled Space Grotesk (static instances from the Google Fonts
         # variable TTF). Referenced by PostScript name in DesignSystem.swift.
@@ -189,3 +190,5 @@ targets:
         # CODE_SIGNING handled per-config (none in CI, manual on submit day)
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: 7H5T5AR2X5
+        # Fallback for manual Xcode archives; scripts/testflight.sh overrides it with the commit count.
+        CURRENT_PROJECT_VERSION: "95"
