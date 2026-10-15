@@ -747,13 +747,17 @@ struct RestaurantDetailView: View {
         if let url = restaurant.websiteURL,
            let host = url.host?.lowercased(),
            host.contains("opentable.com") || host.contains("resy.com") {
-            UIApplication.shared.open(url)
+            // OpenTable routes through the affiliate layer; Resy has no program.
+            let out = host.contains("opentable.com")
+                ? AffiliateLinks.track(url, for: .opentable)
+                : url
+            UIApplication.shared.open(out)
             return
         }
         let q = restaurant.name.addingPercentEncoding(
             withAllowedCharacters: .urlQueryAllowed) ?? ""
         if let url = URL(string: "https://www.opentable.com/s?term=\(q)&location=The+Woodlands+TX") {
-            UIApplication.shared.open(url)
+            UIApplication.shared.open(AffiliateLinks.track(url, for: .opentable))
         }
     }
 
@@ -766,8 +770,9 @@ struct RestaurantDetailView: View {
     }
 
     private func openDeliveryApp(_ app: DeliveryApp) {
-        UIApplication.shared.open(
-            app.searchURL(for: restaurant.name, city: "The Woodlands TX"))
+        let raw = app.searchURL(for: restaurant.name, city: "The Woodlands TX")
+        let partner: AffiliatePartner = (app == .doordash) ? .doordash : .ubereats
+        UIApplication.shared.open(AffiliateLinks.track(raw, for: partner))
     }
 
     private var telURL: URL? {
