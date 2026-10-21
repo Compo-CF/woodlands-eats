@@ -54,6 +54,8 @@ struct ProfileView: View {
     @State private var showSuggest = false
     // v2.1: Friend Activity feed sheet.
     @State private var showFriendActivity = false
+    /// v3.0: S-Tier Plus paywall sheet.
+    @State private var showPlusPaywall = false
     // v2.0: account deletion (Guideline 5.1.1(v)).
     @State private var showDeleteConfirm = false
     @State private var deletingAccount = false
@@ -753,49 +755,53 @@ struct ProfileView: View {
         }
     }
 
-    /// v1.7 Feature D: Premium / Remove Ads section. Three states:
-    ///   - Already purchased: green checkmark "Ad-free" badge.
-    ///   - Product loaded: "Remove Ads — $1.99" + "Restore Purchases".
-    ///   - Product loading: spinner.
+    /// v3.0: S-Tier Plus section. States:
+    ///   - Plus member: green "S-Tier Plus member" badge.
+    ///   - Grandfathered ad-free (owns the retired one-time): a note that
+    ///     ad-free stays, plus an "Upgrade to S-Tier Plus" entry.
+    ///   - Otherwise: a "Get S-Tier Plus" entry that opens the paywall.
+    /// The legacy $1.99 one-time is retired (no longer offered); existing
+    /// owners keep ad-free via PurchaseStore's grandfather check.
     @ViewBuilder
     private var premiumSection: some View {
         Section(
-            header: Text("Premium"),
-            footer: Text(purchases.isAdFree
-                ? "Thanks for supporting S-Tier Eats — banner ads are turned off on this device and any device signed in with the same Apple ID."
-                : "One-time purchase. Permanently hides the banner ad on the Map and Browse tabs.")
+            header: Text("S-Tier Plus"),
+            footer: Text(purchases.isPlus
+                ? "Thanks for supporting S-Tier Eats — ads are off and Plus is unlocked on any device signed in with your Apple ID."
+                : (purchases.isAdFree
+                    ? "You already have ad-free from the earlier one-time purchase — that stays. S-Tier Plus adds unlimited lists and a supporter badge, and helps fund local food coverage."
+                    : "Remove ads, create unlimited lists, and support local food coverage. 7-day free trial, then auto-renews."))
         ) {
-            if purchases.isAdFree {
-                Label("Ad-free", systemImage: "checkmark.seal.fill")
+            if purchases.isPlus {
+                Label("S-Tier Plus member", systemImage: "checkmark.seal.fill")
                     .foregroundStyle(.green)
                     .fontWeight(.semibold)
-            } else if let product = purchases.adFreeProduct {
+            } else {
+                if purchases.isAdFree {
+                    Label("Ad-free (included)", systemImage: "checkmark.seal")
+                        .foregroundStyle(.secondary)
+                }
                 Button {
-                    Task { await purchases.purchaseAdFree() }
+                    showPlusPaywall = true
                 } label: {
                     HStack {
-                        Label("Remove Ads", systemImage: "rectangle.slash")
+                        Label(purchases.isAdFree ? "Upgrade to S-Tier Plus" : "Get S-Tier Plus",
+                              systemImage: "star.circle.fill")
                         Spacer()
-                        Text(product.displayPrice)
-                            .foregroundStyle(.secondary)
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
                     }
                 }
-                .disabled(purchases.isPurchasing)
                 Button("Restore Purchases") {
                     Task { await purchases.restorePurchases() }
                 }
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-            } else {
-                HStack {
-                    Image(systemName: "rectangle.slash")
-                    Text("Remove Ads")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    ProgressView()
-                        .controlSize(.small)
-                }
             }
+        }
+        .sheet(isPresented: $showPlusPaywall) {
+            PlusPaywallView()
         }
     }
 

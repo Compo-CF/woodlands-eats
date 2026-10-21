@@ -38,15 +38,34 @@ final class PurchaseStore {
     /// Whether the current Apple ID owns the ad-free entitlement.
     /// Mirrored to UserDefaults so AdsService / view code can read
     /// synchronously without going through StoreKit on every check.
+    /// v3.0: ad-free is now granted by EITHER an active S-Tier Plus
+    /// subscription OR the legacy one-time "Remove Ads" purchase
+    /// (grandfathered — see updateEntitlements).
     private(set) var isAdFree: Bool = false
+
+    /// v3.0: whether the current Apple ID holds an active S-Tier Plus
+    /// subscription. Gates ad removal + the Plus-only features (unlimited
+    /// lists, advanced Plan a Night Out, Wrapped history, taste-match
+    /// leaderboard, supporter badge). Cached to UserDefaults like isAdFree.
+    private(set) var isPlus: Bool = false
 
     /// True between a tap on "Remove Ads" and the purchase resolving
     /// (success / cancel / error). Used to disable the button so
     /// users can't double-tap.
     private(set) var isPurchasing: Bool = false
 
+    /// Legacy one-time "Remove Ads" IAP. v3.0: RETIRED from sale (removed in
+    /// App Store Connect) and no longer offered in-app, but existing owners are
+    /// GRANDFATHERED — owning it still grants ad-free forever (see
+    /// updateEntitlements). We keep the id only to recognize that entitlement.
     private let adFreeProductID = "com.compofelice.WoodlandsEats.adfree"
     private let isAdFreeKey = "WoodlandsEats.iap.isAdFree"
+
+    /// v3.0: S-Tier Plus auto-renewable subscription (one group, two options).
+    private let plusMonthlyID = "com.compofelice.WoodlandsEats.plus.monthly"
+    private let plusYearlyID = "com.compofelice.WoodlandsEats.plus.yearly"
+    private var plusProductIDs: [String] { [plusMonthlyID, plusYearlyID] }
+    private let isPlusKey = "WoodlandsEats.iap.isPlus"
     /// v2.1: three consumable "tip jar" products — the App Store 3.1.1-
     /// compliant way to let users support the app (replaces the removed
     /// external Ko-fi link). Ordered small → generous; displayed with
@@ -88,6 +107,7 @@ final class PurchaseStore {
         // before entitlements resolve. The async updateEntitlements()
         // run below corrects the cache if it disagrees with Apple.
         isAdFree = UserDefaults.standard.bool(forKey: isAdFreeKey)
+        isPlus = UserDefaults.standard.bool(forKey: isPlusKey)
         hasEverTipped = UserDefaults.standard.bool(forKey: everTippedKey)
         // Stamp first-seen once so the reminder's 2-week grace has a baseline.
         if UserDefaults.standard.object(forKey: tipInstallDateKey) == nil {
@@ -114,10 +134,13 @@ final class PurchaseStore {
     // under Swift 6 strict concurrency, so even if we wanted to
     // .cancel() it here, the compiler would reject it.)
 
-    /// Convenience accessor — the "Remove Ads" product, or nil if it
-    /// hasn't loaded yet (or doesn't exist in App Store Connect).
-    var adFreeProduct: Product? {
-        products.first { $0.id == adFreeProductID }
+    /// v3.0: S-Tier Plus products. `plusProducts` is cheapest-first (monthly
+    /// then yearly by price). Empty until loaded / if the subscription group
+    /// isn't live in App Store Connect yet.
+    var plusMonthly: Product? { products.first { $0.id == plusMonthlyID } }
+    var plusYearly: Product? { products.first { $0.id == plusYearlyID } }
+    var plusProducts: [Product] {
+        products.filter { plusProductIDs.contains($0.id) }.sorted { $0.price < $1.price }
     }
 
     /// v2.1: the tip products, small → generous (by price). Empty until
@@ -131,7 +154,10 @@ final class PurchaseStore {
     /// Errors are logged; the UI gracefully degrades to disabled button.
     func loadProducts() async {
         do {
-            self.products = try await Product.products(for: [adFreeProductID] + tipProductIDs)
+            // v3.0: fetch the Plus subscriptions + tips. The legacy ad-free IAP
+            // is retired (not offered), so it isn't fetched — grandfathered
+            // ownership is read from Transaction.currentEntitlements instead.
+            self.products = try await Product.products(for: plusProductIDs + tipProductIDs)
         } catch {
             print("[Purchase] loadProducts failed: \(error)")
         }
@@ -185,18 +211,21 @@ final class PurchaseStore {
     /// Kicks off the Apple purchase sheet for the ad-free upgrade.
     /// Updates `isAdFree` on verified success. No-op if the product
     /// hasn't loaded or a purchase is already in flight.
-    func purchaseAdFree() async {
-        guard let product = adFreeProduct, !isPurchasing else { return }
+    /// v3.0: subscribe to S-Tier Plus (monthly or yearly). On verified success
+    /// finishes the transaction and recomputes entitlements (flips isPlus +
+    /// isAdFree). No-op if a purchase is already in flight.
+    func purchasePlus(_ product: Product) async {
+        guard !isPurchasing else { return }
         isPurchasing = true
         defer { isPurchasing = false }
         do {
             let result = try await product.purchase()
             if case .success(.verified(let transaction)) = result {
-                setAdFree(true)
                 await transaction.finish()
+                await updateEntitlements()
             }
         } catch {
-            print("[Purchase] purchase failed: \(error)")
+            print("[Purchase] subscribe failed: \(error)")
         }
     }
 
@@ -215,15 +244,17 @@ final class PurchaseStore {
     /// (refund, family-sharing removal) by clearing the flag if the
     /// entitlement disappears.
     func updateEntitlements() async {
-        var adFree = false
+        var ownsLegacyAdFree = false
+        var plus = false
         for await result in Transaction.currentEntitlements {
-            if case .verified(let transaction) = result,
-               transaction.productID == adFreeProductID,
-               transaction.revocationDate == nil {
-                adFree = true
-            }
+            guard case .verified(let transaction) = result,
+                  transaction.revocationDate == nil else { continue }
+            if transaction.productID == adFreeProductID { ownsLegacyAdFree = true }
+            if plusProductIDs.contains(transaction.productID) { plus = true }
         }
-        setAdFree(adFree)
+        setPlus(plus)
+        // Ad-free if an active Plus sub OR a grandfathered one-time owner.
+        setAdFree(plus || ownsLegacyAdFree)
     }
 
     /// Persists the new value to UserDefaults so AdsService / view code
@@ -233,16 +264,21 @@ final class PurchaseStore {
         UserDefaults.standard.set(value, forKey: isAdFreeKey)
     }
 
+    private func setPlus(_ value: Bool) {
+        isPlus = value
+        UserDefaults.standard.set(value, forKey: isPlusKey)
+    }
+
     /// Long-running task that observes transaction updates from outside
     /// the purchase flow (e.g., a purchase made on another device while
     /// this one was running). Started in init, cancelled in deinit.
     private func listenForTransactions() async {
         for await result in Transaction.updates {
             guard case .verified(let transaction) = result else { continue }
-            if transaction.productID == adFreeProductID {
-                setAdFree(transaction.revocationDate == nil)
-            }
             await transaction.finish()
+            // Recompute both flags on any update — sub renewals, expiry,
+            // refunds, or a purchase on another device.
+            await updateEntitlements()
         }
     }
 }

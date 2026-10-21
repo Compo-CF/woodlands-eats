@@ -5,10 +5,17 @@ import SwiftUI
 /// open its detail (reorder, add/remove, share).
 struct ListsView: View {
     @Environment(RestaurantStore.self) private var store
+    /// v3.0: free users get 1 list; S-Tier Plus unlocks unlimited.
+    @Environment(PurchaseStore.self) private var purchases
     @State private var lists: [RestaurantList] = []
     @State private var loading = true
     @State private var showCreate = false
+    @State private var showPaywall = false
     @State private var newTitle = ""
+
+    /// Free tier = 1 list. Plus = unlimited. Routes the "+" button to either
+    /// the create alert or the paywall.
+    private var canCreateMore: Bool { purchases.isPlus || lists.count < 1 }
 
     var body: some View {
         Group {
@@ -38,13 +45,18 @@ struct ListsView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button { showCreate = true } label: { Image(systemName: "plus") }
+                Button {
+                    if canCreateMore { showCreate = true } else { showPaywall = true }
+                } label: { Image(systemName: "plus") }
             }
         }
         .alert("New list", isPresented: $showCreate) {
             TextField("Title (e.g. Top 10 Tacos)", text: $newTitle)
             Button("Create") { Task { await create() } }
             Button("Cancel", role: .cancel) { newTitle = "" }
+        }
+        .sheet(isPresented: $showPaywall) {
+            PlusPaywallView()
         }
         .task { await load() }
     }
