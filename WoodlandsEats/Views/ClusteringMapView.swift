@@ -180,28 +180,37 @@ struct ClusteringMapView: UIViewRepresentable {
                 parent.selected = ann.restaurant
                 mapView.deselectAnnotation(ann, animated: false)
             } else if let cluster = view.annotation as? MKClusterAnnotation {
+                let members = cluster.memberAnnotations
+                let restaurants = members.compactMap { ($0 as? RestaurantAnnotation)?.restaurant }
+                // How far apart are the clustered pins? When they sit on
+                // (essentially) the same spot — multiple restaurants at one
+                // address, a strip mall, or duplicate catalog entries — NO
+                // amount of zooming will ever split them, so the old
+                // "zoom until the span is tiny" path would spin forever and
+                // the cluster would "never open." Detect that up front and
+                // go straight to the list picker.
+                let lats = members.map { $0.coordinate.latitude }
+                let lons = members.map { $0.coordinate.longitude }
+                let spread = max((lats.max() ?? 0) - (lats.min() ?? 0),
+                                 (lons.max() ?? 0) - (lons.min() ?? 0))
+                let coincident = spread < 0.0004   // ~45 m — MapKit can't separate these
                 let currentSpan = mapView.region.span.latitudeDelta
-                if currentSpan > ClusteringMapView.maxZoomLatitudeDelta {
-                    // Still room to zoom — descend toward the cluster.
-                    // 0.4x per tap so we don't snap to a too-tight bounding
-                    // box.
+
+                if !coincident && currentSpan > ClusteringMapView.maxZoomLatitudeDelta {
+                    // Pins are genuinely spread out and there's room to zoom —
+                    // descend toward the cluster (0.4x per tap so we don't snap
+                    // to a too-tight bounding box).
                     let region = MKCoordinateRegion(
                         center: cluster.coordinate,
                         span: MKCoordinateSpan(
                             latitudeDelta: currentSpan * 0.4,
                             longitudeDelta: mapView.region.span.longitudeDelta * 0.4))
                     mapView.setRegion(region, animated: true)
-                } else {
-                    // Already as zoomed-in as MKMapView gets. More zooming
-                    // won't separate the pins (same address / strip mall).
-                    // Hand the cluster's members back to the parent so it
-                    // can show a list picker — Apple Maps does the same.
-                    let restaurants = cluster.memberAnnotations.compactMap {
-                        ($0 as? RestaurantAnnotation)?.restaurant
-                    }
-                    if !restaurants.isEmpty {
-                        parent.onClusterAtMaxZoom(restaurants)
-                    }
+                } else if !restaurants.isEmpty {
+                    // Coincident pins, or already as zoomed-in as MapKit gets —
+                    // hand the members to the parent for a list picker (what
+                    // Apple Maps does).
+                    parent.onClusterAtMaxZoom(restaurants)
                 }
                 mapView.deselectAnnotation(cluster, animated: false)
             }
