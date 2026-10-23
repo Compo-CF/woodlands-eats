@@ -28,11 +28,11 @@ enum AffiliateLinks {
     /// Impact.com tracking templates keyed by partner. An absent entry means
     /// "not yet approved" → passthrough. `{DEST}` is replaced with the
     /// URL-encoded destination at click time.
-    private static let templates: [AffiliatePartner: String] = [
-        // .opentable: "https://subtlefoodie.pxf.io/c/<pub>/<camp>/<ad>?subId1=stier&u={DEST}",
-        // .doordash:  "https://subtlefoodie.pxf.io/c/<pub>/<camp>/<ad>?subId1=stier&u={DEST}",
-        // .ubereats:  "https://subtlefoodie.pxf.io/c/<pub>/<camp>/<ad>?subId1=stier&u={DEST}",
-    ]
+    // Empty = passthrough (nothing approved yet). When a program goes live, add
+    // an entry, e.g.:
+    //   .opentable: "https://subtlefoodie.pxf.io/c/<pub>/<camp>/<ad>?subId1=stier&u={DEST}"
+    // (`[:]` — not `[]` — is Swift's empty-dictionary literal.)
+    private static let templates: [AffiliatePartner: String] = [:]
 
     /// Route a raw partner URL through the affiliate layer. Returns the Impact
     /// tracking link when the partner has a configured template, otherwise the

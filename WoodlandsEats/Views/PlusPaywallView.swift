@@ -111,7 +111,10 @@ struct PlusPaywallView: View {
 
     /// "Monthly" / "Yearly" from the product's subscription period.
     private func planLabel(_ product: Product) -> String {
-        switch product.subscription?.subscriptionPeriod.unit {
+        guard let unit = product.subscription?.subscriptionPeriod.unit else {
+            return product.displayName
+        }
+        switch unit {
         case .month: return "Monthly"
         case .year: return "Yearly"
         default: return product.displayName
