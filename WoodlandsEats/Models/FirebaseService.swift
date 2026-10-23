@@ -605,6 +605,7 @@ final class FirebaseService {
                 .getDocuments()
             var total = 0
             var count = 0
+            var dist: [Tier: Int] = [:]
             for doc in snap.documents {
                 guard let score = intOf(doc.get("score")) else { continue }
                 let owner = doc.get("userID") as? String ?? ""
@@ -612,10 +613,11 @@ final class FirebaseService {
                 if exclPlacementNames.contains("placement_\(owner)_\(rid)") { continue }
                 total += score
                 count += 1
+                if let t = Tier.allCases.first(where: { $0.score == score }) { dist[t, default: 0] += 1 }
             }
             guard count > 0 else { return nil }
             let avg = Double(total) / Double(count)
-            return CommunityTier(tier: .from(averageScore: avg), count: count, average: avg)
+            return CommunityTier(tier: .from(averageScore: avg), count: count, average: avg, distribution: dist)
         } catch {
             return nil
         }

@@ -617,16 +617,23 @@ struct RestaurantDetailView: View {
     @ViewBuilder
     private var communitySection: some View {
         if let community {
-            HStack(spacing: 12) {
-                TierBadge(tier: community.tier, size: 40)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Community tier")
-                        .font(.headline)
-                    Text("\(community.count) ranked · avg \(String(format: "%.1f", community.average))")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(spacing: 12) {
+                    TierBadge(tier: community.tier, size: 40)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Community tier")
+                            .font(.headline)
+                        Text("\(community.count) ranked · avg \(String(format: "%.1f", community.average))")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
                 }
-                Spacer()
+                // v3.0: show the vote breakdown once there's enough signal that
+                // the spread is interesting (not just one or two ranks).
+                if community.count >= 3 && !community.distribution.isEmpty {
+                    TierDistributionBar(distribution: community.distribution)
+                }
             }
             .padding()
             .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16))

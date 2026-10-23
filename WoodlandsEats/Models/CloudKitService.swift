@@ -8,6 +8,10 @@ struct CommunityTier {
     let tier: Tier
     let count: Int
     let average: Double
+    /// v3.0: how the ranks break down — Tier → number of people who picked it.
+    /// Populated by the per-restaurant reads (detail screen); the board reads
+    /// leave it empty (they only need the consensus letter).
+    var distribution: [Tier: Int] = [:]
 }
 
 /// A user-submitted dish photo for a restaurant (CloudKit CKAsset, downloaded).
@@ -685,7 +689,11 @@ final class CloudKitService {
             }
             guard !scores.isEmpty else { return nil }
             let avg = Double(scores.reduce(0, +)) / Double(scores.count)
-            return CommunityTier(tier: .from(averageScore: avg), count: scores.count, average: avg)
+            var dist: [Tier: Int] = [:]
+            for s in scores {
+                if let t = Tier.allCases.first(where: { $0.score == s }) { dist[t, default: 0] += 1 }
+            }
+            return CommunityTier(tier: .from(averageScore: avg), count: scores.count, average: avg, distribution: dist)
         } catch {
             return nil
         }
