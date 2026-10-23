@@ -9258,7 +9258,7 @@
       "signatureDishes": []
     },
     {
-      "id": "422be4dc-17c2-5cf2-88a5-c7a719b26b85",
+      "id": "7106854b-1b13-5f95-9570-afd40c85eb34",
       "name": "Pappadeaux",
       "latitude": 29.92966,
       "longitude": -95.41291,
@@ -25514,7 +25514,7 @@
       "signatureDishes": []
     },
     {
-      "id": "0b25e449-02f9-5f4a-ab58-e369582f82d8",
+      "id": "c3ea4a1a-ecef-55cc-ae62-4a0312b0c8ff",
       "name": "This Boy Can Cook",
       "latitude": 29.95858,
       "longitude": -95.65057,
@@ -31372,7 +31372,7 @@
       "signatureDishes": []
     },
     {
-      "id": "1533d9e6-75dd-5ce0-88e3-09d3bb73f2f9",
+      "id": "47410935-ba49-54c8-8611-4001e5914820",
       "name": "Kingwood Snack Bar 🌭🍔🍨🧋",
       "latitude": 30.06733,
       "longitude": -95.23401,
@@ -38090,7 +38090,7 @@
       "signatureDishes": []
     },
     {
-      "id": "906ee732-336d-5510-9ed0-2b554619b0e2",
+      "id": "7908c36c-e1c4-5e6b-bfad-bc32dbd469f5",
       "name": "5 star burger",
       "latitude": 30.02588,
       "longitude": -95.56407,
@@ -45452,7 +45452,7 @@
       "signatureDishes": []
     },
     {
-      "id": "1021291a-bcf1-5e8a-97b0-f9b569712f90",
+      "id": "bd27ad61-cadd-5191-b50c-9ffa62cef525",
       "name": "The Well Cafe",
       "latitude": 30.01428,
       "longitude": -95.46846,
@@ -55075,7 +55075,7 @@
       "signatureDishes": []
     },
     {
-      "id": "b5799e81-17b0-5501-ba9a-46aee4981bf4",
+      "id": "0c598630-7f11-53ee-8349-bc72057d6da7",
       "name": "JoVi Coffee Roaster",
       "latitude": 30.1272,
       "longitude": -95.42775,
@@ -60957,23 +60957,6 @@
       "isFastFood": false,
       "website": "https://sinyolandatx.com/",
       "phone": "(346) 382-3863",
-      "description": "Sourced from Google Places (shenandoah).",
-      "signatureDishes": []
-    },
-    {
-      "id": "4daa69f1-fb50-520b-9d7a-700f90c2240e",
-      "name": "Sips & Sweets Café",
-      "latitude": 30.16404,
-      "longitude": -95.46468,
-      "area": "shenandoah",
-      "address": "9595 Six Pines Dr suite 1010, The Woodlands, TX 77380, USA",
-      "cuisines": [
-        "cafeBakery"
-      ],
-      "priceTier": "$$",
-      "isFastFood": false,
-      "website": "https://www.kendrascott.com/stores/directory/store?StoreID=265011",
-      "phone": "(281) 204-2913",
       "description": "Sourced from Google Places (shenandoah).",
       "signatureDishes": []
     },
@@ -77601,7 +77584,7 @@
       ]
     },
     {
-      "id": "d0521aed-bb1a-5e81-b42f-5c3d21ec4730",
+      "id": "a30e8610-fd19-50bb-bccf-c513ba769d1b",
       "name": "Excalibur Brewing Brewery and Coffee House",
       "latitude": 30.22356,
       "longitude": -95.55242,
