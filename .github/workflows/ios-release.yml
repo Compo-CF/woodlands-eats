@@ -1,0 +1,86 @@
+name: ios-release
+# S-Tier Eats to TestFlight from a GitHub macOS runner ("Method D", adapted from Cosmica's).
+#   gh workflow run ios-release.yml -R Compo-CF/woodlands-eats --ref v3.0 -f upload=yes
+# (the 3.0+ code lives on the release branch; main is 2.0-era. Use --ref <release branch>.)
+# Signing: shared Apple Distribution cert (p12 secret) + "S-Tier Eats AppStore CI" profile,
+# made by ~/appstoreconnect/ci_signing.py on Windows.
+# Build number = commit count, version = CFBundleShortVersionString in project.yml.
+on:
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: "Upload to TestFlight"
+        type: choice
+        options: ["yes", "no"]
+        default: "yes"
+  push:
+    tags: ["ios-v*"]
+concurrency:
+  group: ios-release
+  cancel-in-progress: false
+jobs:
+  testflight:
+    runs-on: macos-26
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Select newest Xcode
+        run: |
+          X="$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1)"
+          [ -n "$X" ] || X="$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
+          sudo xcode-select -s "$X"
+          xcodebuild -version
+
+      - name: Python deps
+        run: python3 -m pip install --quiet --break-system-packages pyjwt cryptography || python3 -m pip install --quiet pyjwt cryptography
+
+      - name: App Store Connect API key
+        env:
+          P8: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          KID: ${{ secrets.ASC_KEY_ID }}
+          ISS: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          mkdir -p ~/.asc
+          # Rewrap to a standard PEM: the key is one long line, which xcodebuild's CryptoKit rejects.
+          BODY="$(echo "$P8" | base64 --decode | tr -d '\r' | grep -v -- '-----' | tr -d '\n ')"
+          { echo "-----BEGIN PRIVATE KEY-----"; echo "$BODY" | fold -w 64; echo "-----END PRIVATE KEY-----"; } > ~/.asc/AuthKey.p8
+          chmod 600 ~/.asc/AuthKey.p8
+          { echo "ASC_KEY_ID=$KID"; echo "ASC_ISSUER_ID=$ISS"; echo "ASC_KEY_PATH=$HOME/.asc/AuthKey.p8"; } >> "$GITHUB_ENV"
+
+      - name: Signing (temporary keychain + App Store profile)
+        env:
+          P12: ${{ secrets.IOS_DIST_P12_BASE64 }}
+          P12_PASSWORD: ${{ secrets.IOS_DIST_P12_PASSWORD }}
+        run: |
+          KC="$RUNNER_TEMP/ci.keychain-db"
+          KP="$(uuidgen)"
+          security create-keychain -p "$KP" "$KC"
+          security set-keychain-settings -lut 21600 "$KC"
+          security unlock-keychain -p "$KP" "$KC"
+          echo "$P12" | base64 --decode > "$RUNNER_TEMP/dist.p12"
+          security import "$RUNNER_TEMP/dist.p12" -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k "$KC"
+          rm -f "$RUNNER_TEMP/dist.p12"
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KP" "$KC" > /dev/null
+          security list-keychains -d user -s "$KC" $(security list-keychains -d user | tr -d '"')
+          security find-identity -v -p codesigning "$KC"
+          python3 scripts/ci/asc_profile.py install "S-Tier Eats AppStore CI"
+
+      - name: Build, sign, upload
+        run: bash scripts/ci/testflight-ci.sh ${{ github.event.inputs.upload == 'no' && '--no-upload' || '' }}
+
+      - name: Logs on failure
+        if: failure()
+        run: |
+          for f in build/archive.log build/upload.log; do
+            [ -f "$f" ] && { echo "===== $f"; grep -E "error|sign" "$f" | sort -u | tail -40; tail -40 "$f"; }
+          done
+          true
+
+      - name: Clean up secrets
+        if: always()
+        run: |
+          security delete-keychain "$RUNNER_TEMP/ci.keychain-db" 2>/dev/null || true
+          rm -f ~/.asc/AuthKey.p8
