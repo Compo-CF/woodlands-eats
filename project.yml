@@ -156,3 +156,6 @@ targets:
         # CODE_SIGNING handled per-config (none in CI, manual on submit day)
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: 7H5T5AR2X5
+        # CI (scripts/ci/testflight-ci.sh) sets STIER_APP_PROFILE for manual signing; empty on the Mac,
+        # so automatic signing is unchanged.
+        PROVISIONING_PROFILE_SPECIFIER: "$(STIER_APP_PROFILE)"
