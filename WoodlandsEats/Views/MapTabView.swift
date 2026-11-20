@@ -119,6 +119,13 @@ struct MapTabView: View {
             .sheet(isPresented: $showNightOut) {
                 NightOutView()
             }
+            // v3.1: a tapped "Night Out" notification routes here (stier://nightout).
+            .onChange(of: tabRouter.pendingNightOut) { _, pending in
+                if pending {
+                    showNightOut = true
+                    tabRouter.pendingNightOut = false
+                }
+            }
             .sheet(isPresented: $showClusterSheet, onDismiss: {
                 // After the cluster sheet has fully dismissed, open the
                 // restaurant detail for whatever the user tapped (if any).

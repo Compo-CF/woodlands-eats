@@ -87,6 +87,8 @@ struct ProfileView: View {
     @State private var showAbout = false
     @State private var showTierGuide = false
     @State private var showAppTour = false
+    /// v3.1: local weekly Night Out reminder toggle (see NotificationScheduler).
+    @AppStorage(NotificationScheduler.Kind.nightOut.defaultsKey) private var nightOutReminder = true
     @State private var preferredDeliveryApp: DeliveryApp?
     // Build 22: a tap on Save name / Request Foodie Pro with an empty name
     // surfaces this alert string instead of being silently disabled. Apple
@@ -815,7 +817,7 @@ struct ProfileView: View {
             header: Text("Notifications"),
             footer: Text(notifications.authorization == .denied
                 ? "Notifications are turned off for S-Tier Eats in iOS Settings. Enable them there to get alerts."
-                : "Get a heads-up when a new restaurant is added to your area, or when you're approved as a Foodie Pro.")
+                : "A heads-up when a new restaurant is added or you're approved as a Foodie Pro, plus an optional weekly nudge to plan a night out. No spam.")
         ) {
             Toggle(isOn: Binding(
                 get: { notifications.enabled && notifications.authorization != .denied },
@@ -824,6 +826,18 @@ struct ProfileView: View {
                 Label("New restaurant & status alerts", systemImage: "bell.badge")
             }
             .disabled(notifications.authorization == .denied)
+
+            // v3.1: local weekly Night Out reminder (NotificationScheduler).
+            Toggle(isOn: $nightOutReminder) {
+                Label("Weekly night-out reminder", systemImage: "fork.knife.circle")
+            }
+            .disabled(notifications.authorization == .denied)
+            .onChange(of: nightOutReminder) { _, on in
+                Task {
+                    if on { await NotificationScheduler.shared.requestAuthorization() }
+                    else { await NotificationScheduler.shared.rescheduleAll() }
+                }
+            }
         }
     }
 

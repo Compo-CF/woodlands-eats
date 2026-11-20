@@ -20,4 +20,7 @@ enum AppTab: Hashable {
 @Observable
 final class TabRouter {
     var selectedTab: AppTab = .map
+    /// v3.1: set by a tapped "Night Out" notification (stier://nightout). MapTabView observes it
+    /// and presents the Plan-a-Night-Out sheet, then resets it to false.
+    var pendingNightOut = false
 }

@@ -53,6 +53,10 @@ struct ContentView: View {
     @State private var deepLinkedRestaurant: Restaurant?
     /// v2.1: the occasional tip reminder (eligibility gated in PurchaseStore).
     @State private var showTipReminder = false
+    /// v3.1: one-shot gate for the notifications value-moment prompt (after the 3rd rank).
+    @AppStorage("WoodlandsEats.hasOfferedNotifPrompt") private var hasOfferedNotifPrompt = false
+    /// v3.1: drives the explainer alert shown before the system notification prompt.
+    @State private var showNotifExplainer = false
     var body: some View {
         @Bindable var tabRouter = tabRouter
         TabView(selection: $tabRouter.selectedTab) {
@@ -144,6 +148,16 @@ struct ContentView: View {
                 purchases.recordTipPromptShown()
                 showTipReminder = true
             }
+
+            // v3.1: local notifications (Night Out reminder etc. — see NotificationScheduler).
+            NotificationScheduler.shared.registerAsDelegate()
+            NotificationScheduler.shared.rankedSpotCount = { tierStore.rankedCount }
+            await NotificationScheduler.shared.rescheduleAll()
+            // If a tapped notification cold-launched the app, honor its route now.
+            if let url = NotificationScheduler.pendingRoute {
+                NotificationScheduler.pendingRoute = nil
+                routeNotification(url)
+            }
         }
         // v1.7 Feature G: cross-device live-ish sync. When the scene
         // returns to .active from .inactive/.background (app switcher
@@ -158,6 +172,8 @@ struct ContentView: View {
             Task {
                 await tierStore.mergeFromCloud(via: cloudKit)
                 await visitedStore.mergeFromCloud(via: cloudKit)
+                // v3.1: re-assert local notifications (iOS drops pending requests past a cap).
+                await NotificationScheduler.shared.rescheduleAll()
             }
         }
         // v2.1: tapped a "new restaurant" push → open that restaurant. If the
@@ -179,12 +195,28 @@ struct ContentView: View {
             NavigationStack { RestaurantDetailView(restaurant: r) }
         }
         .sheet(isPresented: $showTipReminder) { TipReminderView() }
+        // v3.1: a tapped local notification posts its stier:// route here.
+        .onReceive(NotificationCenter.default.publisher(for: .stierOpenRoute)) { note in
+            if let url = note.object as? URL { routeNotification(url) }
+        }
+        // v3.1: explainer shown before the system notification prompt (value moment).
+        .alert("Get a weekly nudge?", isPresented: $showNotifExplainer) {
+            Button("Turn on notifications") { Task { await NotificationScheduler.shared.requestAuthorization() } }
+            Button("Not now", role: .cancel) { }
+        } message: {
+            Text("A quick weekly reminder to plan a night out from your tiers — plus new spots and friend activity. No spam; change it anytime in Settings.")
+        }
         .onChange(of: tierStore.placements.count) { _, newCount in
             // Suppress all celebrations until launch sync settles —
             // otherwise restoreFromCloud's retroactive jump from 0 to
             // N would trigger a spurious celebration for the user's
             // existing rank on every app launch.
             guard hasFinishedLaunchSync else { return }
+            // v3.1: after the user has ranked a few spots, offer notifications once (value moment).
+            if !hasOfferedNotifPrompt, newCount >= 3 {
+                hasOfferedNotifPrompt = true
+                Task { if await NotificationScheduler.shared.isUndetermined() { showNotifExplainer = true } }
+            }
             // Newcomer is skipped — too quiet a milestone to interrupt
             // the flow on a first placement.
             guard let current = FoodieRank.from(placementCount: newCount),
@@ -214,6 +246,21 @@ struct ContentView: View {
             // by the OS so even if we miscount, users aren't spammed.
             requestReview()
             hasSeenReviewPrompt = true
+        default:
+            break
+        }
+    }
+
+    /// v3.1: route a tapped local notification (stier://…) to the right tab / sheet.
+    private func routeNotification(_ url: URL) {
+        switch url.absoluteString {
+        case NotificationScheduler.Route.nightOut.rawValue:
+            tabRouter.selectedTab = .map
+            tabRouter.pendingNightOut = true
+        case NotificationScheduler.Route.community.rawValue:
+            tabRouter.selectedTab = .community
+        case NotificationScheduler.Route.newSpots.rawValue:
+            tabRouter.selectedTab = .browse
         default:
             break
         }
