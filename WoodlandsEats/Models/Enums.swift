@@ -146,12 +146,16 @@ enum Tier: String, Codable, CaseIterable, Identifiable {
     }
 
     var color: Color {
+        // v3.2 "Modern Pop" refresh: tier colors live in the asset catalog so
+        // each has a dark-mode–brightened variant (TierS…TierF). F is now a
+        // neutral grey — "skip it" reads as absence, and frees the purple to be
+        // purely the brand accent instead of doubling as a tier.
         switch self {
-        case .s: Color(red: 0.90, green: 0.22, blue: 0.27)
-        case .a: Color(red: 0.96, green: 0.55, blue: 0.20)
-        case .b: Color(red: 0.95, green: 0.78, blue: 0.24)
-        case .c: Color(red: 0.40, green: 0.73, blue: 0.42)
-        case .f: Color(red: 0.55, green: 0.35, blue: 0.78)
+        case .s: Color("TierS")
+        case .a: Color("TierA")
+        case .b: Color("TierB")
+        case .c: Color("TierC")
+        case .f: Color("TierF")
         }
     }
 

@@ -256,8 +256,10 @@ final class RestaurantAnnotationView: MKMarkerAnnotationView {
 /// by member count so dense areas read heavier. Much more "designed" than the
 /// stock cluster and keeps the muted map uncluttered.
 final class ClusterAnnotationView: MKAnnotationView {
-    /// Brand accent (matches Color.nightOut).
-    private static let fill = UIColor(red: 0.42, green: 0.36, blue: 0.96, alpha: 1)
+    /// Brand accent (matches Color.nightOut). v3.2: sourced from the
+    /// AccentColor asset (#5B5BF0) so it tracks the one brand accent.
+    private static let fill = UIColor(named: "AccentColor")
+        ?? UIColor(red: 0.357, green: 0.357, blue: 0.941, alpha: 1)
 
     private let circle = UIView()
     private let countLabel = UILabel()

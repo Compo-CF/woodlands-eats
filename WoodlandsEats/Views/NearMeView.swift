@@ -64,6 +64,7 @@ struct NearMeView: View {
                             Text("Community-ranked spots, closest first. Distances are straight-line.")
                         }
                     }
+                    .screenBackground()   // v3.2: warm Modern Pop canvas
                 }
             }
             .navigationTitle("Near Me")

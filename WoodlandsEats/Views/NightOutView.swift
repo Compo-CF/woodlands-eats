@@ -737,10 +737,11 @@ private struct CachedTiersDTO: Codable {
 // MARK: - Shared entry point + styling
 
 extension Color {
-    /// v2.2: the single bold "night out" accent — a modern indigo-violet
-    /// (data-viz-era accent). Stands out on the Map/Browse without a
-    /// rainbow; drives the pill, header, and Find button.
-    static let nightOut = Color(red: 0.42, green: 0.36, blue: 0.96)
+    /// v2.2: the single bold "night out" accent — a modern indigo-violet.
+    /// v3.2 "Modern Pop": now the one source of truth for the brand accent,
+    /// sourced from the AccentColor asset (#5B5BF0) so the pill, header, Find
+    /// button, map pins and app tint all move together.
+    static let nightOut = Color.accentColor
 }
 
 extension LinearGradient {

@@ -548,6 +548,7 @@ struct ProfileView: View {
                 // creation), it must offer in-app account deletion.
                 deleteAccountSection
             }
+            .screenBackground()   // v3.2: warm Modern Pop canvas
             .navigationTitle("Profile")
             .overlay {
                 if loading { ProgressView() }

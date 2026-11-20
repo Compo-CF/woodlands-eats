@@ -85,6 +85,7 @@ struct MyTiersView: View {
                     }
                 }
             }
+            .screenBackground()   // v3.2: warm Modern Pop canvas
             .navigationTitle("My Tiers")
             .toolbar { shareToolbar }
             .sheet(item: $selected) { r in
@@ -226,7 +227,9 @@ private struct TierRow: View {
                                 }
                                 .frame(width: 96, height: 52)
                                 .padding(6)
-                                .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 10))
+                                // v3.2: white card chip + hairline border lifts off the warm canvas
+                                .background(Color.cardSurface, in: RoundedRectangle(cornerRadius: 10))
+                                .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Color.cardBorder, lineWidth: 1))
                             }
                             .buttonStyle(.plain)
                         }

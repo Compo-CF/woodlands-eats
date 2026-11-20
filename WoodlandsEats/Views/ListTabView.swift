@@ -47,6 +47,7 @@ struct ListTabView: View {
                 }
             }
             .listStyle(.plain)
+            .screenBackground()   // v3.2: warm Modern Pop canvas
             // Build 28: drag-to-dismiss-keyboard on the list. Works with the
             // FilterBar's Done toolbar button as a second exit path; either
             // one releases focus so the keyboard collapses and the tab bar

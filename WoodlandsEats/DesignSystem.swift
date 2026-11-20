@@ -21,6 +21,22 @@ enum DS {
     }
 }
 
+extension Color {
+    // v3.2 "Modern Pop" structural tokens. Each is an asset colorset with a
+    // light + dark appearance, so they adapt automatically. Use these at
+    // container + card level instead of stark system backgrounds / white.
+    /// App canvas — a soft cool off-white in light, the brand near-black in dark.
+    static let appBackground = Color("AppBackground")
+    /// Elevated card / sheet surface that lifts off `appBackground`.
+    static let cardSurface   = Color("CardSurface")
+    /// Hairline card / divider border.
+    static let cardBorder    = Color("CardBorder")
+    /// Primary text on `appBackground` / `cardSurface`.
+    static let textPrimary   = Color("TextPrimary")
+    /// Secondary / supporting text.
+    static let textSecondary = Color("TextSecondary")
+}
+
 extension Font {
     /// Space Grotesk at an explicit size + weight (non-scaling; good for fixed
     /// chrome like tier badges). Maps weights onto the four bundled instances.
@@ -39,4 +55,16 @@ extension Font {
     static let sLargeTitle = Font.custom("SpaceGrotesk-Bold", size: 34, relativeTo: .largeTitle)
     static let sTitle      = Font.custom("SpaceGrotesk-Bold", size: 26, relativeTo: .title)
     static let sHeadline   = Font.custom("SpaceGrotesk-SemiBold", size: 20, relativeTo: .headline)
+}
+
+extension View {
+    /// v3.2 "Modern Pop": the warm app canvas behind a tab's scrollable
+    /// content. Hides the default grouped List/Form background and paints the
+    /// `appBackground` token so white `cardSurface` rows lift off it. Harmless
+    /// on a plain ScrollView (which is already transparent). Apply to the
+    /// List / Form / ScrollView at the root of each tab.
+    func screenBackground() -> some View {
+        scrollContentBackground(.hidden)
+            .background(Color.appBackground.ignoresSafeArea())
+    }
 }
