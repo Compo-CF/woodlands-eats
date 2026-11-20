@@ -17,9 +17,10 @@ struct SplashView: View {
                 startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
 
-            // Soft brand-purple glow behind the badges.
+            // Soft brand glow behind the badges. v3.2: sourced from the accent
+            // so the launch screen tracks the one brand color (#5B5BF0).
             RadialGradient(
-                colors: [Color(red: 0.42, green: 0.36, blue: 0.96).opacity(0.30), .clear],
+                colors: [Color.accentColor.opacity(0.30), .clear],
                 center: .center, startRadius: 8, endRadius: 420)
                 .ignoresSafeArea()
                 .opacity(appear ? 1 : 0)
