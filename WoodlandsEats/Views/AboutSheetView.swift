@@ -137,14 +137,14 @@ struct AboutSheetView: View {
                 systemImage: "lock.shield",
                 label: "Privacy policy",
                 detail: "compo-cf.github.io",
-                url: URL(string: "https://compo-cf.github.io/woodlands-eats/privacy.html")!
+                url: URL(string: "https://afterhoursdevstudio.com/s-tier-eats/privacy/")!
             )
             Divider().padding(.leading, 60)
             linkRow(
                 systemImage: "exclamationmark.bubble",
                 label: "Report a bug",
-                detail: "github.com/Compo-CF/woodlands-eats/issues",
-                url: URL(string: "https://github.com/Compo-CF/woodlands-eats/issues")!
+                detail: "afterhoursdevstudio.com/s-tier-eats",
+                url: URL(string: "https://afterhoursdevstudio.com/s-tier-eats/")!
             )
         }
         .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 14))
@@ -177,7 +177,7 @@ struct AboutSheetView: View {
 
     private var creditFooter: some View {
         VStack(spacing: 2) {
-            Text("Made by Anthony Compofelice")
+            Text("Made by After Hours Dev Studio")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             Text("© 2026 · The Woodlands, TX")
