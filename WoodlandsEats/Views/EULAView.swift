@@ -78,7 +78,7 @@ struct EULAView: View {
                         .font(.callout)
                     }
 
-                    Link(destination: URL(string: "https://compo-cf.github.io/woodlands-eats/privacy.html")!) {
+                    Link(destination: URL(string: "https://afterhoursdevstudio.com/s-tier-eats/privacy/")!) {
                         HStack {
                             Image(systemName: "lock.shield")
                             Text("Privacy Policy")
