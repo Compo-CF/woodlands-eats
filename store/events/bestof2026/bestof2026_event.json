@@ -1,0 +1,25 @@
+{
+  "_doc": "In-App Event spec for ~/Neatly/scripts/asc/app_event.py. Times UTC. The in-app window (Models/BestOf2026.swift) is Dec 10 2026 00:00 CT to Jan 6 2027 00:00 CT = 06:00Z on both ends. US only (local North Houston app). Deep link opens the Best of 2026 board; needs 3.1.1 (build 205+).",
+  "app_id": "6773501518",
+  "referenceName": "Best of 2026 Community Vote",
+  "badge": "SPECIAL_EVENT",
+  "purpose": "APPROPRIATE_FOR_ALL_USERS",
+  "priority": "HIGH",
+  "purchaseRequirement": "NO_COST_ASSOCIATED",
+  "primaryLocale": "en-US",
+  "deepLink": "stier://bestof2026",
+  "territories": ["USA"],
+  "publishStart": "2026-12-01T06:00:00Z",
+  "eventStart": "2026-12-10T06:00:00Z",
+  "eventEnd": "2027-01-06T06:00:00Z",
+  "localization": {
+    "locale": "en-US",
+    "name": "Best of 2026 Community Vote",
+    "shortDescription": "Vote for the year's best spots, S to F",
+    "longDescription": "Rank where you ate in 2026 and crown North Houston's best: a community Top 10 plus a champion for every cuisine."
+  },
+  "media": {
+    "EVENT_CARD": "card_1920x1080.png",
+    "EVENT_DETAILS_PAGE": "details_1080x1920.png"
+  }
+}

@@ -21,6 +21,9 @@ struct CommunityTiersView: View {
     @State private var showFriendActivity = false
     /// v3.0 Phase 2b: presents the Taste Match leaderboard (Friends board only).
     @State private var showLeaderboard = false
+    /// v3.1.1: Best of 2026 year-end board (In-App Event, Dec 10 – Jan 5).
+    @Environment(TabRouter.self) private var tabRouter
+    @State private var showBestOf = false
 
     var body: some View {
         NavigationStack {
@@ -32,6 +35,9 @@ struct CommunityTiersView: View {
                 } else {
                     ScrollView {
                         VStack(spacing: 12) {
+                            if BestOf2026.isLive {
+                                BestOf2026Banner { showBestOf = true }
+                            }
                             ForEach(Tier.allCases) { tier in
                                 CommunityTierRow(
                                     tier: tier,
@@ -137,7 +143,20 @@ struct CommunityTiersView: View {
             .sheet(isPresented: $showLeaderboard) {
                 TasteMatchLeaderboardView()
             }
+            .sheet(isPresented: $showBestOf) {
+                BestOf2026View()
+            }
+            // v3.1.1: the App Store event card's deep link (stier://bestof2026) lands here.
+            // Checked on appear too: on a cold launch this tab is built after the URL arrives.
+            .onAppear { consumeBestOfLink() }
+            .onChange(of: tabRouter.pendingBestOf) { _, _ in consumeBestOfLink() }
         }
+    }
+
+    private func consumeBestOfLink() {
+        guard tabRouter.pendingBestOf else { return }
+        tabRouter.pendingBestOf = false
+        showBestOf = true
     }
 
     /// Count reflecting the active cuisine filter (all tiers combined).
