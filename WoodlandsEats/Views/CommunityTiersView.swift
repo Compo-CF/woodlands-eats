@@ -24,6 +24,8 @@ struct CommunityTiersView: View {
     /// v3.1.1: Best of 2026 year-end board (In-App Event, Dec 10 – Jan 5).
     @Environment(TabRouter.self) private var tabRouter
     @State private var showBestOf = false
+    /// v3.1.1: Date Night Tiers Valentine board (In-App Event, Jan 28 – Feb 15).
+    @State private var showDateNight = false
 
     var body: some View {
         NavigationStack {
@@ -37,6 +39,9 @@ struct CommunityTiersView: View {
                         VStack(spacing: 12) {
                             if BestOf2026.isLive {
                                 BestOf2026Banner { showBestOf = true }
+                            }
+                            if DateNight2027.isLive {
+                                DateNightBanner { showDateNight = true }
                             }
                             ForEach(Tier.allCases) { tier in
                                 CommunityTierRow(
@@ -149,13 +154,22 @@ struct CommunityTiersView: View {
             // Checked on appear too: on a cold launch this tab is built after the URL arrives.
             .onAppear { consumeBestOfLink() }
             .onChange(of: tabRouter.pendingBestOf) { _, _ in consumeBestOfLink() }
+            .sheet(isPresented: $showDateNight) {
+                DateNightView()
+            }
+            .onChange(of: tabRouter.pendingDateNight) { _, _ in consumeBestOfLink() }
         }
     }
 
     private func consumeBestOfLink() {
-        guard tabRouter.pendingBestOf else { return }
-        tabRouter.pendingBestOf = false
-        showBestOf = true
+        if tabRouter.pendingBestOf {
+            tabRouter.pendingBestOf = false
+            showBestOf = true
+        }
+        if tabRouter.pendingDateNight {
+            tabRouter.pendingDateNight = false
+            showDateNight = true
+        }
     }
 
     /// Count reflecting the active cuisine filter (all tiers combined).

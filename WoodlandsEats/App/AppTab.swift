@@ -26,4 +26,6 @@ final class TabRouter {
     /// v3.1.1: set by the Best of 2026 deep link (stier://bestof2026, the App Store
     /// In-App Event card). CommunityTiersView presents the board, then resets it.
     var pendingBestOf = false
+    /// v3.1.1: set by the Date Night Tiers deep link (stier://datenight, Valentine In-App Event).
+    var pendingDateNight = false
 }
