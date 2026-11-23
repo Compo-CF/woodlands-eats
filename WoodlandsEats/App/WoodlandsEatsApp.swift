@@ -159,7 +159,11 @@ struct WoodlandsEatsApp: App {
                     //     (Universal Link — preferred for sharing)
                     //   - stier://tier/<id> (custom-scheme fallback)
                     .onOpenURL { url in
-                        if let lid = parseListID(from: url) {
+                        if BestOf2026.matches(url) {
+                            // v3.1.1: App Store In-App Event card → Best of 2026 board.
+                            tabRouter.selectedTab = .community
+                            tabRouter.pendingBestOf = true
+                        } else if let lid = parseListID(from: url) {
                             listLinkID = lid
                         } else if let id = parseFriendTierID(from: url) {
                             friendTierUserID = id

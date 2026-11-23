@@ -23,4 +23,7 @@ final class TabRouter {
     /// v3.1: set by a tapped "Night Out" notification (stier://nightout). MapTabView observes it
     /// and presents the Plan-a-Night-Out sheet, then resets it to false.
     var pendingNightOut = false
+    /// v3.1.1: set by the Best of 2026 deep link (stier://bestof2026, the App Store
+    /// In-App Event card). CommunityTiersView presents the board, then resets it.
+    var pendingBestOf = false
 }
