@@ -163,6 +163,10 @@ struct WoodlandsEatsApp: App {
                             // v3.1.1: App Store In-App Event card → Best of 2026 board.
                             tabRouter.selectedTab = .community
                             tabRouter.pendingBestOf = true
+                        } else if DateNight2027.matches(url) {
+                            // v3.1.1: Valentine In-App Event card → Date Night Tiers board.
+                            tabRouter.selectedTab = .community
+                            tabRouter.pendingDateNight = true
                         } else if let lid = parseListID(from: url) {
                             listLinkID = lid
                         } else if let id = parseFriendTierID(from: url) {

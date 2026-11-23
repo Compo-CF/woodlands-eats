@@ -1,0 +1,27 @@
+{
+  "_doc": "In-App Event spec for ~/Neatly/scripts/asc/app_event.py. Times UTC. In-app window (Models/DateNight2027.swift) = Jan 28 2027 00:00 CT to Feb 16 2027 00:00 CT = 06:00Z both ends. US only (local app). Deep link opens the Date Night Tiers board; needs 3.1.1 build 206+.",
+  "app_id": "6773501518",
+  "referenceName": "Date Night Tiers 2027",
+  "badge": "SPECIAL_EVENT",
+  "purpose": "APPROPRIATE_FOR_ALL_USERS",
+  "priority": "HIGH",
+  "purchaseRequirement": "NO_COST_ASSOCIATED",
+  "primaryLocale": "en-US",
+  "deepLink": "stier://datenight",
+  "territories": [
+    "USA"
+  ],
+  "publishStart": "2027-01-14T06:00:00Z",
+  "eventStart": "2027-01-28T06:00:00Z",
+  "eventEnd": "2027-02-16T06:00:00Z",
+  "localization": {
+    "locale": "en-US",
+    "name": "Date Night Tiers",
+    "shortDescription": "The community's top date-night spots, S to F",
+    "longDescription": "A Valentine board of north Houston's best date-night restaurants, ranked by locals, plus a planner for tonight."
+  },
+  "media": {
+    "EVENT_CARD": "card_1920x1080.png",
+    "EVENT_DETAILS_PAGE": "details_1080x1920.png"
+  }
+}
